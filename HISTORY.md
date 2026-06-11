@@ -256,11 +256,20 @@ most common first failure is a `MathTex` LaTeX error.
   timestamps (Whisper → PyTorch). Avoid: use sequential voiceover blocks. Script
   `<bookmark>` tags are *authoring markers only*, realized as separate blocks.
   (If you ever truly need word-level sync, Azure TTS provides native word
-  boundaries without Whisper.)
+  boundaries without Whisper.) Corollary found in practice: `OpenAIService`
+  tries to transcribe BY DEFAULT and dies with "Missing packages …
+  manim-voiceover[transcribe]" — always construct it with
+  `transcription_model=None`.
 - **SoX warning is harmless** — it's only for mic-record mode; ignore it with
   gTTS/OpenAI.
 - **gTTS needs internet; OpenAI needs `OPENAI_API_KEY`.** Both cache audio by a
   hash of the narration text, so unchanged beats are never re-synthesized.
+- **OpenAI `/audio/speech` requests can hang for the SDK's full 600 s default
+  timeout**, then succeed instantly on retry — observed twice in one render
+  (≈10 dead minutes per scene boundary). manim-voiceover's `OpenAIService`
+  uses the module-level client, so configure it before use in
+  `make_speech_service()`: `openai.timeout = 30; openai.max_retries = 5`.
+  A stalled request then costs ~30 s, not 10 min.
 
 ---
 

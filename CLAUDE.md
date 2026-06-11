@@ -89,6 +89,12 @@ class ConceptOne(Scene):
 - Use `VGroup` to organize related objects
 - Add `self.wait(1)` between major steps so the viewer can absorb each idea
 - Keep each Scene under ~60 seconds of content
+- Avoid `LaggedStartMap` with single-mobject animations (`Create`, `Write`)
+  over composite mobjects (arrows with tips, VGroup-of-VGroups): its identity
+  arg_creator `*`-unpacks each submobject, so extra parts land in positional
+  slots like `lag_ratio` (TypeError at render). Use
+  `LaggedStart(*[Create(m) for m in group], lag_ratio=...)` instead.
+  (`FadeIn` tolerates it — varargs.)
 
 ### Step 4 — Render a test
 

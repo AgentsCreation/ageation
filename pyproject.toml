@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "manim>=0.20.1",
-    "manim-voiceover[gtts]>=0.3.7",
+    "manim-voiceover[gtts,openai]>=0.3.7",
     "setuptools<81",
     "pyyaml>=6.0",
 ]
