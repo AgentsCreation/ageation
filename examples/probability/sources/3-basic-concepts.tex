@@ -1,0 +1,630 @@
+% --- provenance (auto-added by tools/vendor_sources.py) ---
+% upstream: input/Probability/3Basic_Concepts.tex
+% upstream_sha256: 019632114e753b8585652684b48d8f7f0f1df203d82c42cac535440dd9c786e8
+% git_origin: none
+% git_commit: 2cd8cb21e8ec05eea5aebf61add765e5d92b9acb
+% git_tag: 2cd8cb2-dirty
+% vendored_at: 2026-06-11
+% EDITABLE working copy. Normalize notation here; the parent stays read-only.
+% ----------------------------------------------------------------
+\chapter{Basic Concepts of Probability}
+
+The theory of probability provides the mathematical tools necessary to study and analyze uncertain phenomena that occur in nature.
+It establishes a formal framework to understand and predict the outcome of a random experiment.
+It can be used to model complex systems and characterize stochastic processes.
+This is instrumental in designing efficient solutions to many engineering problems.
+Two components define a probabilistic model, a sample space and a probability law.
+
+%%%% COMMENT
+% Sample Space: What questions can be asked?
+% Probability Law: What are the answers?
+
+\section{Sample Spaces and Events}
+
+In the context of probability, an \emph{experiment} is a random occurrence that produces one of several \emph{outcomes}.\index{Experiment}\index{Outcome}
+The set of all possible outcomes is called the \emph{sample space} of the experiment, and it is denoted by $\Omega$.\index{Sample space}
+An \emph{admissible} subset of the sample space is called an \emph{event}.\index{Event}
+
+\begin{figure}[htb!]
+\begin{center}
+% FIGURE GROUP = BALLS
+\begin{footnotesize}
+\begin{tikzpicture}
+\draw[color=black, thick, rounded corners=5] (-3,-2) rectangle (3,2);
+\node at (-3.25,1.75) {$\Omega$};
+
+\draw[color=black, thick, dashed, rotate=45] (1,0) ellipse (8mm and 12mm);
+
+\shade[draw=black, ball color=red, circular drop shadow] (2.25,-1) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (2.25,-1) circle (4mm) node[fill opacity=1]{1};
+
+\shade[draw=black, ball color=blue, circular drop shadow] (-2.25,1.25) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (-2.25,1.25) circle (4mm) node[fill opacity=1]{2};
+
+\shade[draw=black, ball color=green, circular drop shadow] (1.061,0.354) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (1.061,0.354) circle (4mm) node[fill opacity=1]{3};
+
+\shade[draw=black, ball color=gray, circular drop shadow] (0.354,1.061) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (0.354,1.061) circle (4mm) node[fill opacity=1]{4};
+
+\shade[draw=black, ball color=cyan, circular drop shadow] (0.625,-1.375) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (0.625,-1.375) circle (4mm) node[fill opacity=1]{5};
+
+\shade[draw=black, ball color=magenta, circular drop shadow] (-0.375,-0.625) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (-0.375,-0.625) circle (4mm) node[fill opacity=1]{6};
+
+\shade[draw=black, ball color=yellow, circular drop shadow] (-2,-0.25) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (-2,-0.25) circle (4mm) node[fill opacity=1]{7};
+\node at (-2,-1.625) {Outcome};
+\draw [thick, ->, >=stealth', shorten >= 1mm] (-2,-1.375) -- (-2,-0.75);
+
+\node at (2,1.625) {Event};
+\draw [thick, ->, >=stealth', shorten >= 1mm] (2,1.375) -- (1.625,1);
+\end{tikzpicture}
+\end{footnotesize}
+\caption{A sample space contains all the possible outcomes; an admissible subset of the sample space is called an event.}
+\label{figure:SampleSpace}
+\end{center}
+\end{figure}
+
+\begin{example}
+The rolling of a die forms a common experiment.
+A sample space $\Omega$ corresponding to this experiment is given by the six faces of a die.
+The set of prime numbers less than or equal to six, namely $\{ 2, 3, 5 \}$, is one of many possible events.
+The actual number observed after rolling the die is the outcome of the experiment.
+
+\begin{figure}[htb!]
+\begin{center}
+\includegraphics[height=3.38cm]{Figures/2Chapter/dices}
+\caption{A possible sample space for the rolling of a die is $\Omega = \{ 1, 2, \ldots, 6 \}$, and the subset $\{2, 3, 5 \}$ forms a specific event.}
+\end{center}
+\end{figure}
+\end{example}
+
+There is essentially no restriction on what constitutes an experiment.
+The flipping of a coin, the flipping of $n$ coins, and the tossing of an infinite sequence of coins are all random experiments.
+Also, two similar experiments may have different sample spaces.
+A sample space $\Omega$ for observing the number of heads in $n$ tosses of a coin is $\{ 0, 1, \ldots, n \}$; however, when describing the complete history of the $n$ coin tosses, the sample space becomes much larger with $2^n$ distinct sequences of heads and tails.
+Ultimately, the choice of a particular sample space depends on the properties one wishes to analyze.
+Yet some rules must be followed in selecting a sample space.
+\begin{enumerate}
+%%%% COMMENT
+% Uniqueness
+\item The elements of a sample space should be \emph{distinct} and \emph{mutually exclusive}.
+This ensures that the outcome of an experiment is unique.\index{Distinct elements}\index{Mutually exclusive}
+%%%% COMMENT
+% Existence
+\item A sample space must be \emph{collectively exhaustive}.
+That is, every possible outcome of the experiment must be accounted for in the sample space.\index{Collectively exhaustive}
+\end{enumerate}
+In general, a sample space should be precise enough to distinguish between all outcomes of interest, while avoiding frivolous details.
+
+\begin{example}
+Consider the space composed of the odd integers located between one and six, the even integers contained between one and six, and the prime numbers less than or equal to six.
+This collection cannot be a sample space for the rolling of a die because its elements are not mutually exclusive.
+In particular, the numbers three and five are both odd and prime, while the number two is prime and even.
+This violates the uniqueness criterion.
+
+\begin{figure}[htb!]
+\begin{center}
+\includegraphics[height=4.125cm]{Figures/2Chapter/nonadmissiblespace}
+\caption{This collection of objects cannot be a sample space as the three proposed outcomes (even, odd and prime) are not mutually exclusive.}
+\end{center}
+\end{figure}
+
+Alternatively, the elements of the space composed of the odd numbers between one and six, and the even numbers between one and six, are distinct and mutually exclusive;
+an integer cannot be simultaneously odd and even.
+Moreover, this space is collectively exhaustive because every integer is either odd or even.
+This latter description forms a possible sample space for the rolling of a die.
+
+\begin{figure}[htb!]
+\begin{center}
+\includegraphics[height=3.75cm]{Figures/2Chapter/admissiblespace}
+\end{center}
+\caption{A candidate sample space for the rolling of a die is composed of two objects, the odd numbers and the even numbers between one and six.}
+\end{figure}
+\end{example}
+
+
+\section{Probability Laws}
+\label{section:ProbabilityLaws}
+
+A \emph{probability law} specifies the likelihood of events related to an experiment.\index{Probability law}
+Formally, a probability law assigns to every event $A$ a number $\Pr (A)$, called the \emph{probability of event $A$}, such that the following axioms are satisfied.
+\begin{enumerate}
+\item \textbf{(Nonnegativity)} $\Pr (A) \geq 0$, for every event $A$.
+\item \textbf{(Normalization)} The probability of the sample space $\Omega$ is equal to one,
+\begin{equation*}
+\Pr (\Omega) = 1 .
+\end{equation*}
+\item \textbf{(Countable Additivity)} If $A$ and $B$ are disjoint events, $A \cap B = \emptyset$, then the probability of their union satisfies
+\begin{equation*}
+\Pr (A \cup B) = \Pr (A) + \Pr (B) .
+\end{equation*}
+More generally, if $A_1, A_2, \ldots$ is a sequence of disjoint events and $\bigcup_{k=1}^{\infty} A_k$ is itself an admissible event then
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^{\infty} A_k \right)
+= \sum_{k = 1}^{\infty} \Pr (A_k) .
+\end{equation*}
+\end{enumerate}
+
+A number of important properties can be deduced from the three axioms of probability.
+We prove two such properties below.
+The first statement describes the relation between inclusion and probabilities.
+\begin{proposition}
+If $A \subset B$, then $\Pr (A) \leq \Pr (B)$.
+\end{proposition}
+\begin{proof}
+Since $A \subset B$, we have $B = A \cup (B - A)$.
+Noting that $A$ and $B - A$ are disjoint sets, we get
+\begin{equation*}
+\Pr (B) = \Pr (A) + \Pr (B - A) \geq \Pr (A) ,
+\end{equation*}
+where the inequality follows from the nonnegativity of probability laws.
+\end{proof}
+\begin{figure}[htb!]
+\begin{center}
+\begin{tikzpicture}
+\node[circle,draw=black,thick,fill=blue!20,minimum size=3cm,label=45:$B$] (B) at (0,0) {};
+\node[circle,draw=black,thick,fill=blue!40,minimum size=2cm] (A) at (-0.5cm,0) {$A$};
+\coordinate [label=right:{$B - A$}] (Difference) at (1.25cm,-1.25cm);
+\draw[->,thick,>=stealth'] (Difference) to (0.75cm,-0.75cm);
+\end{tikzpicture}
+\caption{If event $A$ is a subset of event $B$, then the probability of $A$ is less than or equal to the probability of $B$.}
+\end{center}
+\end{figure}
+
+Our second result specifies the probability of the union of two events that are not necessarily mutually exclusive.
+\begin{proposition} \label{proposition:ProbabilityUnion}
+$\Pr (A \cup B) = \Pr (A) + \Pr (B) - \Pr (A \cap B)$.
+\end{proposition}
+\begin{proof}
+Using the third axiom of probability on the disjoint sets $A$ and $(A \cup B) - A$, we can write
+\begin{equation*}
+\Pr (A \cup B)
+= \Pr (A) + \Pr ((A \cup B) - A)
+= \Pr (A) + \Pr (B - A) .
+\end{equation*}
+Similarly, applying the third axiom to $A \cap B$ and $B - (A \cap B)$, we obtain
+\begin{equation*}
+\Pr (B)
+= \Pr (A \cap B) + \Pr (B - (A \cap B))
+= \Pr (A \cap B) + \Pr (B - A) .
+\end{equation*}
+Combining these two equations yields the desired result.
+\end{proof}
+\begin{figure}[htb!]
+\begin{center}
+\begin{tikzpicture}
+\draw[fill=blue!20]
+    (-0.75cm,0) circle (1.5cm)
+    (0.75cm,0) circle (1.5cm);
+\begin{scope}
+    \clip (-0.75cm,0) circle (1.5cm);
+    \fill[fill=blue!40] (0.75cm,0) circle (1.5cm);
+\end{scope}
+\node[circle,draw=black,thick,minimum size=3cm,label=135:$A$] (A) at (-0.75cm,0) {};
+\node[circle,draw=black,thick,minimum size=3cm,label=45:$B$] (B) at (0.75cm,0) {};
+\coordinate [label=center:{$A \cap B$}] (Intersection) at (0,0);
+\end{tikzpicture}
+\caption{The probability of the union of $A$ and $B$ is equal to the probability of $A$ plus the probability of $B$ minus the probability of their intersection.}
+\end{center}
+\end{figure}
+
+The statement of Proposition~\ref{proposition:ProbabilityUnion} can be extended to finite unions of events.
+Specifically, we can write
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^{n} A_k \right)
+= \sum_{k = 1}^{n} (-1)^{k-1} \sum_{\IndexSet \subset \{1, \ldots, n \}, |\IndexSet| =k } \Pr \left( \bigcap_{i \in \IndexSet} A_i \right)
+\end{equation*}
+where the rightmost sum runs over all subsets $\IndexSet$ of $\{ 1, \ldots, n \}$ that contain exactly $k$ elements.
+This more encompassing result is known as the \emph{inclusion-exclusion principle}.\index{Inclusion-exclusion principle}
+
+We can use Proposition~\ref{proposition:ProbabilityUnion} recursively to derive a bound on the probabilities of unions.
+This theorem, which is sometimes called the \emph{Boole inequality}, asserts that the probability of at least one event occurring is no greater than the sum of the probabilities of the individual events.\index{Boole inequality}
+
+\begin{theorem}[Union Bound]\index{Union bound}
+Let $A_1, A_2, \ldots, A_n$ be a collection of events, then
+\begin{equation} \label{equation:UnionBound}
+\Pr \left( \bigcup_{k=1}^n A_k \right)
+\leq \sum_{k=1}^n \Pr (A_k) .
+\end{equation}
+\end{theorem}
+\begin{proof}
+We show this result using induction.
+First, we note that the claim is trivially true for $n = 1$.
+As an inductive hypothesis, assume that \eqref{equation:UnionBound} holds for some $n \geq 1$.
+Then, we have
+\begin{equation*}
+\begin{split}
+\Pr \left( \bigcup_{k=1}^{n+1} A_k \right)
+&= \Pr \left( A_{n+1} \cup \left( \bigcup_{k=1}^{n} A_k \right) \right) \\
+&= \Pr (A_{n+1}) + \Pr \left( \bigcup_{k=1}^{n} A_k \right)
+- \Pr \left( A_{n+1} \cap \left( \bigcup_{k=1}^{n} A_k \right) \right) \\
+&\leq \Pr (A_{n+1}) + \Pr \left( \bigcup_{k=1}^{n} A_k \right)
+\leq \sum_{k = 1}^{n+1} \Pr (A_k) .
+\end{split}
+\end{equation*}
+Therefore, by the principle of mathematical induction, \eqref{equation:UnionBound} is valid for all positive integers.
+\end{proof}
+
+The union bound is often employed in situations where finding the joint probability of multiple rare events is difficult, but computing the probabilities of the individual components is straightforward. 
+
+\begin{example}
+An urn contains 990 blue balls and 10 red balls.
+Five people each pick a ball at random, without replacement.
+We wish to compute the probability that at least one person picks a red ball.
+Let $B_k$ denote the event that person~$k$ draws a red ball.
+We note that the probability of interest can be written as $\Pr \left( \bigcup_{k=1}^5 B_k \right)$.
+
+First, let us approximate this probability using the union bound.
+Clearly, the probability that the first person picks a red ball, $\Pr (B_1)$, is equal to 1/100.
+As we will see later, it turns out that $\Pr (B_k) = 1/100$ for $k=1,\ldots,5$.
+Applying \eqref{equation:UnionBound}, we get a bound on the probability that at least one person picks a red ball,
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^5 B_k \right)
+\leq \sum_{k=1}^5 \Pr ( B_k )
+= \sum_{k=1}^5 \frac{1}{100} = \frac{1}{20} .
+\end{equation*}
+We can also compute this probability exactly.
+The probability that no red balls are selected is given by $\binom{990}{5} / \binom{1000}{5}$.
+Hence, the probability that a least one person draws a red ball becomes
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^5 B_k \right)
+= 1 - \frac{\binom{990}{5}}{\binom{1000}{5}}
+\approx 0.0491 .
+\end{equation*}
+
+As a second application, consider the problem where the five people each draw two balls from the urn, without replacement.
+This time, we wish to approximate the probability that at least one person gets two red balls.
+Using the same steps as before, we get
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^5 C_k \right)
+\leq \sum_{k=1}^5 \Pr ( C_k )
+= \sum_{k=1}^5 \frac{\binom{10}{2}}{\binom{1000}{2}} = \frac{1}{2220} ,
+\end{equation*}
+where $C_k$ represents the event that person $k$ draws two red balls.
+In this latter scenario, computing the exact probability is much more challenging.
+\end{example}
+
+
+\subsection{Finite Sample Spaces}
+\label{section:FiniteSampleSpaces}
+
+If a sample space $\Omega$ contains a finite number of elements, then a probability law on $\Omega$ is completely determined by the probabilities of its individual outcomes.
+Denote a sample space containing $n$ elements by $\Omega = \{ s_1, s_2, \ldots, s_n \}$.
+Any event in $\Omega$ is of the form $A = \{ s_i \in \Omega | i \in \IndexSet \}$, where $\IndexSet$ is a subset of the integers one through $n$.
+The probability of event $A$ is therefore given by the third axiom of probability,
+\begin{equation*}
+\Pr (A)
+= \Pr ( \{ s_i \in \Omega | i \in \IndexSet \} )
+= \sum_{i \in \IndexSet} \Pr (s_i) .
+\end{equation*}
+We emphasize that, by definition, distinct outcomes are always disjoint events.
+
+If in addition the elements of $\Omega$ are equally likely with
+\begin{equation*}
+\Pr (s_1) = \Pr (s_2) = \cdots = \Pr (s_n) = \frac{1}{n} ,
+\end{equation*}
+then the probability of an event $A$ becomes
+\begin{equation} \label{equation:ProbEquiProbableOutcomes}
+\Pr (A) = \frac{ |A| }{n}
+\end{equation}
+where $|A|$ denotes the number of elements in $A$.
+
+\begin{example}
+The rolling of a fair die is an experiment with a finite number of equally likely outcomes.
+The probability of observing any of the faces labeled one through six is therefore equal to $1/6$.
+The probability of any event can easily be computed by counting the number of distinct outcomes included in the event.
+For instance, the probability of rolling a prime number is
+\begin{equation*}
+\Pr ( \{ 2, 3, 5 \} )
+= \Pr (2) + \Pr(3) + \Pr(5) = \frac{3}{6} .
+\end{equation*}
+\end{example}
+
+
+\subsection{Countably Infinite Models}
+
+Consider a sample space that consists of a countably infinite number of elements, $\Omega = \{ s_1, s_2, \ldots \}$.
+Again, a probability law on $\Omega$ is specified by the probabilities of individual outcomes.
+An event in $\Omega$ can be written as $A = \{ s_j \in \Omega | j \in \JndexSet \}$, where $\JndexSet$ is a subset of the positive integers.
+Using the third axiom of probability, $\Pr (A)$ can be written as
+\begin{equation*}
+\Pr (A)
+= \Pr ( \{ s_j \in \Omega | j \in \JndexSet \} )
+= \sum_{j \in \JndexSet} \Pr (s_j) .
+\end{equation*}
+The possibly infinite sum $\sum_{j \in \JndexSet} \Pr (s_j)$ always converges since the summands are nonnegative and the sum is bounded above by one; it is consequently well defined.
+
+\begin{figure}[htb!]
+\begin{center}
+% FIGURE GROUP = BALLS
+\begin{footnotesize}
+\begin{tikzpicture}
+\shade[draw=black, ball color=red, circular drop shadow] (0,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (0,0) circle (4mm) node[fill opacity=1]{1};
+
+\shade[draw=black, ball color=blue, circular drop shadow] (1.25,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (1.25,0) circle (4mm) node[fill opacity=1]{2};
+
+\shade[draw=black, ball color=green, circular drop shadow] (2.5,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (2.5,0) circle (4mm) node[fill opacity=1]{3};
+
+\shade[draw=black, ball color=gray, circular drop shadow] (3.75,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (3.75,0) circle (4mm) node[fill opacity=1]{4};
+
+\shade[draw=black, ball color=cyan, circular drop shadow] (5,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (5,0) circle (4mm) node[fill opacity=1]{5};
+
+\shade[draw=black, ball color=magenta, circular drop shadow] (6.25,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (6.25,0) circle (4mm) node[fill opacity=1]{6};
+
+\shade[draw=black, ball color=yellow, circular drop shadow] (7.5,0) circle (4mm);
+\shade[fill=white, fill opacity=0.3] (7.5,0) circle (4mm) node[fill opacity=1]{7};
+
+\draw[draw=black, fill=black] (8.5,0) circle (0.5mm);
+\draw[draw=black, fill=black] (8.75,0) circle (0.5mm);
+\draw[draw=black, fill=black] (9,0) circle (0.5mm);
+\end{tikzpicture}
+\end{footnotesize}
+\caption{A countable set is a collection of elements with the same cardinality as some subset of the natural numbers.}
+\end{center}
+\end{figure}
+
+\begin{example} \label{example:CoinTossSequence}
+Suppose that a fair coin is tossed repetitively until heads is observed.
+The number of coin tosses is recorded as the outcome of this experiment.
+A natural sample space for this experiment is $\Omega = \{ 1, 2, \ldots \}$, a countably infinite set.
+
+The probability of observing heads on the first trial is $1/2$, and the probability of observing heads for the first time on trial $k$ is $2^{-k}$.
+The probability of the entire sample space is therefore equal to
+\begin{equation*}
+\Pr ( \Omega ) = \sum_{k=1}^{\infty} \Pr (k)
+= \sum_{k=1}^{\infty} \frac{1}{2^k} = 1 ,
+\end{equation*}
+as expected.
+Similarly, the probability of the number of coin tosses being even can be computed as
+\begin{equation*}
+\Pr ( \{ 2, 4, 6, \ldots \} )
+= \sum_{k=1}^{\infty} \Pr (2k)
+= \sum_{k = 1}^{\infty} \frac{1}{2^{2k}}
+= \frac{1}{4} \frac{1}{ \left( 1 - \frac{1}{4} \right) }
+= \frac{1}{3} .
+\end{equation*}
+\end{example}
+
+
+\subsection{Uncountably Infinite Models}
+
+Probabilistic models with uncountably infinite sample spaces differ from the finite and countable cases in that a probability law may not necessarily be specified by the probabilities of single-element outcomes.
+This difficulty arises from the large number of elements contained in the sample space when the latter is uncountable.
+Many subsets of $\Omega$ do not have a finite or countable representation, and as such the third axiom of probability cannot be applied to relate the probabilities of these events to the probabilities of individual outcomes.
+Despite these apparent difficulties, probabilistic models with uncountably infinite sample spaces are quite useful in practice.
+To develop an understanding of uncountable probabilistic models, we consider the unit interval $[0, 1]$.
+
+\begin{figure}[htb!]
+\begin{center}
+% FIGURE GROUP = REAL SET
+\begin{footnotesize}
+\begin{tikzpicture}
+\draw[thick, ->, >=stealth'] (-1,0) -- (5.5,0);
+\draw[draw=none, fill=blue!20] (0,0.25) rectangle (4,-0.25);
+\draw[dashed] (0,0) -- (4,0);
+\draw[very thick] (0.125,0.25) -- (0,0.25) -- (0,-0.25) -- (0.125,-0.25);
+\draw[very thick] (3.875,0.25) -- (4,0.25) -- (4,-0.25) -- (3.875,-0.25);
+\node at (0,-0.5) {0};
+\node at (4,-0.5) {1};
+\node at (5.25,-0.5) {$\RealNumbers$};
+\end{tikzpicture}
+\end{footnotesize}
+\caption{The unit interval $[0,1]$, composed of all real numbers between zero and one, is an example of an uncountable set.}
+\end{center}
+\end{figure}
+
+Suppose that an element is chosen at random from this interval, with uniform weighting.
+By the first axiom of probability, the probability that this element belongs to the interval $[0,1]$ is given by $\Pr \left( [0,1] \right) = 1$.
+Furthermore, if two intervals have the same length, the probabilities of the outcome falling in either interval should be identical.
+For instance, it is natural to anticipate that $\Pr \left( \left( 0, 0.25 \right) \right) = \Pr \left( \left( 0.75, 1 \right) \right)$.
+
+\begin{figure}[htb!]
+\begin{center}
+% FIGURE GROUP = REAL SET
+\begin{footnotesize}
+\begin{tikzpicture}
+\draw[thick, ->, >=stealth'] (-1,0) -- (5.5,0);
+\begin{scope}
+    \clip (-0.125,0.25) rectangle (4.125,-0.25);
+    \draw[very thick, fill=red!20] (0.5,0) circle (0.5);
+    \draw[very thick, fill=green!20] (3.5,0) circle (0.5);
+\end{scope}
+\draw[dashed] (0,0) -- (4,0);
+\node at (0,-0.5) {0};
+\node at (1,-0.5) {0.25};
+\node at (3,-0.5) {0.75};
+\node at (4,-0.5) {1};
+\node at (5.25,-0.5) {$\RealNumbers$};
+\end{tikzpicture}
+\end{footnotesize}
+\caption{If the outcome of an experiment is uniformly distributed over $[0,1]$, then two subintervals of equal lengths should have the same probabilities.}
+\end{center}
+\end{figure}
+
+In an extension of the previous observation, we take the probability of an open interval $(a, b)$ where $0 \leq a < b \leq 1$ to equal
+\begin{equation} \label{equation:DefinitionProbabilityLaw1}
+\Pr ( (a,b) ) = b - a .
+\end{equation}
+Using the third axiom of probability, it is then possible to find the probability of a finite or countable union of disjoint open intervals.
+
+\begin{figure}[htb!]
+\begin{center}
+% FIGURE GROUP = REAL SET
+\begin{footnotesize}
+\begin{tikzpicture}
+\draw[thick, ->, >=stealth'] (-1,2) -- (5.5,2);
+\begin{scope}
+    \clip (0.875,2.25) rectangle (1.5,1.75);
+    \draw[very thick, fill=gray!20] (1.5,2) circle (0.5);
+\end{scope}
+\begin{scope}
+    \clip (2.5,2.25) rectangle (3.125,1.75);
+    \draw[very thick, fill=gray!20] (2.5,2) circle (0.5);
+\end{scope}
+\draw[draw=none, fill=gray!20] (1.25,2.25) rectangle (2.75,1.75);
+\draw[dashed] (0,2) -- (4,2);
+
+\draw[thick, ->, >=stealth'] (-1,1) -- (5.5,1);
+\begin{scope}
+    \clip (0.375,1.25) rectangle (1,0.75);
+    \draw[very thick, fill=cyan!20] (1,1) circle (0.5);
+\end{scope}
+\begin{scope}
+    \clip (1.75,1.25) rectangle (2.375,0.75);
+    \draw[very thick, fill=cyan!20] (1.75,1) circle (0.5);
+\end{scope}
+\draw[draw=none, fill=cyan!20] (0.75,1.25) rectangle (2,0.75);
+\begin{scope}
+    \clip (-0.125,1.25) rectangle (4.125,0.75);
+    \draw[very thick, fill=cyan!20] (3.5,1) circle (0.5);
+\end{scope}
+\draw[dashed] (0,1) -- (4,1);
+
+\draw[thick, ->, >=stealth'] (-1,0) -- (5.5,0);
+\begin{scope}
+    \clip (-0.125,0.25) rectangle (4.125,-0.25);
+    \draw[very thick, fill=magenta!20] (0.5,0) circle (0.5);
+\end{scope}
+\begin{scope}
+    \clip (1.375,0.25) rectangle (2,-0.25);
+    \draw[very thick, fill=magenta!20] (2,0) circle (0.5);
+\end{scope}
+\begin{scope}
+    \clip (1.75,0.25) rectangle (2.375,-0.25);
+    \draw[very thick, fill=magenta!20] (1.75,0) circle (0.5);
+\end{scope}
+\begin{scope}
+    \clip (2.375,0.25) rectangle (3,-0.25);
+    \draw[very thick, fill=magenta!20] (3,0) circle (0.5);
+\end{scope}
+\begin{scope}
+    \clip (3.5,0.25) rectangle (4.125,-0.25);
+    \draw[very thick, fill=magenta!20] (3.5,0) circle (0.5);
+\end{scope}
+\draw[draw=none, fill=magenta!20] (2.75,0.25) rectangle (3.75,-0.25);
+\draw[dashed] (0,0) -- (4,0);
+\node at (5.25,-0.5) {$\RealNumbers$};
+\end{tikzpicture}
+\end{footnotesize}
+\caption{The probabilities of events that are formed through the union of disjoint intervals can be computed in a straightforward manner.}
+\end{center}
+\end{figure}
+
+Specifically, for constants $0 \leq a_1 < b_1 < a_2 < b_2 < \cdots \leq 1$, we get
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^{\infty} (a_k,b_k) \right)
+= \sum_{k=1}^{\infty} \left( b_k - a_k \right) .
+\end{equation*}
+The probabilities of more complex events can be obtained by applying additional elementary set operations.
+However, it suffices to say for now that specifying the probability of the outcome falling in $(a,b)$ for every possible open interval is enough to define a probability law on $\Omega$.
+In the example at hand, \eqref{equation:DefinitionProbabilityLaw1} completely determines the probability law on $[0,1]$.
+
+Note that we can give an alternative means of computing the probability of an interval.
+Again, consider the open interval $(a, b)$ where $0 \leq a < b \leq 1$.
+The probability of the outcome falling in this  interval is equal to
+\begin{equation*}
+\Pr ( (a, b) ) = b - a = \int_a^b dx = \int_{(a,b)} dx .
+\end{equation*}
+Moreover, for $0 \leq a_1 < b_1 < a_2 < b_2 < \cdots \leq 1$, we can write
+\begin{equation*}
+\Pr \left( \bigcup_{k=1}^{\infty} (a_k,b_k) \right)
+= \sum_{k=1}^{\infty} \left( b_k - a_k \right)
+= \int_{\bigcup_{k=1}^{\infty} (a_k,b_k)} dx .
+\end{equation*}
+For this carefully crafted example, it appears that the probability of an admissible event $A$ is given by the integral
+\begin{equation*}
+\Pr (A) = \int_{A} dx .
+\end{equation*}
+This is indeed accurate for the current scenario.
+In fact, the class of admissible events for this experiment is simply the collection of all sets for which the integral $\int_A dx$ can be computed.
+In other words, if a number is chosen at random from $[0,1]$, then the probability of this number falling in set $A \subset [0,1]$ is
+\begin{equation*}
+\Pr (A) = \int_{A} dx .
+\end{equation*}
+This method of computing probabilities can be extended to more complicated problems.
+In these notes, we will see many probabilistic models with uncountably infinite sample spaces.
+The mathematical tools required to handle such models will be treated alongside.
+
+\begin{example}
+Suppose that a participant at a game-show is required to spin the wheel of serendipity, a perfect circle with unit radius.
+When subjected to a vigorous spin, the wheel is equally likely to stop anywhere along its perimeter.
+A sampling space for this experiment is the collection of all angles from $0$ to $2 \pi$, an uncountable set.
+The probability of $\Omega$ is invariably equal to one, $\Pr ([0, 2 \pi)) = 1$.
+
+\begin{figure}[tbh!]
+\begin{center}
+\begin{tikzpicture}
+\draw[thick, fill=gray!20] (0,0) circle (15mm);
+\draw[thick, fill=gray!20] (0,0) circle (0.5mm);
+\draw[thick] (1,0) -- (1.5,0);
+\draw[thick, ->, >=stealth', shorten >= 1mm] (2,0) -- (1.5,0);
+\draw[->, >=stealth'] (0,1.75) arc (90:30:1.75);
+\end{tikzpicture}
+\caption{The wheel of serendipity forms an example of a random experiment for which the sample space is uncountable.}
+\end{center}
+\end{figure}
+
+The probability that the wheel stops in the first quadrant is given by
+\begin{equation*}
+\Pr \left( \left[ 0, \frac{\pi}{2} \right) \right)
+= \int_{0}^{\frac{\pi}{2}} \frac{1}{2 \pi} d\theta
+= \frac{1}{4}.
+\end{equation*}
+More generally, the probability that the wheel stops in an interval $(a, b)$ where $0 \leq a \leq b < 2 \pi$ can be written as
+\begin{equation*}
+\Pr ((a,b)) = \frac{b - a}{2 \pi}.
+\end{equation*}
+If $B \subset [0, 2 \pi)$ is a set representing all winning outcomes, then the probability of success at the wheel becomes
+\begin{equation*}
+\Pr(B) = \int_B \frac{1}{2 \pi} d\theta .
+\end{equation*}
+\end{example}
+
+
+\subsection{Probability and Measure Theory*}
+
+A thorough treatment of probability involves advanced mathematical concepts, especially when it comes to infinite sample spaces.
+The basis of our intuition for the infinite is the set of \emph{natural numbers},\index{Natural numbers}
+\begin{equation*}
+\NaturalNumbers = \{ 1, 2, \ldots \}.
+\end{equation*}
+Two sets are said to have the same \emph{cardinality} if their elements can be put in one-to-one correspondence.\index{Cardinality}
+A set with the same cardinality as a subset of the natural numbers is said to be \emph{countable}.\index{Countable}
+That is, the elements of a countable set can always be listed in sequence, $s_1, s_2, \ldots$; although the order may have nothing to do with any relation between the elements.
+The integers and the rational numbers are examples of countably infinite sets.
+It may be surprising at first to learn that there exist uncountable sets.
+To escape beyond the countable, one needs set theoretic tools such as \emph{power sets}.\index{Power set}
+The set of real numbers is uncountably infinite; it cannot be put in one-to-one correspondence with the natural numbers.
+A typical progression in analysis consists of using the finite to gain intuition about the countably infinite, and then to employ the countably infinite to get at the uncountable.
+
+It is tempting to try to assign probabilities to every subset of a sample space $\Omega$.
+However, for uncountably infinite sample spaces, this leads to serious difficulties that cannot be resolved.
+In general, it is necessary to work with special subclasses of the class of all subsets of a sample space $\Omega$.
+The collections of the appropriate kinds are called fields and $\sigma$-fields, and they are studied in \emph{measure theory}.\index{Measure theory}
+This leads to measure-theoretic probability, and to its unified treatment of the discrete and the continuous.
+
+Fortunately, it is possible to develop a working understanding of probability without worrying excessively about these issues.
+At some point in your academic career, you may wish to study analysis and measure theory more carefully and in greater details.
+However, it is not our current purpose to initiate the rigorous treatment of these topics.
+
+
+\section*{Further Reading}
+
+\begin{small}
+\begin{enumerate}
+\item Ross, S., \emph{A First Course in Probability}, 7th edition, Pearson Prentice Hall, 2006: Chapter~2.
+\item Bertsekas, D. P., and Tsitsiklis, J. N., \emph{Introduction to Probability}, Athena Scientific, 2002: Section~1.2.
+\item Miller, S. L., and Childers, D. G., \emph{Probability and Random Processes with Applications to Signal Processing and Communications}, 2004: Sections~2.1--2.3.
+\item Gubner, J. A., \emph{Probability and Random Processes for Electrical and Computer Engineers}, Cambridge, 2006: Sections~1.1,1.3--1.4.
+\end{enumerate}
+\end{small}
+

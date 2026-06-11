@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# External read-only source notes (vendored to sources/ which IS committed)
+input/
+
+# Rendered output — regenerable from scenes/ (keep generators, not videos)
+media/
+
+# OS / editor noise
+.DS_Store
+*.swp
+*.swo
