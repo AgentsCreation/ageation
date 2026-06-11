@@ -4,7 +4,7 @@ title: Mathematical Review
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 1-mathematical-review.md
-derived_from_sha256: b912c197d2b1330c9c46b5f75cd0d4a64de0f0aff88d690ffaff2b11d2adbe8a
+derived_from_sha256: 0675169fa4e336fbb7fb560799f39f435a7291f3f67c48e3b077fb4f8443d469
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/mathematical_review.py
 

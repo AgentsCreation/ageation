@@ -1,3 +1,5 @@
+# derived_from: content/5-discrete-random-variables-script.md
+# derived_from_sha256: 8a57b2f50fcfc2902e86c7196557b1c57be2be33f2e9d79f74164a347d52cef3
 """Chapter 5 -- Discrete Random Variables (narrated with manim-voiceover).
 
 Source notes : input/Probability/5Discrete_Random_Variables.tex

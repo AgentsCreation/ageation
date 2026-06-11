@@ -15,7 +15,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import project_parser, resolve_project, load_course, notation_rules
+from _project import (project_parser, resolve_project, load_course,
+                      notation_rules, warn_if_not_project)
 
 
 def main():
@@ -23,6 +24,7 @@ def main():
     root = resolve_project(args.project)
     rules = notation_rules(load_course(root))
     if not rules:
+        warn_if_not_project(root)
         print("No notation rules configured (course.yaml: notation.rules); nothing to check.")
         sys.exit(0)
 

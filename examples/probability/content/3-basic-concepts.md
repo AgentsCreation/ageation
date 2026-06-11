@@ -2,7 +2,7 @@
 slug: 3-basic-concepts
 title: Basic Concepts
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/3-basic-concepts.tex
 upstream: input/Probability/3Basic_Concepts.tex
 source_sha256: 3266eca9580b407bf9003daedd60f5cae4e2b072c7bcfb483e511659d877a79c

@@ -5,7 +5,7 @@
 
 PROJECT ?= .
 
-.PHONY: help setup init sync notation check stamp render render-draft render-4k clean
+.PHONY: help setup init sync notation status check stamp test render render-draft render-4k clean
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -24,10 +24,16 @@ sync: ## Report upstream<->local<->concept<->script drift
 notation: ## Enforce the notation convention (course.yaml: notation.rules)
 	uv run python tools/check_notation.py --project $(PROJECT)
 
-check: sync notation ## Run all gates (provenance + notation)
+status: ## Enforce the human-review status gates
+	uv run python tools/check_status.py --project $(PROJECT)
+
+check: sync notation status ## Run all gates (provenance + notation + review status)
 
 stamp: ## Re-record provenance hashes after regenerating a layer
 	uv run python tools/stamp_provenance.py --project $(PROJECT)
+
+test: ## Run the tool test suite (no rendering involved)
+	uv run python -m pytest tests/ -q
 
 render: ## Render built chapters at 1080p60
 	uv run python tools/render.py -q h --project $(PROJECT)

@@ -20,9 +20,9 @@ content/{slug}-script.md         (3) SCRIPT      narration + beats + sync points
         |  scene skill
         v
 scenes/{slug}.py                 (4) SCENE       Manim code (manim-voiceover)
-        |  render skill (real machine / Claude Code CLI only)
+        |  render (tools/render.py; real machine / Claude Code CLI only)
         v
-build/{slug}/                    (5) BUILD       audio + video + timing report
+media/videos/...                 (5) BUILD       narrated video + .srt subtitles
 ```
 
 Layers 2 and 3 are **prose you can review and edit**. Layer 4 is generated from
@@ -51,17 +51,25 @@ notation-rules skeleton. Review and curate it before running the stages.
 - Concept layer: `content/{slug}.md`.
 - Script layer: `content/{slug}-script.md`.
 - Scene code: `scenes/{slug}.py`.
-- Build output: `build/{slug}/` (git-ignored; regenerable).
+- Build output: `media/` (git-ignored; regenerable — Manim's native layout).
 - Every markdown layer carries a self-describing **YAML front matter** with at
   least: `slug`, `stage`, `status`, and provenance (`source` / `derived_from`,
   plus `companion` when a pandoc sibling exists).
 
 ## Status gates (human in the loop)
 
-`status: draft | reviewed | approved`. A downstream stage refuses to run unless
+`status: draft | reviewed | approved`. A downstream stage must not run unless
 its input is at least `reviewed`. This keeps the agent from racing tex -> video
 unattended and burning TTS credits on un-vetted narration. You approve the
 concept, then the script; only an approved script gets rendered.
+
+**Enforcement** (not just convention):
+- `tools/check_status.py` (part of `make check`) fails when a chapter's
+  `course.yaml` status is ahead of its layers' review status — `scripted+`
+  needs the concept `reviewed`, `built+` needs the script `reviewed` and the
+  scene file present, `rendered+` needs the script `approved`.
+- `tools/render.py` refuses to render a chapter whose script is not
+  `approved` (override consciously with `--force`).
 
 ## The timing strategy (the hard part)
 
@@ -78,9 +86,11 @@ Use **manim-voiceover**. Narration drives animation length, not the reverse.
   match the voice.
 - Sync points: `<bookmark mark="id"/>` in the narration + `tracker.time_until_bookmark("id")`
   in the scene fire a specific animation on a specific word.
-- Reconciliation: the render stage writes `measured_sec` back into the script's
-  YAML. If `|measured_runtime_sec - target_runtime_sec| > tolerance_sec`, the
-  build is flagged and you consult the script's **cut list**.
+- Reconciliation *(planned — not yet implemented)*: the render stage will write
+  `measured_sec` back into the script's YAML. If
+  `|measured_runtime_sec - target_runtime_sec| > tolerance_sec`, the build is
+  flagged and you consult the script's **cut list**. Today this comparison is
+  done by eye against the script's `words_per_minute` estimate.
 - Cost control: manim-voiceover caches audio by a hash of the narration text, so
   unchanged beats are never re-synthesized. Draft with `gtts` (free), switch the
   `voice.provider` to `openai`/`elevenlabs` only for finals.
@@ -104,11 +114,17 @@ detectable by content hash (not git/mtime — those don't survive a clone):
 - `content/{slug}.md` (concept): `source` (the local copy) + `source_sha256`,
   plus `companion` + `companion_sha256` when a pandoc sibling exists.
 - `content/{slug}-script.md` (script): `derived_from` + `derived_from_sha256`.
+- `scenes/{slug}.py` (scene): a `# derived_from:` + `# derived_from_sha256:`
+  header comment, added by the scene-from-script step and refreshed by
+  `stamp_provenance.py`. A built scene without the marker fails the sync gate
+  (`unstamped`); a hand-built scene that predates the script layer is marked
+  `# derived_from: legacy …` (tolerated, visible).
 
-`tools/check_sync.py` re-hashes and reports three links per chapter:
-`upstream→local` (did the parent move? decide when to re-vendor), `local→concept`,
-and `concept→script` (companion hashes fold into the first two — the worse
-status wins). It exits nonzero on any drift, so it can gate a render.
+`tools/check_sync.py` re-hashes and reports four links per chapter:
+`upstream→local` (did the parent move? decide when to re-vendor),
+`local→concept`, `concept→script` (companion hashes fold into the first two —
+the worse status wins), and `script→scene`. It exits nonzero on any drift, so
+it can gate a render.
 Re-run `tools/stamp_provenance.py` after regenerating any layer. Section-level
 hashing is a future refinement (localizes drift to a single section video).
 
@@ -152,7 +168,12 @@ it: `./render_all.sh` for 1080p60, `./render_all.sh k` for 4K, optional second
 arg = project dir. Rendering runs on a real machine only (cloud sandboxes
 can't build manimpango).
 
-## Skills (the workflow processors)
+## Skills (the workflow processors) — *planned*
+
+These four transforms are the intended packaging (as `.claude/` skills); they
+are **not built yet** (top of the HISTORY.md §7 roadmap). Today an agent or
+human performs each transform by hand, following the contracts below and the
+Chapter 5 reference implementation in `examples/probability/`.
 
 | Skill            | Input                      | Output                      | Runs in        |
 |------------------|----------------------------|-----------------------------|----------------|
@@ -216,12 +237,12 @@ input/          # layer 1 UPSTREAM (read-only parent sources; gitignored)
 sources/        # layer 1 LOCAL editable working copies (vendored, normalizable)
 content/        # layers 2 & 3 (markdown, reviewed)
 scenes/         # layer 4 (generated Manim, + _style.py shared house style)
-build/          # layer 5 (git-ignored)
-.claude/        # skills + a /animate-chapter command (CLI)
+media/          # layer 5 (git-ignored; Manim's native output layout)
+.claude/        # skills + a /animate-chapter command (planned)
 course.yaml     # per-project config: title, input dir, notation rules,
                 #   chapters, render/voice/pedagogy defaults
 tools/          # init_course, vendor_sources, stamp_provenance, check_sync,
-                #   check_notation, normalize_notation, render
+                #   check_notation, check_status, normalize_notation, render
                 #   (all take --project DIR, default `.`)
 examples/       # complete worked example project(s), e.g. probability
 NOTATION.md     # how the notation-rule system works

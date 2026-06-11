@@ -1,5 +1,9 @@
 """Shared house style for the Probability video series.
 
+FROZEN SNAPSHOT: this copy belongs to the worked example and is kept as it was
+when the example was built. The canonical, maintained version lives at
+/scenes/_style.py — apply fixes (e.g. to fit_to_frame) there, not here.
+
 Centralizing palette, type scale, notation, and a PMF chart builder here keeps
 every chapter visually consistent. Import these helpers instead of hard-coding
 colors and font sizes in each scene.

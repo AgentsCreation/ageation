@@ -2,9 +2,9 @@
 slug: 5-discrete-random-variables
 title: Discrete Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 5-discrete-random-variables.md
-derived_from_sha256: 72331e119cc698a6e9e9884cfa74d637e9772742282d639358c4918b3733003d
+derived_from_sha256: 65240f14b599be466531e95714fec7f77514382d48c9d0818e84897daef7a362
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/discrete_random_variables.py
 
@@ -23,7 +23,7 @@ linking:
 
 # --- Voice + timing config -------------------------------------------------
 voice:
-  provider: openai        # gtts (free draft) -> openai/elevenlabs (final)
+  provider: gtts          # draft default; openai for finals
   model: tts-1
   name: alloy
   rate: 1.0

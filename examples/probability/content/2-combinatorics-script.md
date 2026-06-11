@@ -4,7 +4,7 @@ title: Combinatorics
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 2-combinatorics.md
-derived_from_sha256: b092c8e8c0d9e25888d54622913fc9655f4a3b82816ab7ce881be16824a9e78d
+derived_from_sha256: ad7e8c08cc80285c71507eee6e9d81d9612b8ca8f486bf58c4d1c9a6c84ecc46
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/combinatorics.py
 

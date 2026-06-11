@@ -1,3 +1,5 @@
+# derived_from: legacy (hand-built before the script layer existed; re-cut in
+# the voiceover style is pending — see HISTORY.md §7)
 from manim import *
 
 

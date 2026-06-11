@@ -2,7 +2,7 @@
 slug: 12-empirical-sums
 title: Empirical Sums
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/12-empirical-sums.tex
 upstream: input/Probability/12Empirical_Sums.tex
 source_sha256: 18eb96874b4677789222bc1040bf3f961a906eecfc9888d360d88ebc79b29260

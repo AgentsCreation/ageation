@@ -4,7 +4,7 @@ title: Continuous Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 8-continuous-random-variables.md
-derived_from_sha256: 9629b19058635a28a0ca61a0bf1b9e2798ed7319c8ea64c605c9a2e948795187
+derived_from_sha256: 7daa20eb2545a7abbd7c189b83c91180b3c0a55a7b676ac5bbb2f44fad02548c
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/continuous_random_variables.py
 

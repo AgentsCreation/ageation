@@ -2,7 +2,7 @@
 slug: 5-discrete-random-variables
 title: Discrete Random Variables
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: approved             # draft | reviewed | approved  (human gate)
 source: sources/5-discrete-random-variables.tex
 upstream: input/Probability/5Discrete_Random_Variables.tex
 source_sha256: 7e9e7474fe3ad6b63e192bdebb7c3aac0776d98f3a7d2b06b7abe215adbe9145

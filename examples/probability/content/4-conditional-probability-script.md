@@ -2,9 +2,9 @@
 slug: 4-conditional-probability
 title: Conditional Probability
 stage: script             # tex -> concept -> [script] -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 4-conditional-probability.md
-derived_from_sha256: ecdd7af65d000fe924c9cb71b995133be0fb4b23d86b3874874c17f920afd870
+derived_from_sha256: f8da013d6d508a94bb97ccaff020bd57e63b6514fc0be9bbb04fa06429c8a707
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/conditional_probability.py
 

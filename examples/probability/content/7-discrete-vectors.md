@@ -2,7 +2,7 @@
 slug: 7-discrete-vectors
 title: Discrete Vectors
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/7-discrete-vectors.tex
 upstream: input/Probability/7Discrete_Vectors.tex
 source_sha256: 9a24660296006b721b343e5cbca4814c419e0395b3679cd32da6c97ad3add19d

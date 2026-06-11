@@ -2,7 +2,7 @@
 slug: 11-random-vectors
 title: Random Vectors
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/11-random-vectors.tex
 upstream: input/Probability/11Random_Vectors.tex
 source_sha256: 2d279768cae44138c53a7d9afed4beeae0d15110d271561f26efcbb8295e03fd

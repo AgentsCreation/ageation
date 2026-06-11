@@ -4,7 +4,7 @@ title: Discrete Vectors
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 7-discrete-vectors.md
-derived_from_sha256: ac98681db8110e24f6b3a3ce46fef2ea235c3e2815a91a7d9274b0ef804006ed
+derived_from_sha256: f56995280f2b361d21ce748e3c54aa040b827cecf1fc6914dd8da9b266ade54b
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/discrete_vectors.py
 

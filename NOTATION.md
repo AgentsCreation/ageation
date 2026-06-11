@@ -29,6 +29,11 @@ document — is `examples/probability/` (`course.yaml` + `NOTATION.md` there).
 - `tools/check_notation.py` scans `content/*.md`, `scenes/*.py`, and the
   vendored `sources/*` for the avoided forms and fails (nonzero exit) if any
   appear. Run it before a render (`make notation`), or wire it into CI.
+- Matching is **plain substring**, deliberately aggressive: an avoided form
+  inside a comment, docstring, or prose line also fails. This is intentional —
+  the layers are narrated and displayed verbatim, so there is no "harmless"
+  place for the wrong notation. Rephrase the offending line instead of
+  quoting the avoided form.
 - When an upstream source violates the convention, fix it on the editable
   working copy, never the read-only parent:
   `tools/normalize_notation.py --write` rewrites the avoided forms in

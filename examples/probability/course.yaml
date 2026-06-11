@@ -11,8 +11,7 @@ course:
   upstream_dir: input/Probability
   # Render + voice defaults (override per build for finals).
   render:
-    quality: ql            # ql = 480p draft; qh = 1080p final
-    fps: 30
+    quality: ql            # ql = 480p draft; qh = 1080p final (fps follows manim's quality preset)
   voice:
     provider: gtts         # gtts (free draft) -> openai (final)
     rate: 1.0

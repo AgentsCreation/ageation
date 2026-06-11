@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Report whether the generated layers are in sync, by content hash.
 
-Three links per chapter (content hashes, not git/mtime — robust across clones):
+Four links per chapter (content hashes, not git/mtime — robust across clones):
   upstream -> local   : did the read-only parent source move since we vendored
                         it? (compares hash of the upstream to the SHA recorded
                         in the local working copy's comment provenance header)
@@ -11,6 +11,12 @@ Three links per chapter (content hashes, not git/mtime — robust across clones)
                         the worse status wins)
   concept -> script    : did the concept change since the script?
                         (hash of concept .md vs script's derived_from_sha256)
+  script -> scene      : did the script change since the scene was generated?
+                        (hash of the script vs the scene file's
+                        `# derived_from_sha256:` header comment; a scene marked
+                        `# derived_from: legacy …` is reported but tolerated;
+                        a scene with NO marker is a violation — built scenes
+                        must carry provenance)
 
 A mismatch means that input changed since the layer was generated. Exit code is
 nonzero if anything is stale/missing — usable as a pre-render gate.
@@ -25,7 +31,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from provenance import sha256_file, split_fm, fm_get
-from _project import project_parser, resolve_project
+from _project import project_parser, resolve_project, warn_if_not_project
 
 OK, STALE, NOPROV, MISSING, NA = "in-sync", "STALE", "no-prov", "missing", "n/a"
 NO_UP = "no-upstream"  # parent absent (e.g. input/ gitignored on a fresh clone)
@@ -67,6 +73,25 @@ def hash_match(path, stored):
     return OK if sha256_file(path) == stored else STALE
 
 
+def scene_status(root, sfm, spath):
+    """script -> scene link, from the scene file's provenance comments."""
+    target = fm_get(sfm, "target_scene_file")
+    if not target:
+        return "no-target"
+    target = target.split("#")[0].strip()
+    scene_abs = os.path.join(root, target)
+    if not os.path.exists(scene_abs):
+        return "no-scene"  # chapter not built yet — fine
+    text = open(scene_abs, encoding="utf-8").read()
+    m = re.search(r"(?m)^# derived_from:\s*(.*)$", text)
+    if m and m.group(1).strip().startswith("legacy"):
+        return "legacy"  # predates the script layer; tolerated but visible
+    m = re.search(r"(?m)^# derived_from_sha256:\s*(\S+)", text)
+    if not m:
+        return "unstamped"  # a built scene without provenance is a violation
+    return OK if sha256_file(spath) == m.group(1) else STALE
+
+
 def main():
     args = project_parser(__doc__).parse_args()
     root = resolve_project(args.project)
@@ -75,6 +100,7 @@ def main():
         if not f.endswith("-script.md")
     )
     if not concepts:
+        warn_if_not_project(root)
         print("No concept files under content/ — nothing to sync-check.")
         sys.exit(0)
     rows, bad = [], 0
@@ -94,24 +120,31 @@ def main():
         spath = os.path.join(root, "content", slug + "-script.md")
         if os.path.exists(spath):
             sfm, _ = split_fm(open(spath).read())
-            c2s = hash_match(cpath, fm_get(sfm, "derived_from_sha256")) if sfm else NOPROV
+            if sfm:
+                c2s = hash_match(cpath, fm_get(sfm, "derived_from_sha256"))
+                s2v = scene_status(root, sfm, spath)
+            else:
+                c2s, s2v = NOPROV, NA
         else:
-            c2s = "no-script"
+            c2s, s2v = "no-script", NA
 
         # A missing upstream is OK (input/ may be gitignored / absent); only a
         # genuine STALE/NOPROV upstream, or any downstream drift, counts.
         u_bad = u2l in (STALE, NOPROV, MISSING)
         d_bad = any(s in (STALE, NOPROV, MISSING) for s in (l2c, c2s))
-        if u_bad or d_bad:
+        v_bad = s2v in (STALE, "unstamped")
+        if u_bad or d_bad or v_bad:
             bad += 1
-        rows.append((slug, u2l, l2c, c2s))
+        rows.append((slug, u2l, l2c, c2s, s2v))
 
     w = max(len(r[0]) for r in rows)
-    print(f"{'chapter'.ljust(w)}   upstream->local  local->concept  concept->script")
-    print("-" * (w + 50))
-    for slug, u2l, l2c, c2s in rows:
-        print(f"{slug.ljust(w)}   {u2l.ljust(15)}  {l2c.ljust(14)}  {c2s}")
-    print("-" * (w + 50))
+    print(f"{'chapter'.ljust(w)}   upstream->local  local->concept  "
+          f"concept->script  script->scene")
+    print("-" * (w + 66))
+    for slug, u2l, l2c, c2s, s2v in rows:
+        print(f"{slug.ljust(w)}   {u2l.ljust(15)}  {l2c.ljust(14)}  "
+              f"{c2s.ljust(15)}  {s2v}")
+    print("-" * (w + 66))
     print(f"{len(rows)} chapters, {bad} needing attention.")
     sys.exit(1 if bad else 0)
 

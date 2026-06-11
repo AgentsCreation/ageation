@@ -23,8 +23,21 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _project import project_parser, resolve_project, load_course
+from provenance import split_fm, fm_get
 
 RENDERABLE = {"built", "rendered", "approved"}
+
+
+def script_status(root, slug):
+    """The review status of content/{slug}-script.md, or None when unreadable."""
+    path = os.path.join(root, "content", f"{slug}-script.md")
+    if not os.path.exists(path):
+        return None
+    fm, _ = split_fm(open(path, encoding="utf-8").read())
+    if fm is None:
+        return None
+    st = fm_get(fm, "status")
+    return st.split("#")[0].strip() if st else None
 
 
 def default_scene_file(slug: str) -> str:
@@ -34,15 +47,21 @@ def default_scene_file(slug: str) -> str:
 
 def main():
     parser = project_parser(__doc__)
-    parser.add_argument("-q", "--quality", default="l", choices=list("lmhk"),
-                        help="manim quality flag suffix (default: l, 480p draft)")
+    parser.add_argument("-q", "--quality", default=None, choices=list("lmhk"),
+                        help="manim quality flag suffix "
+                             "(default: course.yaml render.quality, else l)")
     parser.add_argument("slugs", nargs="*",
                         help="only these chapter slugs (default: all renderable)")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the manim commands without running them")
+    parser.add_argument("--force", action="store_true",
+                        help="render even when the script is not `approved`")
     args = parser.parse_args()
     root = resolve_project(args.project)
     course = load_course(root)
+    if args.quality is None:
+        cfg = ((course.get("course") or {}).get("render") or {}).get("quality", "ql")
+        args.quality = cfg.lstrip("q") if cfg.lstrip("q") in list("lmhk") else "l"
     chapters = course.get("chapters") or []
     if not chapters:
         raise SystemExit("no chapters in course.yaml — nothing to render")
@@ -62,6 +81,14 @@ def main():
     failures = 0
     for ch in selected:
         slug = ch["slug"]
+        # The status gate: only approved narration gets rendered (TTS costs
+        # money and un-vetted narration should never reach a final video).
+        st = script_status(root, slug)
+        if st != "approved" and not args.force:
+            print(f"!!! {slug}: script status is {st!r}, not `approved` "
+                  f"(--force to override)")
+            failures += 1
+            continue
         scene_file = ch.get("scene_file") or default_scene_file(slug)
         if not os.path.exists(os.path.join(root, scene_file)):
             print(f"!!! {slug}: scene file missing: {scene_file}")

@@ -2,7 +2,7 @@
 slug: 8-continuous-random-variables
 title: Continuous Random Variables
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/8-continuous-random-variables.tex
 upstream: input/Probability/8Continuous_Random_Variables.tex
 source_sha256: fd170dc926eebca1e4f534a38a3b560ce63885fdc8092ecfa2ec21cd4d9ad061

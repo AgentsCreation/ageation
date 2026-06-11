@@ -2,7 +2,7 @@
 slug: 10-expectations-and-bounds
 title: Expectations and Bounds
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/10-expectations-and-bounds.tex
 upstream: input/Probability/10Expectations_and_Bounds.tex
 source_sha256: 527754d62539c3518f08f6a360f9f7e65951a202ce2690fef2c0930a17c0a2a0

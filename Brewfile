@@ -18,8 +18,15 @@ cask "mactex"
 # then install packages on demand as Manim reports them missing:
 #     sudo tlmgr update --self && sudo tlmgr install standalone preview dvisvgm
 
+# pycairo: recent pycairo releases do not always ship a wheel for the current
+# Python/macOS combination, in which case `uv sync` builds it from source and
+# needs the cairo headers + pkg-config (cheap to install, harmless when a
+# wheel exists). manimpango DOES ship macOS wheels with pango bundled.
+brew "cairo"
+brew "pkg-config"
+
 # Not needed on macOS:
-# - pango/cairo: Manim's wheels (manimpango, pycairo) bundle them on macOS.
+# - pango: manimpango's macOS wheels bundle it.
 #   (The pango build problem only affected the Linux cloud sandbox.)
 # - sox: only required for manim-voiceover's microphone-recording mode, which
 #   this project does not use (gTTS / OpenAI TTS instead).

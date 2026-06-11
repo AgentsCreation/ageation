@@ -29,6 +29,20 @@ def resolve_project(path: str) -> str:
     return root
 
 
+def warn_if_not_project(project_root: str) -> None:
+    """Loud warning when a gate runs somewhere that has no project layout.
+
+    The gates pass vacuously on an empty directory (correct for a fresh
+    workspace), but that also makes a mistyped-yet-existing --project pass
+    silently — so make the situation visible.
+    """
+    has_course = os.path.exists(os.path.join(project_root, "course.yaml"))
+    has_content = os.path.isdir(os.path.join(project_root, "content"))
+    if not has_course and not has_content:
+        print(f"WARNING: {project_root} has no course.yaml or content/ — "
+              "fresh workspace, or wrong --project dir?")
+
+
 def load_course(project_root: str) -> dict:
     """Parse <project>/course.yaml, or {} if it does not exist yet."""
     path = os.path.join(project_root, "course.yaml")
@@ -39,5 +53,19 @@ def load_course(project_root: str) -> dict:
 
 
 def notation_rules(course: dict) -> list[dict]:
-    """The notation.rules list: dicts with literal `avoid`/`use`/`reason`."""
-    return (course.get("notation") or {}).get("rules") or []
+    """The notation.rules list: dicts with literal `avoid`/`use`/`reason`.
+
+    Validates the shape so a malformed course.yaml fails with a clear message
+    instead of a KeyError deep inside a checker.
+    """
+    rules = (course.get("notation") or {}).get("rules") or []
+    if not isinstance(rules, list):
+        raise SystemExit("course.yaml: notation.rules must be a list")
+    for i, rule in enumerate(rules):
+        if (not isinstance(rule, dict)
+                or not isinstance(rule.get("avoid"), str) or not rule["avoid"]
+                or not isinstance(rule.get("use"), str) or not rule["use"]):
+            raise SystemExit(
+                f"course.yaml: notation.rules[{i}] needs non-empty string "
+                f"`avoid` and `use` keys (got: {rule!r})")
+    return rules

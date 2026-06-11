@@ -18,14 +18,14 @@ input/<Subject>/*.tex      (read-only parent notes; gitignored)
 ## Quickstart (macOS)
 
 ```
-brew bundle                          # system deps: uv, ffmpeg, MacTeX
+brew bundle                          # system deps: uv, ffmpeg, MacTeX, cairo
 uv sync                              # Python deps
 # drop your notes in input/<Subject>/, then:
-make init INPUT=input/<Subject>      # bootstrap a draft course.yaml
-# review course.yaml (order, prereqs, title, notation rules), then work
-# through the pipeline stages (see PIPELINE.md)
-make check                           # provenance + notation gates
-make render-draft                    # 480p drafts of built chapters
+uv run python tools/init_course.py input/<Subject> --scaffold-concepts
+# review course.yaml (order, prereqs, title, notation rules) and flesh out
+# the concept stubs, then work through the pipeline stages (see PIPELINE.md)
+make check                           # provenance + notation + review-status gates
+make render-draft                    # 480p drafts of built+approved chapters
 ```
 
 Rendering requires a real machine (Mac), not a cloud sandbox — see HISTORY.md.
@@ -38,9 +38,11 @@ Rendering requires a real machine (Mac), not a cloud sandbox — see HISTORY.md.
 - `content/` — concept + script markdown (the reviewable prose layers).
 - `sources/` — editable working copies of each source, with provenance headers.
 - `scenes/` — Manim scenes + `_style.py` (shared house style, overflow guard).
-- `tools/` — `init_course` (bootstrap), `vendor_sources`, `stamp_provenance`,
-  `check_sync`, `check_notation`, `normalize_notation`, `render`. All take
-  `--project DIR` (default `.`), so they drive any project directory.
+- `tools/` — `init_course` (bootstrap + concept stubs), `vendor_sources`,
+  `stamp_provenance`, `check_sync` (4-link drift gate, scene layer included),
+  `check_notation`, `check_status` (human-review gate), `normalize_notation`,
+  `render` (refuses un-approved scripts). All take `--project DIR`
+  (default `.`), so they drive any project directory.
 - `render_all.sh` / `Makefile` — render + gate commands (`PROJECT=` to retarget).
 - `examples/probability/` — the original 12-chapter probability course, kept
   as a complete worked example; Chapter 5 there is the reference scene

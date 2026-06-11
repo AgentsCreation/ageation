@@ -2,7 +2,7 @@
 slug: 6-discrete-expectations
 title: Discrete Expectations
 stage: concept            # tex -> [concept] -> script -> scene -> render
-status: draft             # draft | reviewed | approved  (human gate)
+status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/6-discrete-expectations.tex
 upstream: input/Probability/6Discrete_Expectations.tex
 source_sha256: ce0fa8c8d3731a0b73741f270ec054c5262601f068bb5d1050485218eb3c617f
