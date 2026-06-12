@@ -4,7 +4,7 @@ title: Empirical Sums
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 12-empirical-sums.md
-derived_from_sha256: d8625a172678934e7511c9c034fffda27817ced1a8e5a477d3f1fabe6dfa5a1d
+derived_from_sha256: 6282a581430f73d73fc4b7aee8da5c2b77f5c36fac0968ffa920bce1867cac32
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/empirical_sums.py
 

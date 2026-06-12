@@ -7,6 +7,7 @@ source: sources/7-discrete-vectors.tex
 upstream: input/Probability/7Discrete_Vectors.tex
 source_sha256: 9a24660296006b721b343e5cbca4814c419e0395b3679cd32da6c97ad3add19d
 provenance_stamped: 2026-06-11
+framework_commit: 63167ab
 prereqs:
   - 6-discrete-expectations
 audience: undergraduate engineering, first probability course

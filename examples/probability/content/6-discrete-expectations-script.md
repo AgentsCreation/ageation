@@ -4,7 +4,7 @@ title: Discrete Expectations
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 6-discrete-expectations.md
-derived_from_sha256: 6bb15e2017e7ca9a84eb0e2aa2f3904bed39bba2b7f9504f2ae7c26d8449f59c
+derived_from_sha256: 38a84f90f073fe30ccbdbf67e8a69cd82ff3fe4399fb24384d28e110d1f8674c
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/discrete_expectations.py
 

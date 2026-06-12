@@ -7,6 +7,7 @@ source: sources/4-conditional-probability.tex
 upstream: input/Probability/4Conditional_Probability.tex
 source_sha256: ad6787891068d072eb5d16e0abd90503f0c0280c1968de5df76b3634d1b527cc
 provenance_stamped: 2026-06-11
+framework_commit: 63167ab
 prereqs:
   - 3-basic-concepts
 audience: undergraduate engineering, first probability course

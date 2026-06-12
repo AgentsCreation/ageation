@@ -4,7 +4,7 @@ title: Conditional Probability
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 4-conditional-probability.md
-derived_from_sha256: f8da013d6d508a94bb97ccaff020bd57e63b6514fc0be9bbb04fa06429c8a707
+derived_from_sha256: 998f481be16280af087a6963ef62040fe78e0642d23704e2fd10051f70097c87
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/conditional_probability.py
 

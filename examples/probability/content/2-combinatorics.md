@@ -7,6 +7,7 @@ source: sources/2-combinatorics.tex
 upstream: input/Probability/2Combinatorics.tex
 source_sha256: 1fe87534736aa916c8599b7b7466c3f5c10aaee210924ae7037518eaf23720eb
 provenance_stamped: 2026-06-11
+framework_commit: 63167ab
 prereqs:
   - 1-mathematical-review
 audience: undergraduate engineering, first probability course
