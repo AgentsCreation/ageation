@@ -1,8 +1,9 @@
 # Project manifest -- the ordering spine for the whole video series.
 # Single source of truth for: sequence, status, prereqs, and how chapters
-# break into short (~5-6 min) section videos. The intro/outro template and the
-# assembly step both read this file, so neighbor relationships (recap/bridge)
-# stay consistent automatically.
+# break into section videos (this project's budget is ~6 min/video; the
+# framework supports 5-20 min, set per project below). The intro/outro
+# template and the assembly step both read this file, so neighbor
+# relationships (recap/bridge) stay consistent automatically.
 
 project:
   title: Undergraduate Probability I
@@ -16,7 +17,7 @@ project:
     provider: gtts         # gtts (free draft) -> openai (final)
     rate: 1.0
   pedagogy:
-    target_minutes_per_video: 6   # ~6 min: engagement falls off past this
+    target_minutes_per_video: 6   # framework supports 5-20; this course chose 6
     open_with_objective: true     # state the learning goal up front
     close_with_key_idea: true     # one-line takeaway = retrieval cue
     recap_prior: true             # reactivate the previous video (spacing)

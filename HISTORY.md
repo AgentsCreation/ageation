@@ -30,9 +30,9 @@ pipeline a non-developer can drive, and that a future agent can extend. The
 human (JF) works in Cowork for authoring and in Claude Code CLI on a Mac for
 rendering.
 
-The output target is **short, self-contained section videos (~5–6 min each)**
-that link into a coherent course — not one long film, and not disconnected
-snippets.
+The output target is **self-contained section videos (~5–20 min each, set per
+project in `project.yaml`)** that link into a coherent course — not one long
+film, and not disconnected snippets.
 
 ---
 
@@ -81,9 +81,11 @@ Short videos are made to cohere through five file-driven mechanisms:
 5. **Assembly (planned, optional).** ffmpeg can stitch a full cut with uniform
    encode, loudness-normalized audio, and crossfades.
 
-Pedagogical rationale (loosely applied): engagement drops past ~6 min, so videos
-are short; each states its objective up front (orienting), reactivates the prior
-video (spacing), and ends with a one-line key idea (retrieval cue).
+Pedagogical rationale (loosely applied): pick a per-project runtime budget in
+the 5–20 min range based on content density (primer vs worked-example
+walkthrough) and audience; each video states its objective up front
+(orienting), reactivates the prior video (spacing), and ends with a one-line
+key idea (retrieval cue).
 
 ---
 
@@ -192,7 +194,8 @@ Put the source notes under `input/<Subject>/` (read-only by convention).
   draft `project.yaml`. Then curate it: every chapter in teaching order with
   `slug`, `title`, `upstream`, `status: planned`, `prereqs` (the draft assumes
   a linear chain), notation rules, and (where known) a `videos:` list of
-  ~5–6 min section videos. This is the spine the later stages read.
+  per-project ~5–20 min section videos (`init_project.py` asks for the
+  budget). This is the spine the later stages read.
 
 ### Step 3.5 — Vendor editable working copies
 - `python tools/vendor_sources.py` copies each read-only parent `.tex` into

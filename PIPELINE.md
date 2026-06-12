@@ -245,9 +245,11 @@ the machine and run `render-verify`.
 
 ## Linking videos into a course (not one film)
 
-The output is **short, self-contained section videos (~5-6 min)** that cohere
-into a course through structure -- not a single concatenated film, and not
-disconnected snippets. Five mechanisms, all file-driven:
+The output is **self-contained section videos (~5-20 min, set per project)**
+that cohere into a course through structure -- not a single concatenated film,
+and not disconnected snippets. The per-project target lives in
+`project.yaml` (`pedagogy.target_minutes_per_video`); `tools/init_project.py`
+suggests a default and asks for a budget. Five mechanisms, all file-driven:
 
 1. **`project.yaml` -- the ordering spine.** One ordered list of chapters (each
    split into section videos) with `status` and `prereqs`. Single source of
@@ -267,8 +269,10 @@ disconnected snippets. Five mechanisms, all file-driven:
    an ffmpeg pass can also emit a stitched cut with uniform encode, audio
    loudness-normalization, and crossfades. (To build.)
 
-**Why this shape:** learner engagement drops past ~6 minutes, so videos are kept
-short and focused. Each opens by stating its objective and reactivating the last
+**Why this shape:** the right runtime depends on content density and audience —
+a fast conceptual primer wants ~5 min, a worked-example walkthrough may need
+~20 min. Pick a per-project budget in that range and keep videos focused
+around it. Each opens by stating its objective and reactivating the last
 video (spacing), and closes with a one-line key idea (retrieval cue) -- loosely
 following multimedia-learning and spaced-retrieval guidance.
 
