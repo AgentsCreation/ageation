@@ -4,7 +4,7 @@ title: Combinatorics
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 2-combinatorics.md
-derived_from_sha256: bf3fe1b93d8599d897b646d261153de8dd020b6908ef980605368e3e4b67e46d
+derived_from_sha256: a9ee54a507f76f55dc8a17097033e25a158ac4841547711381ebabc07a3f9f03
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/combinatorics.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/combinatorics.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Count outcomes systematically so equally likely probability becomes computable."
   recap: "Last chapter, Mathematical Review, gave us sets and the Cartesian product."

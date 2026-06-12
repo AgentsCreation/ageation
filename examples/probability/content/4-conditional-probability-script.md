@@ -4,7 +4,7 @@ title: Conditional Probability
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 4-conditional-probability.md
-derived_from_sha256: 998f481be16280af087a6963ef62040fe78e0642d23704e2fd10051f70097c87
+derived_from_sha256: 38821c95e878e88bc628840beb6d6a576cf29cf5376cfe85119ba9240b477fa6
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/conditional_probability.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/conditional_probability.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Update probabilities in light of partial information."
   recap: "Last chapter, Basic Concepts, we built probability laws on a sample space."

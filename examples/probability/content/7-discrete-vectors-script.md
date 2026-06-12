@@ -4,7 +4,7 @@ title: Discrete Vectors
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 7-discrete-vectors.md
-derived_from_sha256: 6117b2dd31be88dd262f9e0e1b00f6e62c51202684bc9e244b932bf09e571514
+derived_from_sha256: 19618e6b50697ee0d1d309c49820c7cd94b1c2febe2c039ec9e9c4e980a870cb
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/discrete_vectors.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/discrete_vectors.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Describe two random variables together with a joint PMF and condition between them."
   recap: "Last chapter, Discrete Expectations, we summarized a single PMF with its mean and variance."

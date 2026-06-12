@@ -4,16 +4,16 @@ This file is a synthesis and a roadmap. It records *why* this project is built
 the way it is, and gives a future Claude (or human) enough to **reproduce the
 whole workflow from scratch** — taking a folder of LaTeX notes and producing
 narrated, coherent Manim videos. Read this together with `PIPELINE.md` (the
-detailed spec), `CLAUDE.md` (per-repo instructions), and `course.yaml` (the
+detailed spec), `CLAUDE.md` (per-repo instructions), and `project.yaml` (the
 per-project config + chapter spine).
 
 > **2026-06 genericization.** The project began as a probability-specific
 > pipeline; it has since been made subject-agnostic. The original probability
-> course (all 12 chapters' content, sources, course.yaml, NOTATION.md, and
+> course (all 12 chapters' content, sources, project.yaml, NOTATION.md, and
 > the built scenes) now lives intact under **`examples/probability/`** as the
 > worked example and reference implementation. Notation rules became data in
-> `course.yaml` (`notation.rules`), every tool takes `--project DIR`,
-> `tools/init_course.py` bootstraps a manifest from any input folder,
+> `project.yaml` (`notation.rules`), every tool takes `--project DIR`,
+> `tools/init_project.py` bootstraps a manifest from any input folder,
 > `tools/render.py` replaced the hand-maintained render list, and sources may
 > ship as `.tex` + companion pandoc `.md` pairs (both are vendored and
 > leveraged). Sections below describe the original build; chapter-specific
@@ -69,7 +69,7 @@ build/ + media/                  (5) BUILD      narrated video + .srt subtitles
 
 Short videos are made to cohere through five file-driven mechanisms:
 
-1. **`course.yaml` — the ordering spine.** Ordered chapters (split into section
+1. **`project.yaml` — the ordering spine.** Ordered chapters (split into section
    videos) with `status` and `prereqs`. Single source of truth for sequence.
 2. **Recap / bridge.** Each `script.md` has a `linking:` block (`objective`,
    `recap`, `key_idea`, `bridge`). Each video opens reactivating the previous
@@ -99,12 +99,13 @@ video (spacing), and ends with a one-line key idea (retrieval cue).
 | `pkg_resources` | pin **`setuptools<81`** | manim-voiceover imports the deprecated `pkg_resources`, which newer setuptools removes. |
 | Timing/sync | **bookmark-free sequential voiceover blocks** | Real manim-voiceover `<bookmark>` needs word-level timestamps via Whisper (→ PyTorch, heavy, no 3.14 wheels). Splitting each beat into separate `with self.voiceover(...)` blocks gives sentence-level sync with zero heavy deps. |
 | Overflow | **`_style.fit_to_frame()`** on every graph | Scales mobjects down to fit `config.frame_*` minus a margin; resolution-independent, so graphs never spill at 480p or 4K. Enforced in code, not by eyeballing. |
-| Notation | per-project rules as data in `course.yaml` (`notation.rules`); the probability example uses `\Pr`, `\mathrm{E}`, `\mathrm{Var}` (never `\mathbb{P}`/`\mathbb{E}`) | Matches the notes' preamble macros; enforced by `tools/check_notation.py`. See NOTATION.md for the model. |
+| Notation | per-project rules as data in `project.yaml` (`notation.rules`); the probability example uses `\Pr`, `\mathrm{E}`, `\mathrm{Var}` (never `\mathbb{P}`/`\mathbb{E}`) | Matches the notes' preamble macros; enforced by `tools/check_notation.py`. See NOTATION.md for the model. |
 | Drift detection | **content-hash provenance** in front matter + `tools/check_sync.py` | Source was cloned and detached from git; hashes (not mtimes/commits) reliably tell whether a video is in sync with its `.tex`. |
 | Source handling | **vendor read-only parents into editable `sources/` copies** (`tools/vendor_sources.py`); copy header records upstream path/hash + git origin/commit/tag when available | Lets us normalize notation / fix typos without touching the read-only parent; two-level provenance (upstream→local→concept→script) tracks both "parent moved" and "our copy changed". |
 | House style | accent **YELLOW**, muted GRAY_B, type scale TITLE 56 / SECTION 44 / BODY 34 / SMALL 28 / CAPTION 24 | Centralized in `_style.py` for cross-chapter consistency. |
 | Rendering location | **Mac only, via Claude Code CLI** | The Cowork cloud sandbox **cannot render**: it can't build `manimpango` (no pango dev headers, no prebuilt wheel), so manim won't even import there. |
 | System deps | **ffmpeg + a LaTeX distro** (latex, dvisvgm), declared in `Brewfile` (`brew bundle`). **NOT** sox (only for mic-record mode), **NOT** whisper/torch, **NOT** pango/cairo on macOS (wheels bundle them). | manim needs ffmpeg + LaTeX to render text/formulas. `pyproject.toml` can't express system packages (PEP 725 is still draft), so a `Brewfile` is the macOS-native manifest. |
+| Architecture (2026-06-11, after the nano-evolve case study) | **engine/content split**: this repo is the engine; projects live outside it, preferably as a reserved `auto_manim/` subdirectory of the base repo (`upstream_dir` pointing back into the host; no `input/`), or standalone with `input/`. The manifest is **`project.yaml`** (renamed from course.yaml — the framework is broader than courses); `stamp_provenance.py` records `framework_commit` per concept. | One reserved name (not five prefixed ones) keeps the namespace disjoint from any host layout (e.g. the canonical article template); `--project DIR` already made the tools location-agnostic, so the posture cost zero code. Version coupling is detectable via `framework_commit`. |
 
 ### The Cowork ↔ Claude Code split (empirical)
 
@@ -121,7 +122,7 @@ video (spacing), and ends with a one-line key idea (retrieval cue).
 
 - `CLAUDE.md` — per-repo agent instructions (mission, workflow, LaTeX tips).
 - `PIPELINE.md` — the detailed architecture + conventions spec.
-- `course.yaml` — the 12-chapter spine: order, status, prereqs, section videos.
+- `project.yaml` — the 12-chapter spine: order, status, prereqs, section videos.
 - `content/{slug}.md` + `content/{slug}-script.md` — **all 12 chapters**
   scaffolded (concept + script), verified faithful to the source LaTeX on both
   axes (horizontal recap/bridge chain; vertical tex→concept→script fidelity).
@@ -140,13 +141,13 @@ video (spacing), and ends with a one-line key idea (retrieval cue).
 - `sources/` — editable working copies of each `.tex`, vendored from the
   read-only `input/` parents, each with a `%`-comment provenance header
   (upstream path/hash + git origin/commit/tag). The pipeline builds from these.
-- `tools/` — `init_course.py` (bootstrap a draft course.yaml from any input
+- `tools/` — `init_project.py` (bootstrap a draft project.yaml from any input
   folder), `vendor_sources.py` (make working copies + capture git; vendors
   companion `.md` siblings too), `stamp_provenance.py` (write hashes),
   `check_sync.py` (report upstream→local→concept→script drift),
-  `check_notation.py` (enforce the course.yaml notation rules),
+  `check_notation.py` (enforce the project.yaml notation rules),
   `normalize_notation.py` (fix notation in working copies), `render.py`
-  (render the buildable chapters per course.yaml). All take `--project DIR`
+  (render the buildable chapters per project.yaml). All take `--project DIR`
   (default `.`) and currently report clean / in-sync on the example.
 - `pyproject.toml` / `.python-version` — Python 3.12; deps `manim>=0.20.1`,
   `manim-voiceover[gtts]>=0.3.7`, `setuptools<81`.
@@ -186,9 +187,9 @@ Put the source notes under `input/<Subject>/` (read-only by convention).
   linking template (`intro_card`, `outro_bridge`, `progress_tag`).
 
 ### Step 3 — Build the manifest
-- Bootstrap with `python tools/init_course.py input/<Subject>`: it scans the
+- Bootstrap with `python tools/init_project.py input/<Subject>`: it scans the
   input folder (detecting `.tex` + companion pandoc `.md` pairs) and writes a
-  draft `course.yaml`. Then curate it: every chapter in teaching order with
+  draft `project.yaml`. Then curate it: every chapter in teaching order with
   `slug`, `title`, `upstream`, `status: planned`, `prereqs` (the draft assumes
   a linear chain), notation rules, and (where known) a `videos:` list of
   ~5–6 min section videos. This is the spine the later stages read.
@@ -208,7 +209,7 @@ Put the source notes under `input/<Subject>/` (read-only by convention).
 2. **script-from-concept:** read concept (+ tex) → write
    `content/{slug}-script.md` (YAML incl. a `linking:` block; one beat per
    section with literal narration + animation cues; a cut list). Recap names the
-   previous chapter, bridge names the next (from `course.yaml`).
+   previous chapter, bridge names the next (from `project.yaml`).
 3. **scene-from-script:** read script → write `scenes/{slug}.py` as
    `VoiceoverScene` classes. **Follow the Chapter 5 pattern exactly:** bookmark-
    free sequential `with self.voiceover(...)` blocks timed with
@@ -277,7 +278,7 @@ most common first failure is a `MathTex` LaTeX error.
 
 - Build the three processor skills as repo files (`.claude/skills/` +
   an `/animate-chapter` command) so chapters generate themselves from
-  `course.yaml`.
+  `project.yaml`.
 - Generate `scenes/{slug}.py` for chapters 1–3, 6–12 (currently `scripted`).
 - Build the concept DAG + "used-before-taught" checker.
 - Build the optional ffmpeg assembly step.

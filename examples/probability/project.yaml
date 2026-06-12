@@ -1,10 +1,10 @@
-# Course manifest -- the ordering spine for the whole video series.
+# Project manifest -- the ordering spine for the whole video series.
 # Single source of truth for: sequence, status, prereqs, and how chapters
 # break into short (~5-6 min) section videos. The intro/outro template and the
 # assembly step both read this file, so neighbor relationships (recap/bridge)
 # stay consistent automatically.
 
-course:
+project:
   title: Undergraduate Probability I
   # Read-only parent sources. Editable working copies are vendored to sources/
   # (tools/vendor_sources.py) and are what the pipeline actually builds from.

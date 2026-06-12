@@ -5,7 +5,7 @@ through a file-based, stage-gated pipeline. The goal is the *workflow*: a
 robust, repeatable system where each stage reads files and writes files.
 
 ```
-input/<Subject>/*.tex      (read-only parent notes; gitignored)
+upstream *.tex             (read-only: the host repo's own files, or input/)
   (+ sibling *.md           optional pandoc high-level characterization,
                             leveraged alongside the .tex when present)
   → sources/{slug}.tex      editable working copy (vendored, normalizable)
@@ -20,9 +20,9 @@ input/<Subject>/*.tex      (read-only parent notes; gitignored)
 ```
 brew bundle                          # system deps: uv, ffmpeg, MacTeX, cairo
 uv sync                              # Python deps
-# drop your notes in input/<Subject>/, then:
-uv run python tools/init_course.py input/<Subject> --scaffold-concepts
-# review course.yaml (order, prereqs, title, notation rules) and flesh out
+# point the bootstrap at your notes (numbered .tex chapters):
+uv run python tools/init_project.py input/<Subject> --scaffold-concepts
+# review project.yaml (order, prereqs, title, notation rules) and flesh out
 # the concept stubs, then work through the pipeline stages (see PIPELINE.md)
 make check                           # provenance + notation + review-status gates
 make render-draft                    # 480p drafts of built+approved chapters
@@ -30,46 +30,62 @@ make render-draft                    # 480p drafts of built+approved chapters
 
 Rendering requires a real machine (Mac), not a cloud sandbox — see HISTORY.md.
 
-## Engine / content split: driving a sibling project
+## Engine / content split: this repo drives external projects
 
-This repo is the **engine**; each course or video project is its own sibling
-directory (the **content**). The project holds only what is specific to it —
-`course.yaml`, `input/`, `sources/`, `content/`, `scenes/`, `media/` — while
-the engine holds the tools, the Python environment, and the docs. The engine
-evolves in one place without being copied into every project.
+This repo is the **engine**; each video project is the **content** and lives
+outside it. The project holds only what is specific to it — `project.yaml`,
+`sources/`, `content/`, `scenes/`, `media/` — while the engine holds the
+tools, the Python environment, and the docs. The engine evolves in one place
+without being copied into every project. Two postures:
+
+**Embedded (preferred for base repos — articles, books, software).** The
+project is a single reserved subdirectory, `auto_manim/`, inside the repo the
+videos are about, and `upstream_dir` points back into the host — no `input/`
+folder at all:
 
 ```
-AgenticManim/
-  auto-manim/          # this repo: tools, venv, docs (the engine)
-  my-project/          # course.yaml + content + scenes (+ its own git repo)
+my-article/                # the base repo (e.g. the article template)
+  main.tex  sections/  figures/  templates/ ...
+  auto_manim/              # everything video, one reserved name
+    project.yaml  sources/  content/  scenes/  media/
 ```
 
-The rules of the split:
+`uv run python tools/init_project.py ../sections --project ../my-article/auto_manim`
+bootstraps it; the host's `.gitignore` gains `auto_manim/media/` and
+`auto_manim/.env`, and deleting the videos is `rm -rf auto_manim/`.
+
+**Standalone.** When the upstream notes live elsewhere (a co-author's synced
+folder, an external download), the project is its own directory and the
+read-only upstream is dropped under `input/` — this is the only posture that
+uses `input/`.
+
+The rules of the split, in either posture:
 
 - **The venv lives here.** Run `uv sync` (and `uv run …`) in this repo, never
   in the project — a project has no `pyproject.toml` by design.
 - **Tools are pointed at the project**: every tool takes `--project DIR`
-  (e.g. `uv run python tools/render.py --project ../my-project -q h`), and
-  `make check PROJECT=../my-project` runs the gates against it.
-- **A hand-written `course.yaml` is first-class.** `init_course.py` is a
+  (e.g. `uv run python tools/render.py --project ../my-article/auto_manim -q h`),
+  and `make check PROJECT=…` runs the gates against it.
+- **A hand-written `project.yaml` is first-class.** `init_project.py` is a
   convenience for inputs shaped like numbered chapter notes; repo- or
   article-shaped inputs (ordering in a `main.tex`, multi-file chapters) are
-  expected to start from a hand-authored `course.yaml` instead.
-- **Projects version their own content.** Make the project a git repo of its
-  own; gitignore `.env` (TTS keys), `media/` (regenerable), `__pycache__/`.
+  expected to start from a hand-authored `project.yaml` instead.
+- **Projects version their own content** (the host repo, or the standalone
+  dir as its own git repo); gitignore `.env` (TTS keys), `media/`
+  (regenerable), `__pycache__/`.
 - **Provenance records the engine version**: `stamp_provenance.py` writes
   `framework_commit` (this repo's git description, with a `-dirty` marker)
   into each concept, so a project can always tell which engine built it.
 
 ## What's where
 
-- `course.yaml` — the per-project config + ordering spine: title, input dir,
-  notation rules, chapters with status and prereqs. Generated by
-  `tools/init_course.py`, then human-curated.
+- `project.yaml` — the per-project config + ordering spine: title, upstream
+  dir, notation rules, chapters with status and prereqs. Generated by
+  `tools/init_project.py`, then human-curated.
 - `content/` — concept + script markdown (the reviewable prose layers).
 - `sources/` — editable working copies of each source, with provenance headers.
 - `scenes/` — Manim scenes + `_style.py` (shared house style, overflow guard).
-- `tools/` — `init_course` (bootstrap + concept stubs), `vendor_sources`,
+- `tools/` — `init_project` (bootstrap + concept stubs), `vendor_sources`,
   `stamp_provenance`, `check_sync` (4-link drift gate, scene layer included),
   `check_notation`, `check_status` (human-review gate), `normalize_notation`,
   `render` (refuses un-approved scripts). All take `--project DIR`

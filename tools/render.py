@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the buildable chapters listed in course.yaml.
+"""Render the buildable chapters listed in project.yaml.
 
 Replaces the old hand-maintained scene list: chapters whose status is
 built/rendered/approved (and not marked `skip_render: true`) are rendered via
@@ -22,7 +22,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import project_parser, resolve_project, load_course
+from _project import project_parser, resolve_project, load_project
 from provenance import split_fm, fm_get
 
 RENDERABLE = {"built", "rendered", "approved"}
@@ -49,7 +49,7 @@ def main():
     parser = project_parser(__doc__)
     parser.add_argument("-q", "--quality", default=None, choices=list("lmhk"),
                         help="manim quality flag suffix "
-                             "(default: course.yaml render.quality, else l)")
+                             "(default: project.yaml render.quality, else l)")
     parser.add_argument("slugs", nargs="*",
                         help="only these chapter slugs (default: all renderable)")
     parser.add_argument("--dry-run", action="store_true",
@@ -58,13 +58,13 @@ def main():
                         help="render even when the script is not `approved`")
     args = parser.parse_args()
     root = resolve_project(args.project)
-    course = load_course(root)
+    manifest = load_project(root)
     if args.quality is None:
-        cfg = ((course.get("course") or {}).get("render") or {}).get("quality", "ql")
+        cfg = ((manifest.get("project") or {}).get("render") or {}).get("quality", "ql")
         args.quality = cfg.lstrip("q") if cfg.lstrip("q") in list("lmhk") else "l"
-    chapters = course.get("chapters") or []
+    chapters = manifest.get("chapters") or []
     if not chapters:
-        raise SystemExit("no chapters in course.yaml — nothing to render")
+        raise SystemExit("no chapters in project.yaml — nothing to render")
 
     selected = []
     for ch in chapters:

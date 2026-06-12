@@ -4,7 +4,7 @@ title: Discrete Expectations
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 6-discrete-expectations.md
-derived_from_sha256: 38a84f90f073fe30ccbdbf67e8a69cd82ff3fe4399fb24384d28e110d1f8674c
+derived_from_sha256: ed4082828843146041686a8edec1f31a78d5b6c23bd59987c80754b2174632ae
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/discrete_expectations.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/discrete_expectations.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Summarize a whole PMF with a mean and a variance."
   recap: "Last chapter, Discrete Random Variables, we described an RV by its probability mass function."

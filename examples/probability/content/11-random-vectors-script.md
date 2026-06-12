@@ -4,7 +4,7 @@ title: Random Vectors
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 11-random-vectors.md
-derived_from_sha256: 27c271cdece11aedd0176b88d9a1da021654b7dff4e59848aa7865b48ff9a61e
+derived_from_sha256: 887be95f9516dad5104b66a5e189d3d23f91a844ce2fecbb916051694b012f12
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/random_vectors.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/random_vectors.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Describe two continuous variables jointly, then condition, test independence, and add them."
   recap: "Last chapter, Expectations and Bounds, summarized one random variable with its mean, variance, and tail bounds."

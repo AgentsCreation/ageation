@@ -2,7 +2,7 @@
 """Rewrite disallowed notation in the LOCAL working copies (sources/).
 
 This is the payoff of vendoring: when an upstream source uses notation that
-conflicts with the project convention (course.yaml: notation.rules), we fix it
+conflicts with the project convention (project.yaml: notation.rules), we fix it
 on the editable copy — the read-only parent is never touched, and provenance
 still records where the copy came from.
 
@@ -20,7 +20,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import project_parser, resolve_project, load_course, notation_rules
+from _project import project_parser, resolve_project, load_project, notation_rules
 
 
 def main():
@@ -28,9 +28,9 @@ def main():
     parser.add_argument("--write", action="store_true", help="apply the rewrites")
     args = parser.parse_args()
     root = resolve_project(args.project)
-    rules = notation_rules(load_course(root))
+    rules = notation_rules(load_project(root))
     if not rules:
-        print("No notation rules configured (course.yaml: notation.rules); nothing to do.")
+        print("No notation rules configured (project.yaml: notation.rules); nothing to do.")
         return
 
     files = sorted(

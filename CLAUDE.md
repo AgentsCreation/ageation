@@ -6,8 +6,16 @@ This project is a generic, file-based pipeline that turns a folder of LaTeX
 notes into short, narrated, linked Manim videos. Before doing anything, read
 **HISTORY.md** (goal, all design decisions + rationale, reproduce-from-scratch
 roadmap) and **PIPELINE.md** (the layered spec). Also: **NOTATION.md** (how
-per-project notation rules work) and **course.yaml** (the per-project config +
-chapter spine — bootstrap one with `tools/init_course.py` if absent).
+per-project notation rules work) and **project.yaml** (the per-project config +
+chapter spine — bootstrap one with `tools/init_project.py` if absent).
+
+This repo is the **engine**; the content lives in external project
+directories driven via `--project DIR`. Preferred posture: a base repo (an
+article, a book, a software project) hosts the reserved subdirectory
+`auto_manim/` containing project.yaml + sources/ + content/ + scenes/ +
+media/, with `upstream_dir` pointing back into the host (no `input/`).
+Standalone projects keep upstream copies under `input/` instead. See
+"Consumer projects" in PIPELINE.md.
 
 The decisions in HISTORY.md marked "do not relitigate" are settled: Python
 3.12, bookmark-free sequential voiceover blocks, `_style.fit_to_frame`
@@ -118,8 +126,9 @@ After rendering, print:
 ## Conventions
 
 - All generated scripts go in `scenes/`
-- Do not modify files under `input/` (read-only; edit the vendored copies in
-  `sources/` instead — see PIPELINE.md)
+- Do not modify the upstream files (`input/` or the host repo's own files in
+  the embedded posture) — they are read-only; edit the vendored copies in
+  `sources/` instead (see PIPELINE.md)
 - Use `uv run manim` (not bare `manim`) to respect the project venv
 - Low quality (`-ql`) for drafts, high quality (`-qh`) for finals
 
@@ -127,7 +136,7 @@ After rendering, print:
 
 - Wrap all math in `r"..."` raw strings
 - Use `\mid` for conditional bars, never bare `|` in `MathTex`
-- **Notation is fixed per project in `course.yaml` (`notation.rules`)** — see
+- **Notation is fixed per project in `project.yaml` (`notation.rules`)** — see
   NOTATION.md for how the system works. Manim cannot see the source notes'
   preamble macros, so use the expanded forms via the `_style.py` helpers
   (e.g. `pr()`, `expectation()`, `variance()`). Run

@@ -7,7 +7,7 @@ source: sources/6-discrete-expectations.tex
 upstream: input/Probability/6Discrete_Expectations.tex
 source_sha256: ce0fa8c8d3731a0b73741f270ec054c5262601f068bb5d1050485218eb3c617f
 provenance_stamped: 2026-06-11
-framework_commit: 63167ab
+framework_commit: af5d6d4-dirty
 prereqs:
   - 5-discrete-random-variables
 audience: undergraduate engineering, first probability course

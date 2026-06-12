@@ -7,8 +7,8 @@ hard-coding colors and font sizes in each scene.
 Conventions:
 - Notation helpers emit *expanded* LaTeX forms (Manim's MathTex has no access
   to a book's preamble macros). pr()/expectation()/variance() cover the common
-  math-stats forms; add subject-specific helpers here as a course needs them,
-  and keep them consistent with the project's notation rules in course.yaml.
+  math-stats forms; add subject-specific helpers here as a project needs them,
+  and keep them consistent with the project's notation rules in project.yaml.
 - YELLOW is the single accent color used to highlight the "current" idea.
 - GRAY_B is used for secondary / muted text (taglines, captions).
 """

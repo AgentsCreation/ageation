@@ -36,10 +36,10 @@ def project(tmp_path):
 def test_full_bootstrap_flow(project):
     root = str(project)
 
-    r = run("init_course.py", "input/Demo", "--project", root,
+    r = run("init_project.py", "input/Demo", "--project", root,
             "--title", "Demo", "--scaffold-concepts")
     assert r.returncode == 0, r.stderr
-    assert (project / "course.yaml").exists()
+    assert (project / "project.yaml").exists()
     assert (project / "content" / "1-linear-algebra.md").exists()
     assert (project / "content" / "2-calculus.md").exists()
     assert "1 with companion" in r.stdout
@@ -84,7 +84,7 @@ def test_rerun_vendor_adds_companion_to_already_vendored(project):
     saved = companion.read_text()
     companion.unlink()  # vendor first WITHOUT the companion present
 
-    run("init_course.py", "input/Demo", "--project", root, "--scaffold-concepts")
+    run("init_project.py", "input/Demo", "--project", root, "--scaffold-concepts")
     run("vendor_sources.py", "--project", root)
     assert not (project / "sources" / "1-linear-algebra.md").exists()
 
@@ -98,15 +98,15 @@ def test_rerun_vendor_adds_companion_to_already_vendored(project):
 
 def test_notation_check_and_normalize(project):
     root = str(project)
-    run("init_course.py", "input/Demo", "--project", root, "--scaffold-concepts")
+    run("init_project.py", "input/Demo", "--project", root, "--scaffold-concepts")
     run("vendor_sources.py", "--project", root)
 
-    text = (project / "course.yaml").read_text()
+    text = (project / "project.yaml").read_text()
     rules = ("notation:\n  rules:\n"
              "    - avoid: '\\mathbb{E}'\n"
              "      use: '\\mathrm{E}'\n"
              "      reason: expectation\n")
-    (project / "course.yaml").write_text(text.replace("notation:\n  rules: []\n", rules))
+    (project / "project.yaml").write_text(text.replace("notation:\n  rules: []\n", rules))
 
     r = run("check_notation.py", "--project", root)
     assert r.returncode == 1
@@ -117,22 +117,56 @@ def test_notation_check_and_normalize(project):
     assert run("check_notation.py", "--project", root).returncode == 0
 
 
+def test_embedded_project_in_host_repo(tmp_path):
+    """The embedded posture: project lives at <host>/auto_manim, upstream_dir
+    points back into the host (../sections) — no input/ folder at all."""
+    host = tmp_path / "article"
+    sections = host / "sections"
+    sections.mkdir(parents=True)
+    (sections / "introduction.tex").write_text(
+        "\\section{Introduction}\nWe study $\\mathbb{E}[X]$.\n")
+    (sections / "introduction.md").write_text("# Intro sidecar\nIntent notes.\n")
+    proj = host / "auto_manim"
+    proj.mkdir()
+    root = str(proj)
+
+    r = run("init_project.py", "../sections", "--project", root,
+            "--title", "Article Videos", "--scaffold-concepts")
+    assert r.returncode == 0, r.stderr
+    manifest = (proj / "project.yaml").read_text()
+    assert "upstream_dir: ../sections" in manifest
+
+    r = run("vendor_sources.py", "--project", root)
+    assert r.returncode == 0, r.stderr
+    assert (proj / "sources" / "introduction.tex").exists()
+    assert (proj / "sources" / "introduction.md").exists()  # sidecar companion
+    # The host repo is upstream: read, never written.
+    assert sorted(p.name for p in sections.iterdir()) == [
+        "introduction.md", "introduction.tex"]
+
+    r = run("stamp_provenance.py", "--project", root)
+    assert r.returncode == 0, r.stderr
+    for tool in ("check_sync.py", "check_status.py", "check_notation.py"):
+        r = run(tool, "--project", root)
+        assert r.returncode == 0, (tool, r.stdout)
+
+
 def test_init_collision_detection(tmp_path):
     inp = tmp_path / "input" / "Demo"
     inp.mkdir(parents=True)
     (inp / "1Foo.tex").write_text("a")
     (inp / "2Foo.tex").write_text("b")  # same derived scene file: scenes/foo.py
-    r = run("init_course.py", "input/Demo", "--project", str(tmp_path))
+    r = run("init_project.py", "input/Demo", "--project", str(tmp_path))
     assert r.returncode != 0
     assert "collision" in (r.stdout + r.stderr)
-    assert not (tmp_path / "course.yaml").exists()
+    assert not (tmp_path / "project.yaml").exists()
 
 
 def test_status_gate_catches_overpromoted_chapter(project):
     root = str(project)
-    run("init_course.py", "input/Demo", "--project", root, "--scaffold-concepts")
-    text = (project / "course.yaml").read_text()
-    (project / "course.yaml").write_text(
+    run("init_project.py", "input/Demo", "--project", root, "--scaffold-concepts")
+    text = (project / "project.yaml").read_text()
+    (project / "project.yaml").write_text(
         text.replace("    status: planned", "    status: built", 1))
     r = run("check_status.py", "--project", root)
     assert r.returncode == 1

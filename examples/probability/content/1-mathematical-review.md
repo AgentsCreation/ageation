@@ -7,7 +7,7 @@ source: sources/1-mathematical-review.tex
 upstream: input/Probability/1Mathematical_Review.tex
 source_sha256: debff4497945c67249db18ff907a754446db41d37f3db7cbea5cd1aaddce13a0
 provenance_stamped: 2026-06-11
-framework_commit: 63167ab
+framework_commit: af5d6d4-dirty
 # Course start — no prerequisites.
 audience: undergraduate engineering, first probability course
 concepts:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Flag notation that violates the project convention.
 
-The rules live as data in the project's course.yaml under `notation.rules`
+The rules live as data in the project's project.yaml under `notation.rules`
 (each rule: a literal LaTeX string to `avoid`, the form to `use`, and a short
 `reason`). This scans content/*.md, scenes/*.py, and sources/*.{tex,md} for the
 avoided forms and prints file:line: message for each. Exit code is nonzero if
@@ -15,17 +15,17 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import (project_parser, resolve_project, load_course,
+from _project import (project_parser, resolve_project, load_project,
                       notation_rules, warn_if_not_project)
 
 
 def main():
     args = project_parser(__doc__).parse_args()
     root = resolve_project(args.project)
-    rules = notation_rules(load_course(root))
+    rules = notation_rules(load_project(root))
     if not rules:
         warn_if_not_project(root)
-        print("No notation rules configured (course.yaml: notation.rules); nothing to check.")
+        print("No notation rules configured (project.yaml: notation.rules); nothing to check.")
         sys.exit(0)
 
     targets = sorted(
@@ -45,7 +45,7 @@ def main():
                         print(f"{rel}:{i}: {msg}  ->  {line.strip()[:70]}")
                         violations += 1
     if violations:
-        print(f"\n{violations} notation violation(s). See the notation rules in course.yaml.")
+        print(f"\n{violations} notation violation(s). See the notation rules in project.yaml.")
         sys.exit(1)
     print(f"Notation OK across {len(targets)} files ({len(rules)} rules).")
     sys.exit(0)

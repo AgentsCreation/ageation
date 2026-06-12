@@ -6,7 +6,7 @@ CC0 LaTeX probability notes taken through the full pipeline. Chapter 5
 is the fully-built reference implementation — voiceover scenes, bookmark-free
 timing, overflow guards, provenance stamps.
 
-This directory is a complete, self-contained project: `course.yaml` (spine +
+This directory is a complete, self-contained project: `project.yaml` (spine +
 notation rules), `content/` (concept + script markdown for all 12 chapters),
 `sources/` (vendored working copies of the `.tex` notes), `scenes/`, and the
 probability `NOTATION.md`. The upstream `input/Probability/` parent notes are

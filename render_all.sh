@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Render every buildable chapter listed in course.yaml (see tools/render.py).
+# Render every buildable chapter listed in project.yaml (see tools/render.py).
 #
 # IMPORTANT: this must run on a machine with a working manim install — a cloud
 # sandbox that cannot build manimpango cannot render. See PIPELINE.md.

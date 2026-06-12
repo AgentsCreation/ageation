@@ -1,4 +1,4 @@
-from init_course import slugify, title_from_tex, sort_key, detect_collisions
+from init_project import slugify, title_from_tex, sort_key, detect_collisions
 
 
 def test_slugify_numeric_prefix_and_camel_case():

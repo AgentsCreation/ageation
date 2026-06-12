@@ -18,7 +18,7 @@ not.
    what exists, and a reproduce-from-scratch roadmap. The decisions marked
    "do not relitigate" are settled.
 2. `PIPELINE.md` — the layered pipeline spec and conventions.
-3. `CLAUDE.md`, `NOTATION.md`, `course.yaml` — repo rules, fixed notation, the
+3. `CLAUDE.md`, `NOTATION.md`, `project.yaml` — repo rules, fixed notation, the
    chapter spine.
 4. Reference implementation (the pattern to copy): `content/5-discrete-random-
    variables.md`, `content/5-discrete-random-variables-script.md`, and
@@ -48,7 +48,7 @@ not.
    `make_pmf_chart`/`fit_to_frame`; notation via the `_style` helpers
    (`pr`/`expectation`/`variance`). Package it as a `.claude/` skill or command.
 3. **Generate + render Chapter 6** (Discrete Expectations) through that
-   generator. Loop render→inspect→fix until clean. Then set its `course.yaml`
+   generator. Loop render→inspect→fix until clean. Then set its `project.yaml`
    status to `built`, run `uv run python tools/stamp_provenance.py`, and
    `make check`.
 4. **Repeat** for the remaining chapters, gating each on the `status` field —

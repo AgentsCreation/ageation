@@ -2,10 +2,10 @@
 """Enforce the human-review status gates (the pipeline's core promise).
 
 Two status vocabularies exist (deliberately independent):
-  course.yaml chapter : planned -> scripted -> built -> rendered -> approved
+  project.yaml chapter : planned -> scripted -> built -> rendered -> approved
   markdown layers     : draft -> reviewed -> approved   (front matter `status:`)
 
-A chapter's course.yaml status must not be ahead of what its markdown layers
+A chapter's project.yaml status must not be ahead of what its markdown layers
 have actually been reviewed for:
 
   scripted+ : concept and script files exist; concept is at least `reviewed`
@@ -24,7 +24,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from provenance import split_fm, fm_get
-from _project import project_parser, resolve_project, load_course, warn_if_not_project
+from _project import project_parser, resolve_project, load_project, warn_if_not_project
 
 CHAPTER_ORDER = ["planned", "scripted", "built", "rendered", "approved"]
 LAYER_ORDER = ["draft", "reviewed", "approved"]
@@ -55,10 +55,10 @@ def at_least(status, floor):
 def main():
     args = project_parser(__doc__).parse_args()
     root = resolve_project(args.project)
-    chapters = load_course(root).get("chapters") or []
+    chapters = load_project(root).get("chapters") or []
     if not chapters:
         warn_if_not_project(root)
-        print("No chapters in course.yaml — nothing to status-check.")
+        print("No chapters in project.yaml — nothing to status-check.")
         sys.exit(0)
 
     problems = []

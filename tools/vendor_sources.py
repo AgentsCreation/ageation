@@ -12,7 +12,7 @@ Companion notes: when the upstream .tex has a pandoc-style high-level
 characterization (.md), it is vendored too, as sources/{slug}.md with an
 HTML-comment provenance header, and recorded in the concept's front matter as
 `companion:`. The companion is located via the chapter's `companion:` entry in
-course.yaml first, falling back to a sibling .md next to the .tex. Re-running
+project.yaml first, falling back to a sibling .md next to the .tex. Re-running
 this tool adds companions to already-vendored chapters that lack one. The
 concept stage should read both — the .md for intent/structure, the .tex for
 the authoritative content.
@@ -36,7 +36,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from provenance import sha256_file, split_fm, rebuild, fm_get, fm_upsert
-from _project import project_parser, resolve_project, load_course
+from _project import project_parser, resolve_project, load_project
 
 DATE = datetime.date.today().isoformat()
 
@@ -113,7 +113,7 @@ def companion_sibling(upstream_rel):
 
 
 def find_companion(root, slug, upstream_rel, by_slug, upstream_dir):
-    """Upstream companion path: course.yaml `companion:` first, else sibling."""
+    """Upstream companion path: project.yaml `companion:` first, else sibling."""
     ch = by_slug.get(slug)
     if ch and ch.get("companion"):
         cand = ch["companion"]
@@ -121,7 +121,7 @@ def find_companion(root, slug, upstream_rel, by_slug, upstream_dir):
             cand = os.path.join(upstream_dir, cand)
         if os.path.exists(os.path.join(root, cand)):
             return cand
-        print(f"  WARN course.yaml companion missing for {slug}: {cand}")
+        print(f"  WARN project.yaml companion missing for {slug}: {cand}")
     sib = companion_sibling(upstream_rel)
     if sib and os.path.exists(os.path.join(root, sib)):
         return sib
@@ -145,9 +145,9 @@ def main():
     args = project_parser(__doc__).parse_args()
     root = resolve_project(args.project)
     os.makedirs(os.path.join(root, "sources"), exist_ok=True)
-    course = load_course(root)
-    by_slug = {c.get("slug"): c for c in course.get("chapters") or []}
-    upstream_dir = (course.get("course") or {}).get("upstream_dir")
+    manifest = load_project(root)
+    by_slug = {c.get("slug"): c for c in manifest.get("chapters") or []}
+    upstream_dir = (manifest.get("project") or {}).get("upstream_dir")
     concepts = sorted(
         f for f in glob.glob(os.path.join(root, "content", "*.md"))
         if not f.endswith("-script.md")

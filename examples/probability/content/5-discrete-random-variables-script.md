@@ -4,7 +4,7 @@ title: Discrete Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 5-discrete-random-variables.md
-derived_from_sha256: 698bae496f511a18ba3fa81e46e8d754ade93e80268e6dad2d0d99499a2e2d5e
+derived_from_sha256: e4ef416a2955e92dcc4fae5b366e3d7d1c658ea76ad11bb51a808d865e2e61bc
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/discrete_random_variables.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/discrete_random_variables.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Turn outcomes into numbers and describe them with a PMF."
   recap: "Last chapter we conditioned probabilities on partial information."

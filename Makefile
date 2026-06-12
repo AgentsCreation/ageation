@@ -15,13 +15,13 @@ setup: ## Install system deps (brew bundle) + Python env (uv sync)
 	brew bundle
 	uv sync
 
-init: ## Bootstrap a draft course.yaml from INPUT (e.g. make init INPUT=input/MySubject)
-	uv run python tools/init_course.py $(INPUT) --project $(PROJECT)
+init: ## Bootstrap a draft project.yaml from INPUT (e.g. make init INPUT=input/MySubject)
+	uv run python tools/init_project.py $(INPUT) --project $(PROJECT)
 
 sync: ## Report upstream<->local<->concept<->script drift
 	uv run python tools/check_sync.py --project $(PROJECT)
 
-notation: ## Enforce the notation convention (course.yaml: notation.rules)
+notation: ## Enforce the notation convention (project.yaml: notation.rules)
 	uv run python tools/check_notation.py --project $(PROJECT)
 
 status: ## Enforce the human-review status gates

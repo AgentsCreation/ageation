@@ -4,7 +4,7 @@ title: Basic Concepts
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 3-basic-concepts.md
-derived_from_sha256: a74a57658025c04e2c0e430e739f849336fa00cc7ff68ca11ca8cd82e09c5118
+derived_from_sha256: 4b416b7856a1e04e17d1b7e2257290e18839542706b9d33f25fc27acf61276d9
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/basic_concepts.py
 
@@ -14,7 +14,7 @@ target_scene_file: scenes/basic_concepts.py
 # recap     : reactivates the previous chapter at the open (spacing).
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Define probability axiomatically so it works for any sample space, not just equally likely ones."
   recap: "Last chapter, Combinatorics, gave us probability as counting when outcomes are equally likely."

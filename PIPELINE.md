@@ -4,13 +4,14 @@ A file-based, stage-gated pipeline that turns a LaTeX chapter into a narrated
 Manim video. Each stage reads files and writes files, so every stage is
 re-runnable, diffable, and reviewable in isolation. The pipeline is
 subject-agnostic: everything project-specific (title, input dir, notation
-rules, chapter spine) lives in `course.yaml`.
+rules, chapter spine) lives in `project.yaml`.
 
 ## The layers
 
 ```
-input/<Subject>/{Slug}.tex       (1) SOURCE      read-only, authored by humans
-  (+ {Slug}.md sibling            optional pandoc high-level characterization)
+upstream {Slug}.tex              (1) SOURCE      read-only, authored by humans
+  (host-repo files, or input/     (+ optional {Slug}.md sibling: pandoc
+   <Subject>/ when standalone)     high-level characterization)
         |  concept skill
         v
 content/{slug}.md                (2) CONCEPT     meta description: what/why/how
@@ -40,31 +41,46 @@ for intent and structure, the `.tex` for the precise content.
 
 ## Bootstrapping a new project
 
-`tools/init_course.py input/<Subject>` scans the input folder and emits a
-draft `course.yaml`: one chapter per `.tex` (numeric-prefix order), slugs,
+`tools/init_project.py input/<Subject>` scans the input folder and emits a
+draft `project.yaml`: one chapter per `.tex` (numeric-prefix order), slugs,
 titles, a linear prereq chain, detected companions, and an empty
 notation-rules skeleton. Review and curate it before running the stages.
 
-`init_course` is a convenience, not the only entry point. Inputs whose
+`init_project` is a convenience, not the only entry point. Inputs whose
 chapter boundaries are not encoded in numbered filenames — an article whose
 order lives in `main.tex` `\input` lines, a software repo whose chapters must
 be designed from the documentation's logical structure — start from a
-**hand-authored `course.yaml`**, which is fully first-class: every downstream
+**hand-authored `project.yaml`**, which is fully first-class: every downstream
 tool reads the spine from the file, never from the input layout.
 
 ## Consumer projects (engine / content split)
 
-The framework repo is an **engine** that drives any number of sibling
-*project* directories. A project contains only `course.yaml` + the layer
-folders (`input/`, `sources/`, `content/`, `scenes/`, `media/`); the engine
-owns the tools, the single Python venv, and `_style.py`. Conventions:
+The framework repo is an **engine** that drives any number of external
+*project* directories. A project contains only `project.yaml` + the layer
+folders (`sources/`, `content/`, `scenes/`, `media/`); the engine owns the
+tools, the single Python venv, and `_style.py`. Two postures:
+
+- **Embedded** (preferred when the videos are about a base repo — an article,
+  a book, a software project): the project is the reserved subdirectory
+  `auto_manim/` inside the host repo, and `project.yaml`'s `upstream_dir`
+  points back into the host (e.g. `../sections`). No `input/` folder exists;
+  vendoring still snapshots the host files into `auto_manim/sources/` with
+  full provenance. `auto_manim/` is the single name the framework claims in a
+  host repo — keep it disjoint from host layouts (the canonical article
+  template uses `sections/`, `figures/`, `templates/`, `output/`,
+  `resources/`, `misc/`).
+- **Standalone**: the project is its own directory and the read-only upstream
+  is dropped under `input/` — the only posture that uses `input/`.
+
+Conventions, in either posture:
 
 - Run `uv sync` / `uv run` in the engine repo; projects have no
   `pyproject.toml`.
 - Target a project with `--project DIR` (all tools) or
   `make check PROJECT=DIR` / `./render_all.sh h DIR`.
-- Version the project as its own git repo (gitignore `.env`, `media/`,
-  `__pycache__/`); the engine repo never absorbs project content.
+- Version the project with the host repo (or as its own git repo when
+  standalone); gitignore `.env`, `media/`, `__pycache__/`. The engine repo
+  never absorbs project content.
 - The stamp records which engine built the project (`framework_commit`, see
   provenance below), so engine evolution is detectable per project.
 
@@ -88,7 +104,7 @@ concept, then the script; only an approved script gets rendered.
 
 **Enforcement** (not just convention):
 - `tools/check_status.py` (part of `make check`) fails when a chapter's
-  `course.yaml` status is ahead of its layers' review status — `scripted+`
+  `project.yaml` status is ahead of its layers' review status — `scripted+`
   needs the concept `reviewed`, `built+` needs the script `reviewed` and the
   scene file present, `rendered+` needs the script `approved`.
 - `tools/render.py` refuses to render a chapter whose script is not
@@ -160,7 +176,7 @@ the read-only parent is never modified, and provenance still records its origin.
 
 ## Notation convention
 
-Defined per project as data in `course.yaml` (`notation.rules`: literal
+Defined per project as data in `project.yaml` (`notation.rules`: literal
 `avoid`/`use`/`reason` triples) and enforced by `tools/check_notation.py`,
 which scans `content/`, `scenes/`, and `sources/` and fails on the avoided
 forms. Manim has no access to a book's LaTeX macros, so scenes use the
@@ -188,7 +204,7 @@ the same code is safe at 480p draft or 4K final.
 ## Rendering resolution
 
 Drafts: `-ql` (480p15, fast, free gTTS). Finals: `-qh` (1080p60) or `-qk` (4K).
-`tools/render.py` reads `course.yaml` and renders every chapter whose status is
+`tools/render.py` reads `project.yaml` and renders every chapter whose status is
 built/rendered/approved (skip with `skip_render: true`); `render_all.sh` wraps
 it: `./render_all.sh` for 1080p60, `./render_all.sh k` for 4K, optional second
 arg = project dir. Rendering runs on a real machine only (cloud sandboxes
@@ -233,7 +249,7 @@ The output is **short, self-contained section videos (~5-6 min)** that cohere
 into a course through structure -- not a single concatenated film, and not
 disconnected snippets. Five mechanisms, all file-driven:
 
-1. **`course.yaml` -- the ordering spine.** One ordered list of chapters (each
+1. **`project.yaml` -- the ordering spine.** One ordered list of chapters (each
    split into section videos) with `status` and `prereqs`. Single source of
    truth for sequence; the template and any assembly step read it for neighbour
    titles.
@@ -256,20 +272,30 @@ short and focused. Each opens by stating its objective and reactivating the last
 video (spacing), and closes with a one-line key idea (retrieval cue) -- loosely
 following multimedia-learning and spaced-retrieval guidance.
 
-## Suggested repo layout
+## Suggested layout
+
+A **project** directory (standalone, or `auto_manim/` inside a host repo):
 
 ```
-input/          # layer 1 UPSTREAM (read-only parent sources; gitignored)
+project.yaml    # per-project config: title, upstream dir, notation rules,
+                #   chapters, render/voice/pedagogy defaults
+input/          # layer 1 UPSTREAM — standalone posture only (read-only,
+                #   gitignored); embedded projects point upstream_dir at the
+                #   host repo's files instead
 sources/        # layer 1 LOCAL editable working copies (vendored, normalizable)
 content/        # layers 2 & 3 (markdown, reviewed)
-scenes/         # layer 4 (generated Manim, + _style.py shared house style)
+scenes/         # layer 4 (generated Manim)
 media/          # layer 5 (git-ignored; Manim's native output layout)
-.claude/        # skills + a /animate-chapter command (planned)
-course.yaml     # per-project config: title, input dir, notation rules,
-                #   chapters, render/voice/pedagogy defaults
-tools/          # init_course, vendor_sources, stamp_provenance, check_sync,
+```
+
+The **engine** repo (this one) additionally holds:
+
+```
+tools/          # init_project, vendor_sources, stamp_provenance, check_sync,
                 #   check_notation, check_status, normalize_notation, render
                 #   (all take --project DIR, default `.`)
+scenes/_style.py  # shared house style (palette, notation helpers, fit_to_frame)
+.claude/        # skills + a /animate-chapter command (planned)
 examples/       # complete worked example project(s), e.g. probability
 NOTATION.md     # how the notation-rule system works
 PIPELINE.md     # this file

@@ -4,7 +4,7 @@ title: Mathematical Review
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 1-mathematical-review.md
-derived_from_sha256: e2cb0933816962ec29498bc8b5f8dd352c0262d42510fef47bb09d7aee59f6db
+derived_from_sha256: 424b8482b424f70495ec40a7d021a06079e7c55280901b351ee1f2f53ee53146
 provenance_stamped: 2026-06-11
 target_scene_file: scenes/mathematical_review.py
 
@@ -15,7 +15,7 @@ target_scene_file: scenes/mathematical_review.py
 #             the course opener, so the "recap" is a welcoming orientation.
 # key_idea  : one-line takeaway spoken in outro_bridge (retrieval cue).
 # bridge    : teases the next chapter at the close.
-# Neighbour titles for recap/bridge come from course.yaml prereqs + order.
+# Neighbour titles for recap/bridge come from project.yaml prereqs + order.
 linking:
   objective: "Speak the language of sets and functions that all of probability is built on."
   recap: "Welcome to the course — we start by building the mathematical toolkit everything else rests on."
