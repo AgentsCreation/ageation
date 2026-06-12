@@ -103,6 +103,11 @@ class ConceptOne(Scene):
   slots like `lag_ratio` (TypeError at render). Use
   `LaggedStart(*[Create(m) for m in group], lag_ratio=...)` instead.
   (`FadeIn` tolerates it — varargs.)
+- `Axes.plot` silently returns a curve with NO points when `x_range` is
+  decreasing — any path-based use (e.g. `MoveAlongPath`) then crashes at
+  render with "Cannot call Mobject.point_from_proportion". To traverse a
+  curve right-to-left, plot the increasing range and call
+  `.reverse_points()` on the result.
 
 ### Step 4 — Render a test
 
