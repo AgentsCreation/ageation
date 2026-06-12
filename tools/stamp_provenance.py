@@ -11,6 +11,10 @@ For each chapter:
                                adds it at generation time; hand-built scenes
                                without it are reported by check_sync)
 
+Each concept also records `framework_commit` — the git description of the
+auto-manim checkout that performed the stamp — so a project (which lives
+outside the framework repo) can tell which framework version built it.
+
 Run this once now, and again after regenerating any layer, so the recorded
 hashes describe the current snapshot. check_sync.py then detects drift.
 
@@ -21,6 +25,7 @@ import datetime
 import glob
 import os
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +35,26 @@ from _project import project_parser, resolve_project
 DATE = datetime.date.today().isoformat()
 
 SCENE_SHA_RE = re.compile(r"(?m)^# derived_from_sha256:.*$")
+
+
+def framework_version():
+    """Git description of the framework checkout that performed this stamp.
+
+    Projects live outside the framework repo (engine/content split), so the
+    content hashes alone can't say which framework generated a snapshot. The
+    `--dirty` suffix flags stamps made from an uncommitted framework tree.
+    """
+    fw_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        r = subprocess.run(
+            ["git", "-C", fw_root, "describe", "--always", "--dirty"],
+            capture_output=True, text=True, timeout=10)
+        return r.stdout.strip() or "unavailable"
+    except Exception:
+        return "unavailable"
+
+
+FRAMEWORK = framework_version()
 
 
 def stamp_scene(root, script_fm, script_path):
@@ -94,6 +119,8 @@ def main():
                     else:
                         print(f"  WARN companion missing for {slug}: {comp}")
                 fm = fm_upsert(fm, "provenance_stamped", DATE, after="source_sha256")
+                fm = fm_upsert(fm, "framework_commit", FRAMEWORK,
+                               after="provenance_stamped")
                 open(cpath, "w").write(rebuild(fm, body))
 
         # Stamp the script layer against the (now updated) concept file.

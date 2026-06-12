@@ -6,7 +6,7 @@ and compares, so drift between the LaTeX source and the generated layers is
 detectable even across clones with no git history (content hashes, not mtimes).
 
 Front-matter keys used:
-- concept .md : source, source_sha256, provenance_stamped
+- concept .md : source, source_sha256, provenance_stamped, framework_commit
 - script  .md : derived_from, derived_from_sha256, provenance_stamped
 """
 

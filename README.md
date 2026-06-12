@@ -30,6 +30,37 @@ make render-draft                    # 480p drafts of built+approved chapters
 
 Rendering requires a real machine (Mac), not a cloud sandbox — see HISTORY.md.
 
+## Engine / content split: driving a sibling project
+
+This repo is the **engine**; each course or video project is its own sibling
+directory (the **content**). The project holds only what is specific to it —
+`course.yaml`, `input/`, `sources/`, `content/`, `scenes/`, `media/` — while
+the engine holds the tools, the Python environment, and the docs. The engine
+evolves in one place without being copied into every project.
+
+```
+AgenticManim/
+  auto-manim/          # this repo: tools, venv, docs (the engine)
+  my-project/          # course.yaml + content + scenes (+ its own git repo)
+```
+
+The rules of the split:
+
+- **The venv lives here.** Run `uv sync` (and `uv run …`) in this repo, never
+  in the project — a project has no `pyproject.toml` by design.
+- **Tools are pointed at the project**: every tool takes `--project DIR`
+  (e.g. `uv run python tools/render.py --project ../my-project -q h`), and
+  `make check PROJECT=../my-project` runs the gates against it.
+- **A hand-written `course.yaml` is first-class.** `init_course.py` is a
+  convenience for inputs shaped like numbered chapter notes; repo- or
+  article-shaped inputs (ordering in a `main.tex`, multi-file chapters) are
+  expected to start from a hand-authored `course.yaml` instead.
+- **Projects version their own content.** Make the project a git repo of its
+  own; gitignore `.env` (TTS keys), `media/` (regenerable), `__pycache__/`.
+- **Provenance records the engine version**: `stamp_provenance.py` writes
+  `framework_commit` (this repo's git description, with a `-dirty` marker)
+  into each concept, so a project can always tell which engine built it.
+
 ## What's where
 
 - `course.yaml` — the per-project config + ordering spine: title, input dir,

@@ -57,6 +57,9 @@ def test_full_bootstrap_flow(project):
     concept = (project / "content" / "1-linear-algebra.md").read_text()
     assert "source_sha256:" in concept
     assert "companion_sha256:" in concept
+    # engine/content split: the stamp records which framework built this
+    assert "framework_commit:" in concept
+    assert "framework_commit: unavailable" not in concept  # tests run in-repo
 
     r = run("check_sync.py", "--project", root)
     assert r.returncode == 0, r.stdout

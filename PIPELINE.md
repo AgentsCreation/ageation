@@ -45,6 +45,29 @@ draft `course.yaml`: one chapter per `.tex` (numeric-prefix order), slugs,
 titles, a linear prereq chain, detected companions, and an empty
 notation-rules skeleton. Review and curate it before running the stages.
 
+`init_course` is a convenience, not the only entry point. Inputs whose
+chapter boundaries are not encoded in numbered filenames — an article whose
+order lives in `main.tex` `\input` lines, a software repo whose chapters must
+be designed from the documentation's logical structure — start from a
+**hand-authored `course.yaml`**, which is fully first-class: every downstream
+tool reads the spine from the file, never from the input layout.
+
+## Consumer projects (engine / content split)
+
+The framework repo is an **engine** that drives any number of sibling
+*project* directories. A project contains only `course.yaml` + the layer
+folders (`input/`, `sources/`, `content/`, `scenes/`, `media/`); the engine
+owns the tools, the single Python venv, and `_style.py`. Conventions:
+
+- Run `uv sync` / `uv run` in the engine repo; projects have no
+  `pyproject.toml`.
+- Target a project with `--project DIR` (all tools) or
+  `make check PROJECT=DIR` / `./render_all.sh h DIR`.
+- Version the project as its own git repo (gitignore `.env`, `media/`,
+  `__pycache__/`); the engine repo never absorbs project content.
+- The stamp records which engine built the project (`framework_commit`, see
+  provenance below), so engine evolution is detectable per project.
+
 ## File conventions
 
 - `slug`: lowercase, hyphenated, chapter-numbered — e.g. `5-discrete-random-variables`.
@@ -112,7 +135,10 @@ detectable by content hash (not git/mtime — those don't survive a clone):
 
 - `sources/{slug}.tex` header : `upstream` + `upstream_sha256` (the parent).
 - `content/{slug}.md` (concept): `source` (the local copy) + `source_sha256`,
-  plus `companion` + `companion_sha256` when a pandoc sibling exists.
+  plus `companion` + `companion_sha256` when a pandoc sibling exists, plus
+  `framework_commit` — the git description of the framework checkout that
+  performed the stamp (`-dirty` suffix when uncommitted), so a project built
+  by an external engine records which engine version built it.
 - `content/{slug}-script.md` (script): `derived_from` + `derived_from_sha256`.
 - `scenes/{slug}.py` (scene): a `# derived_from:` + `# derived_from_sha256:`
   header comment, added by the scene-from-script step and refreshed by
