@@ -27,6 +27,12 @@ from provenance import split_fm, fm_get
 
 RENDERABLE = {"built", "rendered", "approved"}
 
+# The engine repo (containing pyproject.toml and the manim-bearing venv)
+# is the parent directory of tools/. When a consumer project lives outside
+# this repo, `uv run` invoked with cwd=<project> can't find a venv to use;
+# passing --project <ENGINE_ROOT> points uv at the engine's venv instead.
+ENGINE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 def script_status(root, slug):
     """The review status of content/{slug}-script.md, or None when unreadable."""
@@ -95,7 +101,8 @@ def main():
             failures += 1
             continue
         classes = [v["scene_class"] for v in ch.get("videos") or [] if v.get("scene_class")]
-        cmd = ["uv", "run", "manim", f"-q{args.quality}", scene_file]
+        cmd = ["uv", "run", "--project", ENGINE_ROOT,
+               "manim", f"-q{args.quality}", scene_file]
         cmd += classes if classes else ["-a"]
         if args.dry_run:
             print(f"would render {slug}: {' '.join(cmd)}")
