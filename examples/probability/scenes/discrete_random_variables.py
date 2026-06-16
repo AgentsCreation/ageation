@@ -51,6 +51,7 @@ from _style import (
     outro_bridge,
     progress_tag,
     fit_to_frame,
+    configure_openai_client,
 )
 
 
@@ -58,13 +59,19 @@ def make_speech_service():
     """Single place to choose the voice (mirrors voice: in the script YAML).
 
     Draft  -> GTTSService: free, no API key, cached by text hash.
-    Final  -> OpenAIService(voice="alloy", model="tts-1"): needs OPENAI_API_KEY.
+    Final  -> OpenAIService(voice=..., model="tts-1"): needs OPENAI_API_KEY.
+              Always call configure_openai_client() first to shorten the
+              SDK's 600 s default request timeout (see HISTORY.md gotchas).
+              Voice choice is a deliberate per-video decision -- pick one of
+              alloy / echo / fable / onyx / nova / shimmer, don't default.
 
     No transcription_model here: we sync via separate voiceover blocks instead
     of bookmarks, so word-level timing (Whisper) is not required.
     """
     return GTTSService(lang="en", tld="com")
-    # return OpenAIService(voice="alloy", model="tts-1")
+    # configure_openai_client()
+    # return OpenAIService(voice="alloy", model="tts-1",
+    #                      transcription_model=None)
 
 
 # --- PMF generators (plain Python, kept out of the Scene classes) ------------

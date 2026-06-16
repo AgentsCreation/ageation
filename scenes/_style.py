@@ -69,6 +69,38 @@ def section_title(label: str) -> Text:
     return Text(label, font_size=SECTION, color=INK)
 
 
+# --- Axis label spacing ------------------------------------------------------
+# Manim's get_x_axis_label / get_y_axis_label default to MED_SMALL_BUFF (0.25),
+# which reads as crowding the axis once a label is more than a few characters
+# wide ("robot height" vs "k"). The geometric-overlap lint can't catch this --
+# adjacent-not-overlapping is geometrically clean -- so it has to be a sane
+# default in the style file. 0.40 in scene units clears multi-word CAPTION-
+# size labels at every render resolution.
+LABEL_BUFF = 0.40
+
+
+def axis_label_x(axes, label, *, buff: float = LABEL_BUFF) -> Text:
+    """A bottom-of-axis label with safe default spacing.
+
+    `label` may be a string (wrapped in a styled Text) or any mobject the
+    caller has already styled (passed through unchanged).
+    """
+    if isinstance(label, str):
+        label = Text(label, font_size=CAPTION, color=MUTED)
+    return axes.get_x_axis_label(label, edge=DOWN, direction=DOWN, buff=buff)
+
+
+def axis_label_y(axes, label, *, buff: float = LABEL_BUFF) -> Text:
+    """A left-of-axis label with safe default spacing.
+
+    `label` may be a string (wrapped in a styled Text) or any mobject the
+    caller has already styled (passed through unchanged).
+    """
+    if isinstance(label, str):
+        label = Text(label, font_size=CAPTION, color=MUTED)
+    return axes.get_y_axis_label(label, edge=LEFT, direction=LEFT, buff=buff)
+
+
 # --- Overflow safety ---------------------------------------------------------
 # The camera frame is config.frame_width x config.frame_height (14.22 x 8 at
 # 16:9). SAFE_MARGIN keeps content off the very edge. Every chart/graph and any
@@ -206,3 +238,22 @@ def outro_bridge(key_idea: str, next_title: str | None = None) -> VGroup:
 def progress_tag(index: int, total: int) -> Text:
     """Small 'n / total' marker for a corner -- orients the viewer in the arc."""
     return Text(f"{index} / {total}", font_size=CAPTION, color=MUTED)
+
+
+# --- OpenAI client preflight -------------------------------------------------
+# The openai SDK defaults to a 600 s request timeout with no retries, and
+# manim-voiceover's OpenAIService uses the module-level openai client. So a
+# stalled /audio/speech call costs ~10 min per occurrence before manim moves
+# on -- observed twice per render in practice (see HISTORY.md gotchas). Every
+# scene that constructs OpenAIService should call this helper first; a stall
+# then costs ~30 s, retried up to 5 times.
+
+def configure_openai_client(timeout: float = 30, max_retries: int = 5) -> None:
+    """Set the openai SDK module-level timeout + retry policy.
+
+    Call once before constructing OpenAIService. Safe to call repeatedly --
+    overwrites the same module-level attributes each time.
+    """
+    import openai
+    openai.timeout = timeout
+    openai.max_retries = max_retries
