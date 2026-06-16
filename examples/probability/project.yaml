@@ -7,6 +7,7 @@
 
 project:
   title: Undergraduate Probability I
+  shape: course             # many chapters, recap_prior=true, narration=1.0x
   # Read-only parent sources. Editable working copies are vendored to sources/
   # (tools/vendor_sources.py) and are what the pipeline actually builds from.
   upstream_dir: input/Probability

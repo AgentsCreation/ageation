@@ -39,6 +39,29 @@ the same document. When the pair exists, the pipeline vendors **both**
 concept's front matter) and the concept stage should read both — the `.md`
 for intent and structure, the `.tex` for the precise content.
 
+## Project shapes
+
+Every project declares its **shape** in `project.yaml` (`project.shape`).
+The shape is a planning anchor: it binds how the chapter spine is structured,
+the default narration pace, and whether the intro_card includes a recap of
+the prior chapter. Tools and skills branch on it.
+
+| `shape`   | chapter spine                          | voice.rate | recap_prior | example                                            |
+|-----------|----------------------------------------|------------|-------------|----------------------------------------------------|
+| `article` | one chapter (the article as a whole)   | 1.25       | false       | arXiv preprint → single 8–12 min explainer         |
+| `book`    | one video per book chapter             | 1.15       | true        | textbook → multi-video series                      |
+| `course`  | many chapters, optional `videos[]`     | 1.0        | true        | `examples/probability/` (12 chapters)              |
+| `session` | *(planned)* synthesize a CC session    | 1.25       | false       | Claude Code transcript → retrospective video       |
+
+The table values are *defaults*; explicit fields in `project.yaml` always win.
+`session` is recognized but tooling for it is not built yet — declare it now
+if you have a transcript you want to distil, and the per-shape conventions
+will fill in as the support lands.
+
+When `project.shape` is absent, the framework defaults to `article` —
+single-video standalone is the common case. Declare `shape: book` or
+`shape: course` explicitly when the project fans out into a series.
+
 ## Bootstrapping a new project
 
 `tools/init_project.py input/<Subject>` scans the input folder and emits a

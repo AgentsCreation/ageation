@@ -71,3 +71,53 @@ def notation_rules(manifest: dict) -> list[dict]:
                 f"project.yaml: notation.rules[{i}] needs non-empty string "
                 f"`avoid` and `use` keys (got: {rule!r})")
     return rules
+
+
+# --- Project shapes ----------------------------------------------------------
+# A "shape" is the kind of source the project distills into video. It binds
+# planning conventions: how the chapter spine is structured, default
+# narration pace, whether a recap line belongs in the intro_card. Tools and
+# skills branch on it. See PIPELINE.md "Project shapes" for the full table.
+
+PROJECT_SHAPES = {
+    "article": {"voice_rate": 1.25, "recap_prior": False,
+                "target_minutes_per_video": 10,
+                "default_chapter_count": 1,
+                "summary": "single video distilling an article (e.g. arXiv paper)"},
+    "book":    {"voice_rate": 1.15, "recap_prior": True,
+                "target_minutes_per_video": 8,
+                "default_chapter_count": None,  # one per book chapter
+                "summary": "one video per book chapter, multi-video series"},
+    "course":  {"voice_rate": 1.0,  "recap_prior": True,
+                "target_minutes_per_video": 6,
+                "default_chapter_count": None,
+                "summary": "many chapters with optional videos[] sublists"},
+    "session": {"voice_rate": 1.25, "recap_prior": False,
+                "target_minutes_per_video": 10,
+                "default_chapter_count": 1,
+                "summary": "(planned) synthesize a Claude Code session into a video"},
+}
+DEFAULT_SHAPE = "article"  # the most common case — single video distilling one source
+
+
+def project_shape(manifest: dict) -> str:
+    """Return the validated shape string for a project manifest.
+
+    Falls back to DEFAULT_SHAPE when `project.shape` is absent. `article` is
+    the default because single-video standalone is the most common case;
+    declare `shape: book` or `shape: course` only when the project really
+    fans out into a series. An unknown explicit shape is a hard error.
+    """
+    shape = (manifest.get("project") or {}).get("shape")
+    if shape is None:
+        return DEFAULT_SHAPE
+    if shape not in PROJECT_SHAPES:
+        known = ", ".join(sorted(PROJECT_SHAPES))
+        raise SystemExit(
+            f"project.yaml: unknown project.shape {shape!r} (known: {known})")
+    return shape
+
+
+def shape_defaults(shape: str) -> dict:
+    """The default convention bundle for a shape; explicit YAML wins over these."""
+    return PROJECT_SHAPES[shape]

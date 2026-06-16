@@ -1,28 +1,39 @@
 #!/usr/bin/env python3
-"""Bootstrap a draft project.yaml from a folder of LaTeX sources.
+"""Bootstrap a draft project.yaml from upstream source(s).
 
-The "launch on any input" entry point. Point it at an input directory of .tex
-files (e.g. input/MySubject) and it emits a draft project.yaml at the project
-root: one chapter per .tex in numeric-prefix-then-alphabetical order, with a
-slug, a title (from \\title/\\chapter/\\section when present, else the
-filename), a linear prereq chain, status: planned, and an empty notation-rules
-skeleton. Companion pandoc .md files sitting next to a .tex (a high-level
-characterization of the same document) are detected and recorded so the
-concept stage can leverage both.
+Shape-aware (see PIPELINE.md "Project shapes"):
 
-With --scaffold-concepts it also emits a minimal content/{slug}.md stub per
-chapter (front matter + the seven prose section headings), so the next steps
-(vendor_sources, stamp_provenance, check_sync) are mechanical — without it,
-nothing creates the concept files that vendor_sources is driven by.
+  --shape article   single .tex input  -> one chapter, one video.  *Default
+                    when input is a file.*
+  --shape book      directory of .tex  -> one chapter per file, multi-video.
+  --shape course    directory of .tex  -> many chapters, optional videos[] per
+                    chapter. Default when input is a directory.
+  --shape session   (planned) synthesize a Claude Code session into a video;
+                    not yet supported here — hand-author project.yaml.
 
-Everything it writes is a DRAFT for human review — reorder chapters, fix the
-prereq DAG, set the project title, and fill in notation rules before running
-the pipeline.
+The shape binds these manifest defaults (consult `_project.PROJECT_SHAPES`):
+
+  voice.rate                 article 1.25 / book 1.15 / course 1.0
+  pedagogy.recap_prior       false for article/session; true for book/course
+  pedagogy.target_minutes_*  article 10 / book 8 / course 6  (overridden by
+                             --target-minutes; prompted when interactive)
+
+If --shape is omitted, the shape is inferred from the input type (file ->
+article, directory -> course). Explicit --shape overrides the inference and
+errors when the input type doesn't match.
+
+Companion notes: when an upstream .tex has a sibling pandoc .md (high-level
+characterization), it's detected and recorded so the concept stage can use
+both. With --scaffold-concepts: also emit content/{slug}.md stubs.
 
 Usage:
-  python tools/init_project.py input/MySubject [--project DIR] [--title T]
-                              [--target-minutes N]
+  # article (file)
+  python tools/init_project.py paper.tex [--project DIR] [--shape article]
+                              [--title T] [--target-minutes N]
                               [--scaffold-concepts] [--force]
+
+  # book or course (directory)
+  python tools/init_project.py input/MySubject --shape course [...]
 """
 
 import os
@@ -30,7 +41,10 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import project_parser, resolve_project
+from _project import (
+    project_parser, resolve_project,
+    PROJECT_SHAPES, DEFAULT_SHAPE, shape_defaults,
+)
 from render import default_scene_file
 
 TITLE_PATTERNS = [
@@ -39,6 +53,16 @@ TITLE_PATTERNS = [
     r"\\section\*?\{([^}]*)\}",
 ]
 
+TARGET_MINUTES_MIN = 5
+TARGET_MINUTES_MAX = 20
+
+CONCEPT_SECTIONS = [
+    "What", "Why", "How", "What else", "Conceptual progression",
+    "Visual opportunities", "Deliberately out of scope",
+]
+
+
+# --- Slug + title helpers (unchanged from the course-era bootstrap) ----------
 
 def slugify(stem: str) -> str:
     """'5Discrete_Random_Variables' -> '5-discrete-random-variables'."""
@@ -69,10 +93,7 @@ def sort_key(name: str):
 
 
 def detect_collisions(chapters):
-    """Duplicate slugs / derived scene files — each must map 1:1.
-
-    Returns a list of human-readable problems (empty when clean).
-    """
+    """Duplicate slugs / derived scene files — each must map 1:1."""
     problems = []
     seen = {}
     for ch in chapters:
@@ -91,22 +112,53 @@ def detect_collisions(chapters):
     return problems
 
 
-CONCEPT_SECTIONS = [
-    "What", "Why", "How", "What else", "Conceptual progression",
-    "Visual opportunities", "Deliberately out of scope",
-]
+# --- Chapter generation per shape -------------------------------------------
 
-TARGET_MINUTES_DEFAULT = 10
-TARGET_MINUTES_MIN = 5
-TARGET_MINUTES_MAX = 20
+def chapters_for_article(tex_abs: str) -> list[dict]:
+    """One chapter, representing the article as a whole."""
+    stem = os.path.splitext(os.path.basename(tex_abs))[0]
+    slug = slugify(stem) or "article"
+    sib = os.path.splitext(tex_abs)[0] + ".md"
+    return [{
+        "slug": slug,
+        "title": title_from_tex(tex_abs, stem),
+        "upstream": os.path.basename(tex_abs),
+        "companion": os.path.basename(sib) if os.path.exists(sib) else None,
+        "prereq": None,
+    }]
 
 
-def prompt_target_minutes() -> int:
-    """Ask for a per-video time budget; suggest a default in the 5-20 range.
+def chapters_for_directory(input_dir: str) -> list[dict]:
+    """One chapter per .tex file in input_dir, linear prereq chain."""
+    tex_files = sorted(
+        (f for f in os.listdir(input_dir) if f.endswith(".tex")),
+        key=sort_key,
+    )
+    if not tex_files:
+        raise SystemExit(f"no .tex files in {input_dir}")
+    chapters = []
+    prev_slug = None
+    for name in tex_files:
+        stem = name[:-4]
+        slug = slugify(stem)
+        companion = stem + ".md"
+        has_companion = os.path.exists(os.path.join(input_dir, companion))
+        chapters.append({
+            "slug": slug,
+            "title": title_from_tex(os.path.join(input_dir, name), stem),
+            "upstream": name,
+            "companion": companion if has_companion else None,
+            "prereq": prev_slug,
+        })
+        prev_slug = slug
+    return chapters
 
-    Falls back to the default when stdin isn't a TTY (e.g. piped/CI runs).
-    """
-    suggestion = TARGET_MINUTES_DEFAULT
+
+# --- Interactive prompting --------------------------------------------------
+
+def prompt_target_minutes(suggestion: int) -> int:
+    """Ask for a per-video time budget. Falls back to suggestion when stdin
+    isn't a TTY (e.g. piped / CI)."""
     msg = (f"Target minutes per video [{TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX}, "
            f"default {suggestion}]: ")
     if not sys.stdin.isatty():
@@ -131,8 +183,9 @@ def prompt_target_minutes() -> int:
         return n
 
 
+# --- Concept scaffold (unchanged) -------------------------------------------
+
 def scaffold_concept(root, in_rel, ch):
-    """Write a minimal content/{slug}.md stub. Returns True when written."""
     path = os.path.join(root, "content", f"{ch['slug']}.md")
     if os.path.exists(path):
         print(f"  concept exists, skipping: content/{ch['slug']}.md")
@@ -158,91 +211,67 @@ def scaffold_concept(root, in_rel, ch):
     return True
 
 
-def main():
-    parser = project_parser(__doc__)
-    parser.add_argument("input_dir", help="folder of .tex sources, e.g. input/MySubject")
-    parser.add_argument("--title", default=None, help="project title (default: input folder name)")
-    parser.add_argument("--target-minutes", type=int, default=None,
-                        help=f"target minutes per video "
-                             f"({TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX}); "
-                             f"prompts if omitted (default {TARGET_MINUTES_DEFAULT})")
-    parser.add_argument("--scaffold-concepts", action="store_true",
-                        help="also emit content/{slug}.md concept stubs")
-    parser.add_argument("--force", action="store_true", help="overwrite an existing project.yaml")
-    args = parser.parse_args()
-    root = resolve_project(args.project)
+# --- Shape resolution + validation ------------------------------------------
 
-    out = os.path.join(root, "project.yaml")
-    if os.path.exists(out) and not args.force:
-        raise SystemExit(f"refusing to overwrite {out} (use --force)")
+def resolve_shape(explicit_shape: str | None, in_abs: str) -> str:
+    """Return the validated shape for this invocation.
 
-    in_abs = args.input_dir if os.path.isabs(args.input_dir) \
-        else os.path.join(root, args.input_dir)
-    if not os.path.isdir(in_abs):
-        raise SystemExit(f"input directory not found: {in_abs}")
-    in_rel = os.path.relpath(in_abs, root)
+    If --shape was given, validate it matches the input type. Else infer
+    from input type: file -> article, dir -> course (back-compat with the
+    course-era bootstrap)."""
+    is_file = os.path.isfile(in_abs)
+    is_dir = os.path.isdir(in_abs)
 
-    tex_files = sorted(
-        (f for f in os.listdir(in_abs) if f.endswith(".tex")),
-        key=sort_key,
-    )
-    if not tex_files:
-        raise SystemExit(f"no .tex files in {in_abs}")
+    if explicit_shape is None:
+        if is_file:
+            return "article"
+        if is_dir:
+            return "course"
+        raise SystemExit(f"input not found (neither file nor directory): {in_abs}")
 
-    title = args.title or os.path.basename(os.path.normpath(in_abs))
-    chapters = []
-    prev_slug = None
-    for name in tex_files:
-        stem = name[:-4]
-        slug = slugify(stem)
-        companion = stem + ".md"
-        has_companion = os.path.exists(os.path.join(in_abs, companion))
-        chapters.append({
-            "slug": slug,
-            "title": title_from_tex(os.path.join(in_abs, name), stem),
-            "upstream": name,
-            "companion": companion if has_companion else None,
-            "prereq": prev_slug,
-        })
-        prev_slug = slug
+    if explicit_shape == "article" and not is_file:
+        raise SystemExit(
+            f"--shape article expects a single .tex file; got: {in_abs}\n"
+            f"(use --shape book or --shape course for a directory of .tex files)")
+    if explicit_shape in ("book", "course") and not is_dir:
+        raise SystemExit(
+            f"--shape {explicit_shape} expects a directory of .tex files; got: {in_abs}\n"
+            f"(use --shape article for a single .tex file)")
+    if explicit_shape == "session":
+        raise SystemExit(
+            "--shape session is recognized but not yet supported by "
+            "init_project.py. Hand-author project.yaml for now "
+            "(see PIPELINE.md 'Project shapes').")
+    return explicit_shape
 
-    problems = detect_collisions(chapters)
-    if problems:
-        for p in problems:
-            print(f"ERROR: {p}")
-        raise SystemExit(f"{len(problems)} naming collision(s) — rename the "
-                         "input files or curate project.yaml by hand")
 
-    if args.target_minutes is None:
-        target_minutes = prompt_target_minutes()
-    elif not (TARGET_MINUTES_MIN <= args.target_minutes <= TARGET_MINUTES_MAX):
-        raise SystemExit(f"--target-minutes {args.target_minutes} outside "
-                         f"the {TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX} range")
-    else:
-        target_minutes = args.target_minutes
+# --- Manifest writer --------------------------------------------------------
 
+def write_manifest(out, in_rel, shape, title, target_minutes, defaults, chapters):
     lines = [
-        "# Project manifest -- the ordering spine for the whole video series.",
+        "# Project manifest -- the ordering spine for this project's video(s).",
         "# DRAFT generated by tools/init_project.py — review before running the",
-        "# pipeline: reorder chapters, fix the prereq DAG (a linear chain is",
-        "# assumed), set the title, and fill in notation rules.",
+        "# pipeline: set the title, fix the chapter spine for your content, fill",
+        "# in notation rules. Per-shape defaults come from PROJECT_SHAPES in",
+        "# tools/_project.py; override them by editing the YAML below.",
         "",
         "project:",
         f"  title: {title}",
-        "  # Read-only parent sources. Editable working copies are vendored to",
-        "  # sources/ (tools/vendor_sources.py); the pipeline builds from those.",
+        f"  shape: {shape}            # {defaults['summary']}",
+        "  # Read-only parent source(s). Editable working copies are vendored",
+        "  # to sources/ (tools/vendor_sources.py); the pipeline builds from those.",
         f"  upstream_dir: {in_rel}",
         "  render:",
         "    quality: ql            # ql = 480p draft; qh = 1080p final",
         "  voice:",
         "    provider: gtts         # gtts (free draft) -> openai (final)",
-        "    rate: 1.0",
+        f"    rate: {defaults['voice_rate']}",
         "  pedagogy:",
         f"    target_minutes_per_video: {target_minutes}   "
-        f"# {TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX}; pick by content density",
+        f"# {TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX}; shape default = {defaults['target_minutes_per_video']}",
         "    open_with_objective: true",
         "    close_with_key_idea: true",
-        "    recap_prior: true",
+        f"    recap_prior: {str(defaults['recap_prior']).lower()}",
         "",
         "# Notation convention as data: literal LaTeX strings, not regexes.",
         "# Enforced by tools/check_notation.py; tools/normalize_notation.py",
@@ -271,9 +300,76 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines).rstrip() + "\n")
 
+
+# --- Entry point ------------------------------------------------------------
+
+def main():
+    parser = project_parser(__doc__)
+    parser.add_argument("input",
+                        help="upstream .tex file (article) or directory of .tex "
+                             "files (book/course)")
+    parser.add_argument("--shape", default=None, choices=list(PROJECT_SHAPES),
+                        help=f"project shape; inferred from input if omitted "
+                             f"(file -> article, dir -> course). "
+                             f"Default project default = {DEFAULT_SHAPE}.")
+    parser.add_argument("--title", default=None,
+                        help="project title (default: derived from input)")
+    parser.add_argument("--target-minutes", type=int, default=None,
+                        help=f"target minutes per video "
+                             f"({TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX}); "
+                             f"prompts if omitted, shape default used non-interactively")
+    parser.add_argument("--scaffold-concepts", action="store_true",
+                        help="also emit content/{slug}.md concept stubs")
+    parser.add_argument("--force", action="store_true",
+                        help="overwrite an existing project.yaml")
+    args = parser.parse_args()
+    root = resolve_project(args.project)
+
+    out = os.path.join(root, "project.yaml")
+    if os.path.exists(out) and not args.force:
+        raise SystemExit(f"refusing to overwrite {out} (use --force)")
+
+    in_abs = args.input if os.path.isabs(args.input) \
+        else os.path.join(root, args.input)
+    in_abs = os.path.normpath(in_abs)
+
+    shape = resolve_shape(args.shape, in_abs)
+    defaults = shape_defaults(shape)
+
+    if shape == "article":
+        chapters = chapters_for_article(in_abs)
+        upstream_root = os.path.dirname(in_abs)
+        title_default = chapters[0]["title"]
+    else:  # book or course
+        chapters = chapters_for_directory(in_abs)
+        upstream_root = in_abs
+        title_default = os.path.basename(os.path.normpath(in_abs))
+
+    in_rel = os.path.relpath(upstream_root, root) or "."
+
+    problems = detect_collisions(chapters)
+    if problems:
+        for p in problems:
+            print(f"ERROR: {p}")
+        raise SystemExit(f"{len(problems)} naming collision(s) — rename the "
+                         "input files or curate project.yaml by hand")
+
+    if args.target_minutes is None:
+        target_minutes = prompt_target_minutes(defaults["target_minutes_per_video"])
+    elif not (TARGET_MINUTES_MIN <= args.target_minutes <= TARGET_MINUTES_MAX):
+        raise SystemExit(f"--target-minutes {args.target_minutes} outside "
+                         f"the {TARGET_MINUTES_MIN}-{TARGET_MINUTES_MAX} range")
+    else:
+        target_minutes = args.target_minutes
+
+    title = args.title or title_default
+
+    write_manifest(out, in_rel, shape, title, target_minutes, defaults, chapters)
+
     n_comp = sum(1 for c in chapters if c["companion"])
-    print(f"Wrote {os.path.relpath(out, root)}: {len(chapters)} chapters "
-          f"({n_comp} with companion .md) from {in_rel}.")
+    print(f"Wrote {os.path.relpath(out, root)}: shape={shape}, "
+          f"{len(chapters)} chapter(s) ({n_comp} with companion .md) "
+          f"from {in_rel}.")
 
     if args.scaffold_concepts:
         os.makedirs(os.path.join(root, "content"), exist_ok=True)
