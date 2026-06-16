@@ -19,3 +19,8 @@ media/
 .DS_Store
 *.swp
 *.swo
+
+# Secrets — projects keep an .env at their root (OPENAI_API_KEY etc.); the
+# engine repo itself should never have one, but ignore in case a contributor
+# adds one for local experiments. See PIPELINE.md "Environment + secrets".
+.env

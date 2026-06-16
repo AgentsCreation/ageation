@@ -107,6 +107,31 @@ Conventions, in either posture:
 - The stamp records which engine built the project (`framework_commit`, see
   provenance below), so engine evolution is detectable per project.
 
+## Environment + secrets
+
+Secrets (chiefly `OPENAI_API_KEY` for final renders) live in **`<project>/.env`**
+— a flat `KEY=VALUE` file at the project root, next to `project.yaml`. The
+framework's conventions:
+
+- The file is **gitignored** in every project (`.env` is on the standard
+  ignore list documented under "Consumer projects" above).
+- `tools/doctor.py` reads `<project>/.env` and verifies that the secrets
+  required by the project's selected `voice.provider` are present (so a
+  missing key fails LOUD before manim spins up, not several minutes into
+  a render). `make doctor PROJECT=…` runs this preflight; every
+  `make render*` and `make video*` target depends on it.
+- The engine repo ships `.env.example` as a template — copy it into the
+  project root and fill in the key. Never commit the filled copy.
+
+Provider-specific:
+
+- `voice.provider: gtts` (free, no key) needs no secrets — doctor reports
+  the OPENAI_API_KEY check as "not required."
+- `voice.provider: openai` requires `OPENAI_API_KEY`. The scene's
+  `make_speech_service()` constructs `OpenAIService(...)`, which reads the
+  key from the process environment via the openai SDK — so source `.env`
+  in your shell (or use a tool like `direnv`) before invoking `make render`.
+
 ## File conventions
 
 - `slug`: lowercase, hyphenated, chapter-numbered — e.g. `5-discrete-random-variables`.
@@ -132,6 +157,36 @@ concept, then the script; only an approved script gets rendered.
   scene file present, `rendered+` needs the script `approved`.
 - `tools/render.py` refuses to render a chapter whose script is not
   `approved` (override consciously with `--force`).
+
+## Geometric scene lint
+
+`tools/lint_scene.py` (`make lint-scene PROJECT=…`) replays each scene's
+`construct()` with TTS stubbed and `Scene.play` monkey-patched, snapshots
+mobject bounding boxes when each animation comes to rest, and flags pairwise
+overlaps between leaf mobjects that aren't declared in a per-scene
+`scenes/<scene>.lint-allow.yaml` sidecar. Parent-child pairs are skipped (a
+label inside its container box is intentional). Tolerance is in **scene
+units**, not pixels, so 480p and 1080p lint identically.
+
+**Gating rule.** `make video*` (final-quality stitched output) depends on
+`lint-scene`; `make render*` (per-scene draft frames) does **not**. False
+positives blocking *drafts* are worse than missed catches during iteration;
+final renders are where clean layout actually has to ship.
+
+**Scope.** The lint catches ~44% of typical review rounds (spatial overlaps
++ near-misses with `--buffer`). It does NOT catch animation-logic bugs (e.g.
+opacity conflicts that leave a label invisible — see
+`tools/lint_animation.py`, planned) or aesthetic preferences. Allowlist
+format:
+
+```yaml
+# scenes/gepa_explainer.lint-allow.yaml
+ignore:
+  - snapshot: 12          # or "*" for all snapshots
+    a: "VGroup[0].MathTex"
+    b: "Rectangle[1]"
+    reason: "formula deliberately framed"
+```
 
 ## The timing strategy (the hard part)
 
