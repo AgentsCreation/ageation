@@ -1,5 +1,5 @@
 [project]
-name = "auto-manim"
+name = "ageation"
 version = "0.1.0"
 description = "File-based pipeline that turns LaTeX notes into narrated, linked Manim videos"
 readme = "README.md"

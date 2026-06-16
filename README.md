@@ -39,20 +39,20 @@ tools, the Python environment, and the docs. The engine evolves in one place
 without being copied into every project. Two postures:
 
 **Embedded (preferred for base repos — articles, books, software).** The
-project is a single reserved subdirectory, `auto_manim/`, inside the repo the
+project is a single reserved subdirectory, `ageation/`, inside the repo the
 videos are about, and `upstream_dir` points back into the host — no `input/`
 folder at all:
 
 ```
 my-article/                # the base repo (e.g. the article template)
   main.tex  sections/  figures/  templates/ ...
-  auto_manim/              # everything video, one reserved name
+  ageation/                # everything video, one reserved name
     project.yaml  sources/  content/  scenes/  media/
 ```
 
-`uv run python tools/init_project.py ../sections --project ../my-article/auto_manim`
-bootstraps it; the host's `.gitignore` gains `auto_manim/media/` and
-`auto_manim/.env`, and deleting the videos is `rm -rf auto_manim/`.
+`uv run python tools/init_project.py ../sections --project ../my-article/ageation`
+bootstraps it; the host's `.gitignore` gains `ageation/media/` and
+`ageation/.env`, and deleting the videos is `rm -rf ageation/`.
 
 **Standalone.** When the upstream notes live elsewhere (a co-author's synced
 folder, an external download), the project is its own directory and the
@@ -64,7 +64,7 @@ The rules of the split, in either posture:
 - **The venv lives here.** Run `uv sync` (and `uv run …`) in this repo, never
   in the project — a project has no `pyproject.toml` by design.
 - **Tools are pointed at the project**: every tool takes `--project DIR`
-  (e.g. `uv run python tools/render.py --project ../my-article/auto_manim -q h`),
+  (e.g. `uv run python tools/render.py --project ../my-article/ageation -q h`),
   and `make check PROJECT=…` runs the gates against it.
 - **A hand-written `project.yaml` is first-class.** `init_project.py` is a
   convenience for inputs shaped like numbered chapter notes; repo- or

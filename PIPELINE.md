@@ -85,10 +85,10 @@ tools, the single Python venv, and `_style.py`. Two postures:
 
 - **Embedded** (preferred when the videos are about a base repo — an article,
   a book, a software project): the project is the reserved subdirectory
-  `auto_manim/` inside the host repo, and `project.yaml`'s `upstream_dir`
+  `ageation/` inside the host repo, and `project.yaml`'s `upstream_dir`
   points back into the host (e.g. `../sections`). No `input/` folder exists;
-  vendoring still snapshots the host files into `auto_manim/sources/` with
-  full provenance. `auto_manim/` is the single name the framework claims in a
+  vendoring still snapshots the host files into `ageation/sources/` with
+  full provenance. `ageation/` is the single name the framework claims in a
   host repo — keep it disjoint from host layouts (the canonical article
   template uses `sections/`, `figures/`, `templates/`, `output/`,
   `resources/`, `misc/`).
@@ -356,7 +356,7 @@ following multimedia-learning and spaced-retrieval guidance.
 
 ## Suggested layout
 
-A **project** directory (standalone, or `auto_manim/` inside a host repo):
+A **project** directory (standalone, or `ageation/` inside a host repo):
 
 ```
 project.yaml    # per-project config: title, upstream dir, notation rules,

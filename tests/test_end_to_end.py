@@ -118,7 +118,7 @@ def test_notation_check_and_normalize(project):
 
 
 def test_embedded_project_in_host_repo(tmp_path):
-    """The embedded posture: project lives at <host>/auto_manim, upstream_dir
+    """The embedded posture: project lives at <host>/ageation, upstream_dir
     points back into the host (../sections) — no input/ folder at all."""
     host = tmp_path / "article"
     sections = host / "sections"
@@ -126,7 +126,7 @@ def test_embedded_project_in_host_repo(tmp_path):
     (sections / "introduction.tex").write_text(
         "\\section{Introduction}\nWe study $\\mathbb{E}[X]$.\n")
     (sections / "introduction.md").write_text("# Intro sidecar\nIntent notes.\n")
-    proj = host / "auto_manim"
+    proj = host / "ageation"
     proj.mkdir()
     root = str(proj)
 

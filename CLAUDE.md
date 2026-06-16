@@ -12,7 +12,7 @@ chapter spine — bootstrap one with `tools/init_project.py` if absent).
 This repo is the **engine**; the content lives in external project
 directories driven via `--project DIR`. Preferred posture: a base repo (an
 article, a book, a software project) hosts the reserved subdirectory
-`auto_manim/` containing project.yaml + sources/ + content/ + scenes/ +
+`ageation/` containing project.yaml + sources/ + content/ + scenes/ +
 media/, with `upstream_dir` pointing back into the host (no `input/`).
 Standalone projects keep upstream copies under `input/` instead. See
 "Consumer projects" in PIPELINE.md.

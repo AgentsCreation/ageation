@@ -2,7 +2,7 @@
 
 Every pipeline tool operates on a *project directory* — a folder containing
 project.yaml and the sources/, content/, scenes/ layout (plus input/ in the
-standalone posture, or an `auto_manim/` subdirectory of a base repo in the
+standalone posture, or an `ageation/` subdirectory of a base repo in the
 embedded posture). Tools take --project <dir> (default: the current
 directory), so the same tools drive the root workspace, any project under
 examples/, or a sibling/base repo.

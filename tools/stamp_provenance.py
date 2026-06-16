@@ -12,7 +12,7 @@ For each chapter:
                                without it are reported by check_sync)
 
 Each concept also records `framework_commit` — the git description of the
-auto-manim checkout that performed the stamp — so a project (which lives
+ageation checkout that performed the stamp — so a project (which lives
 outside the framework repo) can tell which framework version built it.
 
 Run this once now, and again after regenerating any layer, so the recorded
