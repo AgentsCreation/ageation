@@ -23,7 +23,11 @@ content/{slug}-script.md         (3) SCRIPT      narration + beats + sync points
 scenes/{slug}.py                 (4) SCENE       Manim code (manim-voiceover)
         |  render (tools/render.py; real machine / Claude Code CLI only)
         v
-media/videos/...                 (5) BUILD       narrated video + .srt subtitles
+media/videos/.../<SceneClass>.mp4    per-beat renders + .srt subtitles
+        |  assemble (tools/assemble.py)
+        v
+media/videos/.../_assembled/         (5) BUILD   one stitched .mp4 per chapter
+  {slug}.mp4                                     (the reviewable deliverable)
 ```
 
 Layers 2 and 3 are **prose you can review and edit**. Layer 4 is generated from
@@ -300,7 +304,7 @@ Chapter 5 reference implementation in `examples/probability/`.
 | `concept-from-tex` | `{Slug}.tex` (+ companion `.md`) | `content/{slug}.md`   | Cowork or CLI  |
 | `script-from-concept` | `{slug}.md` (+ tex)  | `content/{slug}-script.md`  | Cowork or CLI  |
 | `scene-from-script` | `{slug}-script.md`     | `scenes/{slug}.py`          | Cowork or CLI  |
-| `render-verify`  | `scenes/{slug}.py` + script | `build/{slug}/` + timing  | **CLI / real machine only** |
+| `render-verify`  | `scenes/{slug}.py` + script | per-beat clips + assembled `media/videos/.../_assembled/{slug}.mp4` + timing  | **CLI / real machine only** |
 
 Each skill is a thin, deterministic transform with a fixed contract (named
 inputs/outputs, YAML schema it must emit). That is what makes the pipeline
@@ -315,19 +319,23 @@ prebuilt `manimpango` wheel, no pango dev headers. So:
   and script markdown, generate scene code. Text-in, text-out work that thrives
   in the cloud and benefits from conversation.
 - **Claude Code CLI (your machine):** layer 4-5 — the real `uv run manim`
-  render, TTS calls, the self-correcting render loop, and frame screenshots for
-  visual QA.
+  render, TTS calls, the self-correcting render loop, frame screenshots for
+  visual QA, and the ffmpeg assemble pass that stitches the per-beat clips
+  into the single reviewable `_assembled/{slug}.mp4`.
 
 Hand off via the repo: Cowork commits the markdown + scene code, you pull on
 the machine and run `render-verify`.
 
 ## Linking videos into a course (not one film)
 
-The output is **self-contained section videos (~5-20 min, set per project)**
-that cohere into a course through structure -- not a single concatenated film,
-and not disconnected snippets. The per-project target lives in
-`project.yaml` (`pedagogy.target_minutes_per_video`); `tools/init_project.py`
-suggests a default and asks for a budget. Five mechanisms, all file-driven:
+The deliverable for each chapter is **one assembled `.mp4`** stitched from
+its per-beat scene clips (the per-beat files stay on disk for cheap
+iteration). Across chapters the output is a set of these self-contained
+chapter videos (~5-20 min, set per project) that cohere into a course
+through structure -- not a single concatenated film of the whole course, and
+not disconnected snippets. The per-project target lives in `project.yaml`
+(`pedagogy.target_minutes_per_video`); `tools/init_project.py` suggests a
+default and asks for a budget. Five mechanisms, all file-driven:
 
 1. **`project.yaml` -- the ordering spine.** One ordered list of chapters (each
    split into section videos) with `status` and `prereqs`. Single source of
@@ -343,9 +351,12 @@ suggests a default and asks for a budget. Five mechanisms, all file-driven:
 4. **Concept DAG.** `concept.md` `concepts[].id` + `prereqs` form a graph across
    chapters. It generates accurate callbacks and catches the #1 continuity bug:
    using an idea before it's been taught. (To build.)
-5. **Assembly (optional).** Per-chapter videos stay separate for easy updates;
-   an ffmpeg pass can also emit a stitched cut with uniform encode, audio
-   loudness-normalization, and crossfades. (To build.)
+5. **Assembly (standard final step).** Every chapter's per-beat scenes are
+   stitched into one `.mp4` by `tools/assemble.py` -- this is the reviewable
+   deliverable. The per-beat files stay on disk so iterating on a single
+   beat is still cheap. `make video` (and `video-draft` / `video-4k`)
+   chains `render` + `assemble`; the output lands at
+   `media/videos/<module>/<quality>/_assembled/<slug>.mp4`.
 
 **Why this shape:** the right runtime depends on content density and audience —
 a fast conceptual primer wants ~5 min, a worked-example walkthrough may need
@@ -367,15 +378,17 @@ input/          # layer 1 UPSTREAM — standalone posture only (read-only,
 sources/        # layer 1 LOCAL editable working copies (vendored, normalizable)
 content/        # layers 2 & 3 (markdown, reviewed)
 scenes/         # layer 4 (generated Manim)
-media/          # layer 5 (git-ignored; Manim's native output layout)
+media/          # layer 5 (git-ignored). Manim's native per-beat layout under
+                #   media/videos/<module>/<quality>/ plus the assembled
+                #   deliverable at .../<quality>/_assembled/<slug>.mp4
 ```
 
 The **engine** repo (this one) additionally holds:
 
 ```
 tools/          # init_project, vendor_sources, stamp_provenance, check_sync,
-                #   check_notation, check_status, normalize_notation, render
-                #   (all take --project DIR, default `.`)
+                #   check_notation, check_status, normalize_notation, render,
+                #   assemble (all take --project DIR, default `.`)
 scenes/_style.py  # shared house style (palette, notation helpers, fit_to_frame)
 .claude/        # skills + a /animate-chapter command (planned)
 examples/       # complete worked example project(s), e.g. probability

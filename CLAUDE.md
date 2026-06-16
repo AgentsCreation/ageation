@@ -119,11 +119,28 @@ uv run manim -pql scenes/<chapter_name>.py ChapterOverview
 
 Fix any errors before rendering remaining scenes.
 
-### Step 5 — Report
+### Step 5 — Render every beat AND assemble the chapter video
 
-After rendering, print:
+The standard final step of the workflow is **one assembled `.mp4` per
+chapter** — that is what the human reviews and comments on. Per-beat clips
+stay on disk for cheap iteration, but they are not the deliverable.
+
+```bash
+make video-draft     # 480p: render every beat + assemble into one .mp4
+make video           # 1080p60 final
+# or, equivalently from the shell:
+./render_all.sh l    # draft (renders + assembles)
+./render_all.sh      # 1080p60 final (renders + assembles)
+```
+
+The deliverable lands at
+`<project>/media/videos/<module>/<quality>/_assembled/<slug>.mp4`.
+
+### Step 6 — Report
+
+After assembling, print:
 - Which scenes were created
-- The output video path(s)
+- The single assembled `.mp4` path (the reviewable deliverable)
 - Any concepts from the chapter that were skipped and why
 
 ---
@@ -136,6 +153,12 @@ After rendering, print:
   `sources/` instead (see PIPELINE.md)
 - Use `uv run manim` (not bare `manim`) to respect the project venv
 - Low quality (`-ql`) for drafts, high quality (`-qh`) for finals
+- The workflow's terminal artifact is **one assembled `.mp4` per chapter**,
+  not the per-beat clips. Use `make video` / `make video-draft` (or
+  `./render_all.sh`) — they chain render + assemble. The per-beat scene
+  files remain on disk for iteration, but the assembled video at
+  `media/videos/<module>/<quality>/_assembled/<slug>.mp4` is what you ship
+  and what gets reviewed.
 
 ## LaTeX Tips
 

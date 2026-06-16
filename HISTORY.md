@@ -30,9 +30,12 @@ pipeline a non-developer can drive, and that a future agent can extend. The
 human (JF) works in Cowork for authoring and in Claude Code CLI on a Mac for
 rendering.
 
-The output target is **self-contained section videos (~5–20 min each, set per
-project in `project.yaml`)** that link into a coherent course — not one long
-film, and not disconnected snippets.
+The output target, per chapter, is **one assembled `.mp4`** (the reviewable
+deliverable) stitched from per-beat scene clips that stay on disk for cheap
+iteration. Across chapters these are **self-contained chapter videos (~5–20
+min each, set per project in `project.yaml`)** that link into a coherent
+course — not one long film of the whole course, and not disconnected
+snippets.
 
 ---
 
@@ -54,7 +57,11 @@ content/{slug}-script.md         (3) SCRIPT     narration + beats + sync points
 scenes/{slug}.py                 (4) SCENE      Manim code (manim-voiceover)
         |  render (Mac / Claude Code CLI only)
         v
-build/ + media/                  (5) BUILD      narrated video + .srt subtitles
+media/videos/.../<SceneClass>.mp4    per-beat renders + .srt subtitles
+        |  assemble (tools/assemble.py)
+        v
+media/videos/.../_assembled/     (5) BUILD     one stitched .mp4 per chapter
+  {slug}.mp4                                   (the reviewable deliverable)
 ```
 
 - Layers 2–3 are **prose you review and edit**. Layer 4 is generated from layer
@@ -78,8 +85,10 @@ Short videos are made to cohere through five file-driven mechanisms:
    `outro_bridge`, `progress_tag` so every video has the same bookends.
 4. **Concept DAG (planned).** `concept.md` `concepts[].id` + `prereqs` form a
    graph; it generates accurate callbacks and catches "used before taught" bugs.
-5. **Assembly (planned, optional).** ffmpeg can stitch a full cut with uniform
-   encode, loudness-normalized audio, and crossfades.
+5. **Assembly (the standard final step).** `tools/assemble.py` stitches each
+   chapter's per-beat scene clips into a single `.mp4` — the reviewable
+   deliverable. `make video` chains `render` + `assemble`; the per-beat files
+   stay on disk for cheap iteration on a single beat.
 
 Pedagogical rationale (loosely applied): pick a per-project runtime budget in
 the 5–20 min range based on content density (primer vs worked-example
@@ -149,7 +158,9 @@ key idea (retrieval cue).
   `check_sync.py` (report upstream→local→concept→script drift),
   `check_notation.py` (enforce the project.yaml notation rules),
   `normalize_notation.py` (fix notation in working copies), `render.py`
-  (render the buildable chapters per project.yaml). All take `--project DIR`
+  (render the buildable chapters per project.yaml), `assemble.py` (stitch
+  each chapter's per-beat clips into the single reviewable `.mp4` under
+  `media/videos/.../_assembled/<slug>.mp4`). All take `--project DIR`
   (default `.`) and currently report clean / in-sync on the example.
 - `pyproject.toml` / `.python-version` — Python 3.12; deps `manim>=0.20.1`,
   `manim-voiceover[gtts]>=0.3.7`, `setuptools<81`.
@@ -221,14 +232,19 @@ Put the source notes under `input/<Subject>/` (read-only by convention).
 - Gate each step on `status` (draft → reviewed → approved) so a human can vet
   narration before any render.
 
-### Step 5 — Render and self-correct (Mac / CLI)
+### Step 5 — Render, assemble, and self-correct (Mac / CLI)
 ```
-uv run manim -ql -a scenes/{slug}.py          # draft all videos in the chapter
-uv run manim -ql scenes/{slug}.py SceneClass  # a single video
-./render_all.sh                                # 1080p60 finals
+uv run manim -ql -a scenes/{slug}.py          # draft all beats in the chapter
+uv run manim -ql scenes/{slug}.py SceneClass  # a single beat
+make video-draft                              # 480p draft: render + assemble
+make video                                    # 1080p60 finals: render + assemble
+./render_all.sh                                # equivalent: render + assemble at 1080p60
 ```
-Close the loop: on a traceback, read it, fix the script/scene, re-render. The
-most common first failure is a `MathTex` LaTeX error.
+Each `video*` / `render_all.sh` pass produces the per-beat clips AND the single
+assembled deliverable at `media/videos/<module>/<quality>/_assembled/<slug>.mp4`
+— that is the file you review. Close the loop: on a traceback, read it, fix
+the script/scene, re-render. The most common first failure is a `MathTex`
+LaTeX error.
 
 ### Step 6 — Verify coherence (both axes)
 - **Horizontal:** recap/bridge chain links correct neighbors; uniform notation
@@ -240,9 +256,12 @@ most common first failure is a `MathTex` LaTeX error.
 - **Sync:** `python tools/stamp_provenance.py` then `python tools/check_sync.py`
   — confirms every layer is in sync with its source by content hash.
 
-### Step 7 — (Optional) Assemble
-- ffmpeg pass: uniform encode + loudness-normalize + crossfade joins → a stitched
-  course cut with chapter markers, or keep a per-chapter playlist.
+### Step 7 — (Optional) Course-level cut
+- If you want a single playable cut of the whole course on top of the
+  per-chapter deliverables, run an additional ffmpeg pass over the
+  `_assembled/<slug>.mp4` files: uniform encode + loudness-normalize +
+  crossfade joins → a course master with chapter markers. Otherwise keep
+  the per-chapter assembled videos as a playlist.
 
 ---
 
@@ -284,5 +303,4 @@ most common first failure is a `MathTex` LaTeX error.
   `project.yaml`.
 - Generate `scenes/{slug}.py` for chapters 1–3, 6–12 (currently `scripted`).
 - Build the concept DAG + "used-before-taught" checker.
-- Build the optional ffmpeg assembly step.
 - Re-cut Chapter 4 in the voiceover style to match the rest.

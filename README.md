@@ -12,7 +12,9 @@ upstream *.tex             (read-only: the host repo's own files, or input/)
   → content/{slug}.md       concept scaffold (what/why/how)
   → content/{slug}-script.md   narration + beats
   → scenes/{slug}.py        Manim code (manim-voiceover)
-  → media/…                 rendered video + .srt   (gitignored)
+  → media/videos/.../<SceneClass>.mp4     per-beat renders + .srt (gitignored)
+  → media/videos/.../_assembled/{slug}.mp4   one assembled video per chapter
+                                             (the reviewable deliverable)
 ```
 
 ## Quickstart (macOS)
@@ -25,7 +27,8 @@ uv run python tools/init_project.py input/<Subject> --scaffold-concepts
 # review project.yaml (order, prereqs, title, notation rules) and flesh out
 # the concept stubs, then work through the pipeline stages (see PIPELINE.md)
 make check                           # provenance + notation + review-status gates
-make render-draft                    # 480p drafts of built+approved chapters
+make video-draft                     # 480p draft: render + assemble → one .mp4 per chapter
+make video                           # 1080p60 final: render + assemble (reviewable deliverable)
 ```
 
 Rendering requires a real machine (Mac), not a cloud sandbox — see HISTORY.md.
@@ -88,9 +91,13 @@ The rules of the split, in either posture:
 - `tools/` — `init_project` (bootstrap + concept stubs), `vendor_sources`,
   `stamp_provenance`, `check_sync` (4-link drift gate, scene layer included),
   `check_notation`, `check_status` (human-review gate), `normalize_notation`,
-  `render` (refuses un-approved scripts). All take `--project DIR`
-  (default `.`), so they drive any project directory.
-- `render_all.sh` / `Makefile` — render + gate commands (`PROJECT=` to retarget).
+  `render` (refuses un-approved scripts), `assemble` (stitches each chapter's
+  per-beat clips into the single reviewable `_assembled/<slug>.mp4`). All
+  take `--project DIR` (default `.`), so they drive any project directory.
+- `render_all.sh` / `Makefile` — render + assemble + gate commands. `make
+  video` / `video-draft` / `video-4k` chain render and assemble to produce
+  one `.mp4` per chapter; `./render_all.sh` does the same from the shell.
+  `PROJECT=` retargets.
 - `examples/probability/` — the original 12-chapter probability course, kept
   as a complete worked example; Chapter 5 there is the reference scene
   implementation.
