@@ -10,10 +10,20 @@ quality-specific subdirectory, and uses ffmpeg's concat demuxer to stitch
 them into one chapter video under ``media/videos/{scene_module}/{quality_dir}/
 _assembled/{slug}.mp4``.
 
-The concat demuxer uses ``-c copy`` -- no re-encoding -- which works because
-every scene came out of the same manim quality preset (identical codec, frame
-rate, audio sample rate). If a future scene set ever mixes presets, fall back
-to ``-c:v libx264 -c:a aac``.
+The concat demuxer uses ``-c:v copy`` -- the visuals are stream-copied
+(lossless, fast) because every scene came out of the same manim quality
+preset (identical codec, frame rate). If a future scene set ever mixes
+presets, fall back to ``-c:v libx264``.
+
+Audio is *always* re-encoded through ``aresample=async=1``, never stream-
+copied, even at speed=1.0. Why: each per-beat .mp4 carries its own AAC
+stream from an independent TTS call (OpenAI or gTTS), and stream-copying
+those packets across scene boundaries leaves PTS discontinuities at every
+join. ffmpeg-based players tolerate them; QuickTime is strict and reads
+the joins as clicks / micro-stutters / drifting sync. ``aresample=async=1``
+inserts or drops samples to enforce monotonic PTS, and a uniform AAC 192k
+@ 48 kHz output ensures the whole timeline is one continuous audio stream.
+The CPU cost is seconds.
 
 Usage:
   python tools/assemble.py [--project DIR] [-q l|m|h|k] [slug ...]
@@ -72,20 +82,33 @@ def atempo_chain(speed: float) -> str:
     return ",".join(f"atempo={f}" for f in factors)
 
 
+AAC_ARGS = ["-c:a", "aac", "-b:a", "192k", "-ar", "48000"]
+
+
 def assemble_one(list_file: str, out_path: str, speed: float) -> int:
     """Concat then (optionally) time-stretch. Returns ffmpeg's exit code.
 
-    1.0x  -> single pass concat with -c copy (no re-encode).
+    Video is stream-copied (no re-encode) at speed=1.0 and re-encoded via
+    setpts at other speeds. Audio is ALWAYS re-encoded through
+    ``aresample=async=1`` to a uniform AAC 192k/48 kHz stream -- this is the
+    QuickTime-safe path; stream-copying per-beat AAC streams across scene
+    joins leaves PTS discontinuities that QuickTime renders as clicks /
+    drift (see the module docstring for the full rationale).
+
+    1.0x  -> single pass: concat, copy video, resample audio.
     other -> two-pass: concat -c copy to a temp .mp4, then re-encode the
-             temp with setpts + atempo to ``out_path``. The two-pass approach
-             keeps the concat lossless and confines the re-encode to one
-             pass over an already-concatenated stream.
+             temp with setpts + aresample + atempo to ``out_path``. The
+             two-pass approach keeps the concat lossless and confines the
+             re-encode to one pass over an already-concatenated stream.
     """
     if speed == 1.0:
         return subprocess.run([
             "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
             "-f", "concat", "-safe", "0", "-i", list_file,
-            "-c", "copy", out_path,
+            "-c:v", "copy",
+            "-af", "aresample=async=1",
+            *AAC_ARGS,
+            out_path,
         ]).returncode
 
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
@@ -98,15 +121,19 @@ def assemble_one(list_file: str, out_path: str, speed: float) -> int:
         ]).returncode
         if rc != 0:
             return rc
+        # Prepend aresample=async=1 to the atempo chain so async correction
+        # happens before time-stretch -- same QuickTime fix as the speed=1.0
+        # branch above, threaded through the filter graph.
         filter_complex = (
             f"[0:v]setpts=PTS/{speed}[v];"
-            f"[0:a]{atempo_chain(speed)}[a]"
+            f"[0:a]aresample=async=1,{atempo_chain(speed)}[a]"
         )
         return subprocess.run([
             "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
             "-i", temp_concat,
             "-filter_complex", filter_complex,
             "-map", "[v]", "-map", "[a]",
+            *AAC_ARGS,
             out_path,
         ]).returncode
     finally:
