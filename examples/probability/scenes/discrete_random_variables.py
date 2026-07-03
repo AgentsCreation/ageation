@@ -31,8 +31,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from manim import *  # noqa: F401,F403
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.gtts import GTTSService
-# from manim_voiceover.services.openai import OpenAIService  # final voice
 
 from _style import (
     ACCENT,
@@ -51,27 +49,22 @@ from _style import (
     outro_bridge,
     progress_tag,
     fit_to_frame,
-    configure_openai_client,
+    speech_service,
 )
 
 
 def make_speech_service():
-    """Single place to choose the voice (mirrors voice: in the script YAML).
+    """Voice comes from project.yaml (project.voice) via _style.speech_service.
 
-    Draft  -> GTTSService: free, no API key, cached by text hash.
-    Final  -> OpenAIService(voice=..., model="tts-1"): needs OPENAI_API_KEY.
-              Always call configure_openai_client() first to shorten the
-              SDK's 600 s default request timeout (see HISTORY.md gotchas).
-              Voice choice is a deliberate per-video decision -- pick one of
-              alloy / echo / fable / onyx / nova / shimmer, don't default.
+    Drafts are free: tools/render.py exports AGEATION_TTS=gtts for -ql, and
+    the env var beats the configured provider. Finals read the per-project
+    voice (a deliberate editorial decision -- speech_service errors rather
+    than defaulting when voice.name is missing).
 
-    No transcription_model here: we sync via separate voiceover blocks instead
-    of bookmarks, so word-level timing (Whisper) is not required.
+    No transcription_model: we sync via separate voiceover blocks instead of
+    bookmarks, so word-level timing (Whisper) is not required.
     """
-    return GTTSService(lang="en", tld="com")
-    # configure_openai_client()
-    # return OpenAIService(voice="alloy", model="tts-1",
-    #                      transcription_model=None)
+    return speech_service()
 
 
 # --- PMF generators (plain Python, kept out of the Scene classes) ------------

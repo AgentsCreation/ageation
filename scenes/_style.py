@@ -242,6 +242,107 @@ def progress_tag(index: int, total: int) -> Text:
     return Text(f"{index} / {total}", font_size=CAPTION, color=MUTED)
 
 
+# --- Speech service from project config ---------------------------------------
+# Voice is configuration, not code: project.yaml's `project.voice` block names
+# the provider/voice once per project, and the draft/final switch is the
+# AGEATION_TTS environment variable (render.py sets it to gtts for -ql drafts).
+# Scenes just call speech_service() -- no more hand-commenting provider lines
+# in every make_speech_service().
+
+def _find_project_root(start: str) -> str | None:
+    """Walk up from `start` looking for a directory containing project.yaml."""
+    import os
+    d = os.path.abspath(start)
+    for _ in range(8):
+        if os.path.exists(os.path.join(d, "project.yaml")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return None
+
+
+def _load_dotenv_key(root: str, name: str) -> None:
+    """Set os.environ[name] from `<root>/.env` when not already exported.
+
+    manim-voiceover reads the process environment, so a key that lives only in
+    the project's .env (the doctor.py convention) must be lifted in here.
+    """
+    import os
+    if os.environ.get(name):
+        return
+    path = os.path.join(root, ".env")
+    if not os.path.exists(path):
+        return
+    for raw in open(path, encoding="utf-8"):
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        if key.strip() != name:
+            continue
+        val = val.strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in {"'", '"'}:
+            val = val[1:-1]
+        if val:
+            os.environ[name] = val
+        return
+
+
+def speech_service():
+    """Build the TTS service for a scene from project.yaml + environment.
+
+    Resolution order for the provider:
+      1. AGEATION_TTS env var (``gtts`` or ``openai``) -- the draft/final
+         switch; tools/render.py sets ``gtts`` automatically for -ql drafts.
+      2. project.yaml ``project.voice.provider``.
+      3. ``gtts`` when no project.yaml is found (safe, free fallback).
+
+    The project root is located via the AGEATION_PROJECT env var when set
+    (render.py exports it), else by walking up from the calling scene file.
+    An openai provider requires ``project.voice.name`` -- the voice is a
+    per-video editorial decision, so there is deliberately no default.
+    """
+    import inspect
+    import os
+
+    root = os.environ.get("AGEATION_PROJECT")
+    if not root:
+        caller = inspect.stack()[1].filename
+        root = _find_project_root(os.path.dirname(caller)) or _find_project_root(os.getcwd())
+
+    voice_cfg = {}
+    if root:
+        import yaml
+        with open(os.path.join(root, "project.yaml"), encoding="utf-8") as fh:
+            manifest = yaml.safe_load(fh) or {}
+        voice_cfg = (manifest.get("project") or {}).get("voice") or {}
+
+    provider = os.environ.get("AGEATION_TTS") or voice_cfg.get("provider") or "gtts"
+    provider = provider.strip().lower()
+
+    if provider == "gtts":
+        from manim_voiceover.services.gtts import GTTSService
+        return GTTSService(lang="en", tld="com")
+
+    if provider == "openai":
+        name = voice_cfg.get("name")
+        if not name:
+            raise RuntimeError(
+                "voice.provider is openai but project.yaml sets no voice.name -- "
+                "the voice is a per-video decision; add `name:` under project.voice")
+        if root:
+            _load_dotenv_key(root, "OPENAI_API_KEY")
+        from manim_voiceover.services.openai import OpenAIService
+        configure_openai_client()
+        return OpenAIService(voice=name,
+                             model=voice_cfg.get("model", "tts-1"),
+                             transcription_model=None)
+
+    raise RuntimeError(f"unknown TTS provider {provider!r} (expected gtts or openai)")
+
+
 # --- OpenAI client preflight -------------------------------------------------
 # The openai SDK defaults to a 600 s request timeout with no retries, and
 # manim-voiceover's OpenAIService uses the module-level openai client. So a

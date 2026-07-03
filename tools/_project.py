@@ -54,6 +54,31 @@ def load_project(project_root: str) -> dict:
         return yaml.safe_load(f) or {}
 
 
+def parse_dotenv(path: str) -> dict:
+    """Minimal .env parser: KEY=VALUE per line, # comments and blanks skipped.
+
+    Avoids adding python-dotenv as a dep; the file format is simple enough.
+    Quoted values (single or double) are stripped of their surrounding quotes.
+    """
+    if not os.path.exists(path):
+        return {}
+    out = {}
+    for raw in open(path, encoding="utf-8"):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        val = val.strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in {"'", '"'}:
+            val = val[1:-1]
+        if key:
+            out[key] = val
+    return out
+
+
 def notation_rules(manifest: dict) -> list[dict]:
     """The notation.rules list: dicts with literal `avoid`/`use`/`reason`.
 

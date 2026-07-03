@@ -187,14 +187,23 @@ distraction.
 
 ## 9. Voice: draft cheap, final per-video — and the pace is 1.0
 
-- **Draft** renders use `GTTSService` (free) so the human can review layout and
-  timing at 480p without hitting an API. `make_speech_service()` keeps the gTTS
-  line commented directly above the final line, so flipping is a one-line change.
-- **Final** renders use `OpenAIService(voice="nova", model="tts-1",
-  transcription_model=None)`, preceded by `configure_openai_client()` (30 s
-  timeout, 5 retries — the SDK default is a 600 s stall). The final voice **is a
-  per-video decision**: `nova` is this book's house voice, but *ask before
-  defaulting* — the framework's placeholder (`alloy`) is not a choice.
+- **Voice is configuration, not code.** Scenes call `_style.speech_service()`
+  from `make_speech_service()`; the provider/voice come from `project.yaml`'s
+  `project.voice` block (`provider`, `name`, optional `model`). No hand-edited
+  provider lines in scene files.
+- **Draft** renders use gTTS (free) so the human can review layout and timing
+  at 480p without hitting an API: `tools/render.py` exports `AGEATION_TTS=gtts`
+  for `-ql` drafts automatically, and the env var beats the config. Set it
+  yourself when rendering manim by hand.
+- **Final** renders use the configured OpenAI voice
+  (`OpenAIService(..., model="tts-1", transcription_model=None)`, preceded by
+  `configure_openai_client()` — 30 s timeout, 5 retries; the SDK default is a
+  600 s stall). The final voice **is a per-video decision**: `nova` is this
+  book's house voice, but *ask before defaulting* — `speech_service()`
+  deliberately errors when `voice.name` is missing rather than picking one.
+  `OPENAI_API_KEY` is read from the shell or lifted from `<project>/.env`
+  (render.py merges it into the manim subprocess; the scene helper lifts it
+  too for hand runs).
 - **Speaking pace is 1.0.** Generation-time `speed` stays at the default;
   1.25 was tried and reverted. Do not raise it without being asked.
 - The sandbox cannot reach the OpenAI API, so **the human runs the final nova
@@ -211,9 +220,10 @@ distraction.
    focused; the human frequently edits the `.py` directly between renders.
 3. Agent applies the note, re-renders **just that scene**, extracts a frame with
    ffmpeg, and reads it back to verify before moving on.
-4. When the human says "ready for high res and nova," the agent flips the voice,
-   re-stamps provenance, confirms `make check` is green, and hands over the
-   1080p command.
+4. When the human says "ready for high res and nova," the agent re-stamps
+   provenance, confirms `make check` is green, and hands over the 1080p
+   command — no voice edit needed: final quality reads the configured voice
+   (drafts alone force gTTS via `AGEATION_TTS`).
 
 Corollary: when the same render request repeats, the human is iterating in their
 editor between asks — **just re-render**, don't ask what changed.

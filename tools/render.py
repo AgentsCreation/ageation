@@ -22,7 +22,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import project_parser, resolve_project, load_project
+from _project import project_parser, resolve_project, load_project, parse_dotenv
 from provenance import split_fm, fm_get
 
 RENDERABLE = {"built", "rendered", "approved"}
@@ -84,6 +84,20 @@ def main():
         raise SystemExit("no renderable chapters (status built/rendered/approved, "
                          "or pass slugs explicitly)")
 
+    # Environment for the manim subprocesses. The scene-side speech_service()
+    # reads AGEATION_PROJECT to find project.yaml and AGEATION_TTS as the
+    # draft/final voice switch: -ql drafts default to the free gtts voice so a
+    # draft render never spends TTS money or needs an API key. Keys in the
+    # project's .env (the doctor.py convention) are lifted in because
+    # manim-voiceover only reads the process environment -- exporting in the
+    # shell must not be a prerequisite doctor can't see.
+    env = os.environ.copy()
+    for key, val in parse_dotenv(os.path.join(root, ".env")).items():
+        env.setdefault(key, val)
+    env.setdefault("AGEATION_PROJECT", root)
+    if args.quality == "l":
+        env.setdefault("AGEATION_TTS", "gtts")
+
     failures = 0
     for ch in selected:
         slug = ch["slug"]
@@ -108,7 +122,7 @@ def main():
             print(f"would render {slug}: {' '.join(cmd)}")
             continue
         print(f">>> rendering {slug}: {' '.join(cmd)}")
-        if subprocess.run(cmd, cwd=root).returncode != 0:
+        if subprocess.run(cmd, cwd=root, env=env).returncode != 0:
             print(f"!!! {slug}: render failed")
             failures += 1
 
