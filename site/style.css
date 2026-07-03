@@ -75,6 +75,8 @@ a { color: var(--accent); }
   font-size: 1.02rem; color: #2a2f38;
 }
 .syllogism .claim .term { font-weight: 700; color: var(--ink); }
+.syllogism .claim a.term { color: var(--accent); text-decoration: none; }
+.syllogism .claim a.term:hover { text-decoration: underline; }
 .syllogism .conclusion {
   background: var(--accent-soft); border-color: var(--accent);
   color: var(--ink); font-weight: 600;

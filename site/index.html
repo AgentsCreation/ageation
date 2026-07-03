@@ -21,8 +21,9 @@
       <h1>ageation</h1>
       <p class="lead">
         An engine for <strong>agentic video creation</strong>: it reads a folder
-        of LaTeX notes and produces short, narrated, linked Manim videos —
-        one reviewable video per chapter.
+        of LaTeX notes and produces short, narrated, linked
+        <a href="https://www.manim.community/">Manim</a> videos —
+        one reviewable video per topic.
       </p>
       <p class="desc">
         ageation is a layered, file-based pipeline. Every stage reads files and
@@ -38,7 +39,7 @@
     <section class="why">
       <div class="syllogism">
         <div class="claim"><span class="term">math</span> is written in <span class="term">LaTeX</span> — and LaTeX is code.</div>
-        <div class="claim"><span class="term">animation</span> is written in <span class="term">Manim</span> — and Manim is code.</div>
+        <div class="claim"><span class="term">animation</span> is written in <a class="term" href="https://www.manim.community/">Manim</a> — and Manim is code.</div>
         <div class="claim conclusion">code is agentic &nbsp;⇒&nbsp; <span class="term">math + LaTeX + Manim</span> is agentic.</div>
       </div>
       <p class="desc">
@@ -56,8 +57,8 @@
     <h2 class="section-title">How it works</h2>
     <ol class="objectives">
       <li><strong>Vendor the source.</strong> The upstream LaTeX notes are copied into an editable working set, each file stamped with the hash of its original — the notes themselves are never touched.</li>
-      <li><strong>Distill the concept.</strong> An agent reads the chapter and writes a concept map: what the video should teach, which ideas earn a beat, what is deliberately out of scope. <em>A human reviews it.</em></li>
-      <li><strong>Write the script.</strong> The concept becomes narration — beat by beat, with sync markers, a runtime budget, and a cut list. <em>A human approves it; only approved narration is ever voiced.</em></li>
+      <li><strong>Distill the concept.</strong> An agent reads the chapter and writes a concept map: what the video should teach, which ideas earn a beat, what is deliberately out of scope. <em>A human reviews it (optional).</em></li>
+      <li><strong>Write the script.</strong> The concept becomes narration — beat by beat, with sync markers, a runtime budget, and a cut list. <em>A human approves it (optional).</em></li>
       <li><strong>Generate the scenes.</strong> The script becomes Manim code in the series' house style. A geometric lint replays every animation and flags overlapping layouts before anything is rendered.</li>
       <li><strong>Build and measure.</strong> Free draft renders for iteration; one command renders, stitches, and measures the final video — and checks the measured runtime against the script's contract.</li>
     </ol>
@@ -72,12 +73,18 @@
       LaTeX, it can be animated.
     </p>
 
-    <h2 class="section-title">Built with it</h2>
+    <h2 class="section-title">Built on</h2>
     <p class="desc">
-      The flagship project is a complete undergraduate
-      <a href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Probability course</a>
-      — twenty section videos generated from the book's own chapters, reviewed
-      at the concept and script layers, and published as they were approved.
+      ageation stands on excellent open tools:
+      <a href="https://www.manim.community/">Manim Community</a> renders the
+      animations, <a href="https://voiceover.manim.community/">manim-voiceover</a>
+      binds narration to them, <a href="https://www.latex-project.org/">LaTeX</a>
+      typesets the mathematics, <a href="https://ffmpeg.org/">FFmpeg</a>
+      stitches the videos, and <a href="https://docs.astral.sh/uv/">uv</a> keeps
+      the environment reproducible. Narration is synthesized with
+      <a href="https://gtts.readthedocs.io/">gTTS</a> for free drafts and the
+      <a href="https://platform.openai.com/docs/guides/text-to-speech">OpenAI
+      text-to-speech API</a> for finals.
     </p>
 
     <h2 class="section-title">Under the hood</h2>
