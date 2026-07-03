@@ -4,7 +4,7 @@ title: Expectations and Bounds
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 10-expectations-and-bounds.md
-derived_from_sha256: cf78fdfdfb41a67162c83d4ec4ec02db216e524399c7471d5aff36b4115bc3b8
+derived_from_sha256: dae0172b82a2fd6073fa233ecb91c9dfa974034bac6ffdcac4d0bd8adc391256
 provenance_stamped: 2026-07-03
 target_scene_file: scenes/expectations_and_bounds.py
 

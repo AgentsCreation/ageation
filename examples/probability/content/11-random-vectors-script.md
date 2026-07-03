@@ -4,7 +4,7 @@ title: Random Vectors
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 11-random-vectors.md
-derived_from_sha256: 8fcb7169817f8489a81f2b0bc8908ae366f59e17f11439549f1e05b975a6832b
+derived_from_sha256: 33866f6953e2f76bde45b088086a1ebc1b9a3fddb9e536db4888a641539576ab
 provenance_stamped: 2026-07-03
 target_scene_file: scenes/random_vectors.py
 

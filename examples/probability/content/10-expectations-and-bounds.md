@@ -7,7 +7,7 @@ source: sources/10-expectations-and-bounds.tex
 upstream: input/Probability/10Expectations_and_Bounds.tex
 source_sha256: 527754d62539c3518f08f6a360f9f7e65951a202ce2690fef2c0930a17c0a2a0
 provenance_stamped: 2026-07-03
-framework_commit: 063f807
+framework_commit: 0bf66ab
 prereqs:
   - 9-derived-distributions
 audience: undergraduate engineering, first probability course
