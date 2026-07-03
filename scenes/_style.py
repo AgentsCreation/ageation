@@ -169,18 +169,24 @@ def make_pmf_chart(
     if y_max is None:
         y_max = max(values) * 1.2 if values else 1.0
 
-    # x starts at -1, not 0 (STYLE_BOOK 12, charts): one spare unit keeps the
-    # k=0 bar clear of the y-axis instead of straddling it.
+    # STYLE_BOOK 12, charts (review-hardened in the probability series):
+    # x starts at -1 so the k=0 bar clears the y-axis (the -1 tick label is
+    # suppressed); tick numbers at 30 pt and axis names at BODY so labels
+    # read at 480p; the x-axis name sits below-right of the tip so it never
+    # lands on a bar.
     axes = Axes(
         x_range=[-1, x_max, 1],
         y_range=[0, y_max, max(round(y_max / 4, 2), 0.05)],
-        x_length=8,
+        x_length=8.5,
         y_length=4,
-        axis_config={"include_numbers": True, "font_size": 20},
+        axis_config={"include_numbers": True, "font_size": 30},
+        x_axis_config={"numbers_to_exclude": [-1]},
         tips=False,
     )
-    x_lab = axes.get_x_axis_label(MathTex(x_label, font_size=SMALL))
-    y_lab = axes.get_y_axis_label(MathTex(y_label, font_size=SMALL))
+    x_lab = axes.get_x_axis_label(
+        MathTex(x_label, font_size=BODY), edge=RIGHT,
+        direction=DOWN + RIGHT, buff=0.25)
+    y_lab = axes.get_y_axis_label(MathTex(y_label, font_size=BODY))
 
     bars = VGroup()
     unit_w = axes.x_axis.unit_size
