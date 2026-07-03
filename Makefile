@@ -6,7 +6,7 @@
 PROJECT ?= .
 SPEED   ?= 1.0    # playback speed multiplier for assemble (1.0 = native)
 
-.PHONY: help setup init sync notation status check stamp doctor lint-scene test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean
+.PHONY: help setup init sync notation status check stamp doctor lint-scene test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -83,3 +83,6 @@ video-4k: lint-scene render-4k assemble-4k ## Render + assemble at 4K
 
 clean: ## Remove rendered output (regenerable from scenes/)
 	rm -rf $(PROJECT)/media
+
+clean-cache: ## Prune partial_movie_files render fragments; keeps per-scene mp4s, _assembled/, voiceovers
+	uv run python tools/clean_cache.py --project $(PROJECT)
