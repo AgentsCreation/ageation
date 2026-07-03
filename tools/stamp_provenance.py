@@ -42,14 +42,28 @@ def framework_version():
 
     Projects live outside the framework repo (engine/content split), so the
     content hashes alone can't say which framework generated a snapshot. The
-    `--dirty` suffix flags stamps made from an uncommitted framework tree.
+    `-dirty` suffix flags stamps made from an uncommitted framework tree.
+
+    Dirtiness is computed via `git status` with `.env*` excluded rather than
+    `describe --dirty`: sandboxed sessions are denied stat() on .env-pattern
+    files, which made git report a clean tree as dirty. Secrets-adjacent
+    files have no bearing on which framework built a video anyway.
     """
     fw_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         r = subprocess.run(
-            ["git", "-C", fw_root, "describe", "--always", "--dirty"],
+            ["git", "-C", fw_root, "describe", "--always"],
             capture_output=True, text=True, timeout=10)
-        return r.stdout.strip() or "unavailable"
+        version = r.stdout.strip()
+        if not version:
+            return "unavailable"
+        s = subprocess.run(
+            ["git", "-C", fw_root, "status", "--porcelain",
+             "--untracked-files=no", "--", ":(exclude).env*"],
+            capture_output=True, text=True, timeout=10)
+        if s.returncode != 0 or s.stdout.strip():
+            version += "-dirty"
+        return version
     except Exception:
         return "unavailable"
 
