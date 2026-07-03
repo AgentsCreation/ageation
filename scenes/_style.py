@@ -15,10 +15,14 @@ Conventions:
 
 from manim import (
     Axes,
+    BLACK,
+    Circle,
     Create,
+    Dot,
     FadeIn,
     GRAY_B,
     Rectangle,
+    RoundedRectangle,
     Text,
     MathTex,
     VGroup,
@@ -30,6 +34,8 @@ from manim import (
     DOWN,
     LEFT,
     RIGHT,
+    UL,
+    DR,
     DEGREES,
     config,
 )
@@ -200,41 +206,112 @@ def make_pmf_chart(
     return chart, bars
 
 
+# --- Recurring figures ---------------------------------------------------------
+# The series' established glyphs. A chapter that draws its own version of one
+# of these reads as a different series (STYLE_BOOK "reuse established
+# figures") -- these were copy-pasted into 13 of 17 scene files before being
+# promoted here. Extend this section rather than redefining locally.
+
+def omega_box(width=4.2, height=4.2):
+    """The sample-space frame: a rounded rectangle labelled Omega."""
+    box = RoundedRectangle(
+        corner_radius=0.2, width=width, height=height, color=MUTED
+    ).set_stroke(MUTED, width=2)
+    lab = MathTex(r"\Omega", font_size=BODY, color=MUTED)
+    lab.next_to(box.get_corner(UL), DR, buff=0.22)
+    return VGroup(box, lab)
+
+
+def ball(label, color, radius=0.30, font_size=22):
+    """A colored disk with a dark centered label (Chapter 2 house style)."""
+    dot = Dot(radius=radius, color=color).set_fill(color, opacity=0.95)
+    dot.set_stroke(INK, width=1.5)
+    txt = MathTex(label, font_size=font_size, color=BLACK)
+    return VGroup(dot, txt.move_to(dot.get_center()))
+
+
+def die_face(n, size=0.8, color=INK, fill=None):
+    """A rounded-square die face showing n pips in the standard layout (Ch 3)."""
+    sq = RoundedRectangle(corner_radius=0.12, width=size, height=size)
+    sq.set_stroke(color, 2.5)
+    if fill is not None:
+        sq.set_fill(fill, opacity=0.30)
+    o = size * 0.26
+    P = {
+        "c": [0, 0, 0],
+        "tl": [-o, o, 0], "tr": [o, o, 0],
+        "bl": [-o, -o, 0], "br": [o, -o, 0],
+        "ml": [-o, 0, 0], "mr": [o, 0, 0],
+    }
+    layout = {
+        1: ["c"], 2: ["tl", "br"], 3: ["tl", "c", "br"],
+        4: ["tl", "tr", "bl", "br"], 5: ["tl", "tr", "c", "bl", "br"],
+        6: ["tl", "tr", "ml", "mr", "bl", "br"],
+    }
+    pips = VGroup(*[Dot(point=P[k], radius=size * 0.07, color=color)
+                    for k in layout[n]])
+    return VGroup(sq, pips)
+
+
+def coin(symbol, color, radius=0.42):
+    """A coin face: an outlined disk with its symbol (H/T) in the same color."""
+    c = Circle(radius=radius, color=color).set_fill(color, 0.22)
+    c.set_stroke(color, 4)
+    return VGroup(c, Text(symbol, font_size=SMALL, color=color).move_to(c))
+
+
 # --- Course-linking template -------------------------------------------------
 # Every video opens with intro_card and closes with outro_bridge so the whole
 # series shares one structural grammar. The text comes from the script layer
 # (objective / key_idea) and the manifest (neighbor titles), keeping chapters
 # visually and narratively continuous without a single concatenated film.
 
-def intro_card(title: str, objective: str, kicker: str | None = None) -> VGroup:
+def _text_lines(lines, *, font_size, color, buff=0.18) -> VGroup:
+    """One centred Text per line (never \\n inside a Text -- it renders garbled).
+
+    Accepts a single string or a sequence of strings; long titles/objectives
+    split at the clause turn into two centred lines (STYLE_BOOK layout rule).
+    """
+    if isinstance(lines, str):
+        lines = [lines]
+    group = VGroup(*[Text(line, font_size=font_size, color=color)
+                     for line in lines])
+    group.arrange(DOWN, buff=buff)
+    return group
+
+
+def intro_card(title, objective, kicker: str | None = None) -> VGroup:
     """Standard opening: optional kicker, the title, then the learning goal.
 
     Stating the objective up front is a retention best practice -- the viewer
-    knows what they're about to be able to do.
+    knows what they're about to be able to do. `title` and `objective` accept
+    a string or a sequence of lines, so a two-line objective needs no
+    hand-rolled card.
     """
     parts = VGroup()
     if kicker:
         parts.add(Text(kicker, font_size=SMALL, color=ACCENT))
-    parts.add(Text(title, font_size=TITLE, color=INK))
-    parts.add(Text(objective, font_size=SMALL, color=MUTED))
+    parts.add(_text_lines(title, font_size=TITLE, color=INK))
+    parts.add(_text_lines(objective, font_size=SMALL, color=MUTED))
     parts.arrange(DOWN, buff=0.4)
-    return parts
+    return fit_to_frame(parts)
 
 
-def outro_bridge(key_idea: str, next_title: str | None = None) -> VGroup:
+def outro_bridge(key_idea, next_title: str | None = None) -> VGroup:
     """Standard closing: the one-line takeaway, then a peek at what's next.
 
     The key idea is a retrieval cue (consolidates the video); the next-up line
-    is the bridge that links this video to the following one.
+    is the bridge that links this video to the following one. `key_idea`
+    accepts a string or a sequence of lines.
     """
     parts = VGroup(
         Text("Key idea", font_size=SMALL, color=ACCENT),
-        Text(key_idea, font_size=BODY, color=INK),
+        _text_lines(key_idea, font_size=BODY, color=INK),
     )
     if next_title:
         parts.add(Text(f"Coming up:  {next_title}", font_size=SMALL, color=MUTED))
     parts.arrange(DOWN, buff=0.4)
-    return parts
+    return fit_to_frame(parts)
 
 
 def progress_tag(index: int, total: int) -> Text:

@@ -193,7 +193,11 @@ class RandomVariableMapping(VoiceoverScene):
                  "to a point on the real line."
         ):
             self.play(Create(line), Write(rlabel))
-            self.play(LaggedStartMap(Create, arrows, lag_ratio=0.25), run_time=2)
+            # Not LaggedStartMap(Create, arrows, ...): its identity arg_creator
+            # *-unpacks each Arrow's tip into positional slots (TypeError at
+            # render) -- the CLAUDE.md composite-mobject gotcha.
+            self.play(LaggedStart(*[Create(a) for a in arrows], lag_ratio=0.25),
+                      run_time=2)
 
         with self.voiceover(
             text="Different outcomes can land on the same number — that's "
