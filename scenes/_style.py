@@ -21,6 +21,7 @@ from manim import (
     Dot,
     FadeIn,
     GRAY_B,
+    Line,
     Rectangle,
     RoundedRectangle,
     Text,
@@ -266,6 +267,53 @@ def coin(symbol, color, radius=0.42):
     c = Circle(radius=radius, color=color).set_fill(color, 0.22)
     c.set_stroke(color, 4)
     return VGroup(c, Text(symbol, font_size=SMALL, color=color).move_to(c))
+
+
+def mass_table(entries, cell_w=1.15, cell_h=0.75, font_size=SMALL):
+    """A lattice of LaTeX entries — the joint-PMF table idiom.
+
+    ``entries`` is a list of rows; each item is a LaTeX string or None for a
+    blank cell (headers are just entries the caller styles). Returns a
+    VGroup(grid_lines, tex_group) exposing ``table.cells[i][j]`` (MathTex or
+    None) so callers can highlight rows, lift slices, or tint cells. Style
+    individual cells via ``table.cells`` after construction.
+    """
+    rows = len(entries)
+    cols = max(len(r) for r in entries)
+    width, height = cols * cell_w, rows * cell_h
+
+    grid = VGroup()
+    for i in range(rows + 1):
+        y = height / 2 - i * cell_h
+        grid.add(Line([-width / 2, y, 0], [width / 2, y, 0],
+                      stroke_width=1.5, color=MUTED))
+    for j in range(cols + 1):
+        x = -width / 2 + j * cell_w
+        grid.add(Line([x, height / 2, 0], [x, -height / 2, 0],
+                      stroke_width=1.5, color=MUTED))
+
+    cells = []
+    tex_group = VGroup()
+    for i, row in enumerate(entries):
+        cell_row = []
+        for j in range(cols):
+            s = row[j] if j < len(row) else None
+            if s is None:
+                cell_row.append(None)
+                continue
+            t = MathTex(s, font_size=font_size, color=INK)
+            t.move_to([-width / 2 + (j + 0.5) * cell_w,
+                       height / 2 - (i + 0.5) * cell_h, 0])
+            cell_row.append(t)
+            tex_group.add(t)
+        cells.append(cell_row)
+
+    table = VGroup(grid, tex_group)
+    table.cells = cells
+    # A lattice's lines cross each other by construction -- declare the
+    # intent here so every consumer of the idiom is lint-clean for free.
+    mark_intended_overlap(grid, reason="table lattice lines cross by design")
+    return table
 
 
 # --- Course-linking template -------------------------------------------------
