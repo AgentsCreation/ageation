@@ -49,9 +49,30 @@ def test_concept_scaffold(project):
         scaffold_concept(str(project), MANIFEST, "2-sets", force=False)
 
 
-def test_concept_requires_vendored_source(project):
-    with pytest.raises(SystemExit, match="vendor_sources"):
+def test_concept_without_source_or_upstream_errors(project):
+    with pytest.raises(SystemExit, match="upstream"):
         scaffold_concept(str(project), MANIFEST, "3-maps", force=False)
+
+
+def test_concept_vendors_on_demand(project):
+    # A chapter added to an established project has no vendored copy yet;
+    # the concept scaffold vendors it (with companion) from `upstream:`.
+    (project / "input").mkdir()
+    (project / "input" / "maps.tex").write_text("\\section{Maps}\nbody\n")
+    (project / "input" / "maps.md").write_text("sidecar\n")
+    manifest = {
+        "project": MANIFEST["project"],
+        "chapters": [{"slug": "3-maps", "title": "Maps",
+                      "upstream": "input/maps.tex"}],
+    }
+    out = scaffold_concept(str(project), manifest, "3-maps", force=False)
+    assert (project / "sources" / "3-maps.tex").exists()
+    assert (project / "sources" / "3-maps.md").exists()   # companion sibling
+    vendored = (project / "sources" / "3-maps.tex").read_text()
+    assert "upstream_sha256" in vendored                  # provenance header
+    fm_text, _ = split_fm(open(out).read())
+    assert "upstream: input/maps.tex" in fm_text
+    assert "companion: sources/3-maps.md" in fm_text
 
 
 def write_concept(project, concepts_yaml=""):

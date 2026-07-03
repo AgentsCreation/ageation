@@ -84,12 +84,31 @@ def scaffold_concept(root: str, manifest: dict, slug: str, force: bool) -> str:
     out = os.path.join(root, "content", f"{slug}.md")
     refuse_existing(out, force)
 
+    # Vendor on demand: tools/vendor_sources.py works off existing concept
+    # files, so a chapter added to an established project has no vendored
+    # copy yet when its concept is first scaffolded. Reuse the same vendoring
+    # machinery here (provenance header, companion sibling).
     source = f"sources/{slug}.tex"
     source_abs = os.path.join(root, source)
+    upstream = ch.get("upstream")
+    companion_rel = None
     if not os.path.exists(source_abs):
-        raise SystemExit(
-            f"{source} not found -- run tools/vendor_sources.py first "
-            f"(the concept is written from the editable vendored copy)")
+        if not upstream:
+            raise SystemExit(
+                f"{source} not found and chapter {slug} declares no "
+                f"`upstream:` in project.yaml -- nothing to vendor from")
+        from vendor_sources import vendor_file, find_companion
+        vendor_file(root, upstream, source)
+        print(f"  vendored {slug}  ->  {source}")
+        by_slug = {c.get("slug"): c for c in manifest.get("chapters") or []}
+        upstream_dir = (manifest.get("project") or {}).get("upstream_dir")
+        comp_up = find_companion(root, slug, upstream, by_slug, upstream_dir)
+        if comp_up:
+            companion_rel = f"sources/{slug}.md"
+            vendor_file(root, comp_up, companion_rel)
+            print(f"  companion {slug}  ->  {companion_rel}")
+    elif os.path.exists(os.path.join(root, "sources", f"{slug}.md")):
+        companion_rel = f"sources/{slug}.md"
 
     shape = shape_defaults(project_shape(manifest))
     pedagogy = (manifest.get("project") or {}).get("pedagogy") or {}
@@ -105,6 +124,10 @@ def scaffold_concept(root: str, manifest: dict, slug: str, force: bool) -> str:
         f"source: {source}",
         f"source_sha256: {sha256_file(source_abs)}",
     ]
+    if upstream:
+        lines.append(f"upstream: {upstream}")
+    if companion_rel:
+        lines.append(f"companion: {companion_rel}")
     if ch.get("prereqs"):
         lines.append("prereqs:")
         lines += [f"  - {p}" for p in ch["prereqs"]]
