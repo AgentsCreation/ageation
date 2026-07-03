@@ -28,6 +28,8 @@ from manim import (
     WHITE,
     UP,
     DOWN,
+    LEFT,
+    RIGHT,
     DEGREES,
     config,
 )
