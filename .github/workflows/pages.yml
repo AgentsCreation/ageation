@@ -1,0 +1,59 @@
+name: Deploy site
+
+# Builds the ageation site and deploys it to GitHub Pages — the same
+# mechanism as the probability course repo's site.
+#
+# Manual only: this site deploys when you ask it to, never automatically on a
+# push. Trigger it with:  just deploy   (or `gh workflow run pages.yml`).
+on:
+  workflow_dispatch:
+
+# Least-privilege token: read the repo, publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deploy at a time; newer runs cancel in-flight ones.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+        with:
+          # Full history so `git describe --always` in the generator reports
+          # a real version, not a shallow stub.
+          fetch-depth: 0
+
+      # Generate the site data (site/data/site.json) from the repo itself.
+      # The generator is stdlib-only; no dependencies to install.
+      - name: Generate the site data
+        run: python3 scripts/site_data.py
+
+      # Assemble the static site: the committed site/ folder plus the
+      # freshly generated data.
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -R site/. _site/
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

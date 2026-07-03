@@ -1,0 +1,88 @@
+/* ageation site — same family as the probability course site (same layout,
+   typography, and components), with its own accent hue. */
+:root {
+  --ink: #1a1a2e;
+  --muted: #5b6472;
+  --accent: #2f8a5d;
+  --accent-soft: #e8f8f0;
+  --line: #dfe3e8;
+  --bg: #ffffff;
+  --card: #f7f9fb;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.55;
+}
+a { color: var(--accent); }
+
+/* ---- shared top nav ---- */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  padding: .85rem 1.25rem; border-bottom: 1px solid var(--line);
+}
+.nav .brand { font-weight: 700; font-size: 1.15rem; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+.nav .links { display: flex; gap: .25rem; flex-wrap: wrap; }
+.nav .links a {
+  padding: .35rem .75rem; border-radius: 999px; text-decoration: none;
+  color: var(--muted); font-size: .92rem; font-weight: 550;
+}
+.nav .links a:hover { background: var(--card); color: var(--ink); }
+.nav .links a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+
+/* ---- landing / About page ---- */
+.wrap { max-width: 820px; margin: 0 auto; padding: 2.25rem 1.25rem 4rem; }
+.hero h1 { font-size: 2.1rem; margin: 0 0 .4rem; letter-spacing: -0.02em; }
+.hero .lead { font-size: 1.1rem; color: #333b45; margin: 0 0 1.1rem; }
+.desc { margin: 0 0 1rem; color: #2a2f38; }
+.section-title {
+  font-size: .82rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--accent); font-weight: 700; margin: 2.5rem 0 1.1rem;
+}
+.objectives { counter-reset: obj; list-style: none; padding: 0; margin: 0; }
+.objectives li { position: relative; padding: 0 0 1.15rem 2.7rem; margin: 0; color: #2a2f38; }
+.objectives li::before {
+  counter-increment: obj; content: counter(obj);
+  position: absolute; left: 0; top: .05rem;
+  width: 1.75rem; height: 1.75rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  font-weight: 700; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.cta { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 2.25rem; }
+.cta a {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .6rem 1.15rem; border-radius: 8px; text-decoration: none;
+  font-weight: 600; font-size: .95rem;
+}
+.cta a.primary { background: var(--accent); color: #fff; }
+.cta a.primary:hover { background: #226b46; }
+.cta a.secondary { border: 1px solid var(--line); color: var(--ink); background: var(--card); }
+.cta a.secondary:hover { border-color: var(--accent); }
+
+/* ---- the "why now" syllogism ---- */
+.syllogism {
+  display: flex; flex-direction: column; gap: .55rem;
+  margin: 0 0 1.25rem;
+}
+.syllogism .claim {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: .7rem 1rem;
+  font-size: 1.02rem; color: #2a2f38;
+}
+.syllogism .claim .term { font-weight: 700; color: var(--ink); }
+.syllogism .conclusion {
+  background: var(--accent-soft); border-color: var(--accent);
+  color: var(--ink); font-weight: 600;
+}
+
+/* ---- under the hood ---- */
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip { font-size: .82rem; padding: .2rem .6rem; border-radius: 999px; }
+.chip.tool { background: var(--accent-soft); color: var(--accent); cursor: help; }
+.chip.none { background: var(--card); color: var(--muted); }
+.version { margin-top: .9rem; font-size: .85rem; color: var(--muted); }

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ageation · agentic video creation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-about">
+  <header class="nav">
+    <a class="brand" href="index.html">ageation</a>
+    <div class="links">
+      <a href="index.html" aria-current="page">About</a>
+      <a href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Showcase</a>
+      <a href="https://github.com/AgenticCreation/ageation">GitHub</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>ageation</h1>
+      <p class="lead">
+        An engine for <strong>agentic video creation</strong>: it reads a folder
+        of LaTeX notes and produces short, narrated, linked Manim videos —
+        one reviewable video per chapter.
+      </p>
+      <p class="desc">
+        ageation is a layered, file-based pipeline. Every stage reads files and
+        writes files — concept maps, narrated scripts, generated scenes — so
+        every step is inspectable, diffable, and re-runnable. Content hashes
+        chain each layer to its source, automated gates catch drift and layout
+        errors before render time, and a human reviews exactly two artifacts
+        per video: the concept and the script. The machines do the rest.
+      </p>
+    </section>
+
+    <h2 class="section-title">Why now</h2>
+    <section class="why">
+      <div class="syllogism">
+        <div class="claim"><span class="term">math</span> is written in <span class="term">LaTeX</span> — and LaTeX is code.</div>
+        <div class="claim"><span class="term">animation</span> is written in <span class="term">Manim</span> — and Manim is code.</div>
+        <div class="claim conclusion">code is agentic &nbsp;⇒&nbsp; <span class="term">math + LaTeX + Manim</span> is agentic.</div>
+      </div>
+      <p class="desc">
+        Mathematics already lives in a machine-readable form, and the tools that
+        animate it are programs. The moment agents became fluent in code, the
+        whole path from a theorem on a page to a narrated animation on a screen
+        became something an agent can walk — with a human deciding what is
+        worth saying, and checking that it was said right. ageation is that
+        path, made into infrastructure: not a one-off script, but a pipeline
+        with provenance, review gates, and a house style that survives from one
+        video to the next.
+      </p>
+    </section>
+
+    <h2 class="section-title">How it works</h2>
+    <ol class="objectives">
+      <li><strong>Vendor the source.</strong> The upstream LaTeX notes are copied into an editable working set, each file stamped with the hash of its original — the notes themselves are never touched.</li>
+      <li><strong>Distill the concept.</strong> An agent reads the chapter and writes a concept map: what the video should teach, which ideas earn a beat, what is deliberately out of scope. <em>A human reviews it.</em></li>
+      <li><strong>Write the script.</strong> The concept becomes narration — beat by beat, with sync markers, a runtime budget, and a cut list. <em>A human approves it; only approved narration is ever voiced.</em></li>
+      <li><strong>Generate the scenes.</strong> The script becomes Manim code in the series' house style. A geometric lint replays every animation and flags overlapping layouts before anything is rendered.</li>
+      <li><strong>Build and measure.</strong> Free draft renders for iteration; one command renders, stitches, and measures the final video — and checks the measured runtime against the script's contract.</li>
+    </ol>
+
+    <h2 class="section-title">What else</h2>
+    <p class="desc">
+      Notes are only the beginning. The same pipeline ships with project
+      <em>shapes</em>: a <strong>course</strong> fans a book out into a video
+      series; an <strong>article</strong> distills a single paper — point it at
+      an arXiv preprint and the same five stages produce one tight explainer,
+      with the same provenance and the same review gates. If it is written in
+      LaTeX, it can be animated.
+    </p>
+
+    <h2 class="section-title">Built with it</h2>
+    <p class="desc">
+      The flagship project is a complete undergraduate
+      <a href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Probability course</a>
+      — twenty section videos generated from the book's own chapters, reviewed
+      at the concept and script layers, and published as they were approved.
+    </p>
+
+    <h2 class="section-title">Under the hood</h2>
+    <div id="engine" class="engine">
+      <p class="desc">The engine's toolbox, generated from the repository itself:</p>
+      <div class="chips" id="toolchips"><span class="chip none">loading…</span></div>
+      <p class="version" id="version"></p>
+    </div>
+
+    <div class="cta">
+      <a class="primary" href="https://github.com/AgenticCreation/ageation">Explore the engine →</a>
+      <a class="secondary" href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Watch the showcase</a>
+    </div>
+  </main>
+
+  <script>
+    // The "under the hood" strip loads generated data (site/data/site.json,
+    // written by scripts/site_data.py). It degrades to a plain sentence when
+    // the data is unavailable (e.g. opening index.html from the filesystem).
+    function esc(s) {
+      return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+    async function init() {
+      const chipsEl = document.getElementById("toolchips");
+      try {
+        const res = await fetch("data/site.json");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        chipsEl.innerHTML = (data.tools || []).map(t =>
+          `<span class="chip tool" title="${esc(t.summary)}">${esc(t.name)}</span>`
+        ).join("");
+        document.getElementById("version").textContent =
+          `engine ${data.version} · ${data.tools.length} tools across ${data.layers.length} layers`;
+      } catch (err) {
+        chipsEl.innerHTML =
+          `<span class="chip none">a dozen small tools: vendoring, provenance, gates, lints, render, assemble</span>`;
+      }
+    }
+    init();
+  </script>
+</body>
+</html>
