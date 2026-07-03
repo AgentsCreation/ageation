@@ -252,9 +252,33 @@ editor between asks — **just re-render**, don't ask what changed.
 
 ## 12. Review lessons — the recurring notes, distilled
 
-These are the corrections that came back over and over across Chapters 4–5.
-They are already implied by the sections above, but they earned their own list
-because each one was a *repeated* fix. Apply them the first time, not on review.
+These are the corrections that came back over and over across Chapters 4–5
+(and the 2026-07-03 Chapter 6 sessions, marked "Ch6"). They are already
+implied by the sections above, but they earned their own list because each
+one was a *repeated* fix. Apply them the first time, not on review.
+
+**Ch6 harvest (Meeting Expectations, videos 18–20):**
+- **Charts keep a ≥0.8-unit bottom margin** (`to_edge(DOWN, buff=0.8)`), and
+  two-column compositions ride slightly high so late-arriving bottom lines
+  land in their own lane — plan the *final* frame's balance from the start.
+- **Insert `self.wait(0.5)` between the framing block and the outline** (and
+  at any paragraph turn): sequential voiceover blocks join gaplessly, which
+  reads as breathless with the final voice.
+- **Outline/list lines land clause-by-clause** — one voiceover sub-block per
+  item, never one block with a lagged reveal.
+- **One visual per spoken concept**: when narration walks alternatives
+  (skewness then kurtosis), each gets its own sub-block and the swap happens
+  at the clause boundary — never two stills paced by `wait()` inside one
+  block.
+- **Never label a marker where an axis tick already says the value** — the
+  dot (plus a final `Indicate`) is enough; a duplicate accent number
+  collides with the tick.
+- **Voice/card harmony**: the outro's spoken key idea and the card text say
+  the same words; anything on screen that isn't spoken stays `MUTED`.
+- **TTS calibration**: nova at 1.0 measures ≈0.80× the gTTS draft duration
+  (three chapters: 262.7→210.8, 404.8→320.2, 281.3→225.1 s). At script
+  approval, set `target_runtime_sec ≈ 0.8 × draft measured`; do not budget
+  as if nova were slower.
 
 **Charts (the most-revised object — all of this lives in `make_pmf_chart`):**
 - **Make it big and legible.** Axis numbers at ~30 pt, axis *names* at `BODY`.

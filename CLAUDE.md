@@ -118,6 +118,11 @@ class ConceptOne(Scene):
   render with "Cannot call Mobject.point_from_proportion". To traverse a
   curve right-to-left, plot the increasing range and call
   `.reverse_points()` on the result.
+- `NumberLine.unit_size` (and so `axes.x_axis.unit_size`) is frozen at
+  construction — after `.scale()` / `fit_to_frame` it silently reports the
+  UNSCALED unit, so geometry derived from it (e.g. bar widths) comes out
+  too large. Derive scene-space units from coordinates instead:
+  `(axes.c2p(1, 0) - axes.c2p(0, 0))[0]`.
 
 ### Step 4 — Render a test
 
