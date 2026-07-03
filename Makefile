@@ -6,7 +6,7 @@
 PROJECT ?= .
 SPEED   ?= 1.0    # playback speed multiplier for assemble (1.0 = native)
 
-.PHONY: help setup init sync notation status check stamp measure doctor lint-scene test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
+.PHONY: help setup install-skills init sync notation status check stamp measure doctor lint-scene test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -15,6 +15,10 @@ help: ## List targets
 setup: ## Install system deps (brew bundle) + Python env (uv sync)
 	brew bundle
 	uv sync
+
+install-skills: ## Copy the versioned processor skills into .claude/skills (Claude Code loads them from there)
+	mkdir -p .claude/skills
+	cp -R skills/ .claude/skills/
 
 init: ## Bootstrap a draft project.yaml from INPUT (e.g. make init INPUT=input/MySubject)
 	uv run python tools/init_project.py $(INPUT) --project $(PROJECT)

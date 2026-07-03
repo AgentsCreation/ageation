@@ -308,12 +308,18 @@ it: `./render_all.sh` for 1080p60, `./render_all.sh k` for 4K, optional second
 arg = project dir. Rendering runs on a real machine only (cloud sandboxes
 can't build manimpango).
 
-## Skills (the workflow processors) — *planned*
+## Skills (the workflow processors)
 
-These four transforms are the intended packaging (as `.claude/` skills); they
-are **not built yet** (top of the HISTORY.md §7 roadmap). Today an agent or
-human performs each transform by hand, following the contracts below and the
-Chapter 5 reference implementation in `examples/probability/`.
+These four transforms ship as skills in `skills/` (copy them into
+`.claude/skills/` with `make install-skills` so Claude Code loads them), plus
+an `/animate-chapter` orchestrator that walks a slug through all four with
+exactly two human gates (concept review, script review). Each skill starts
+from `tools/scaffold.py --layer concept|script|scene`, which pre-fills
+everything mechanical (front matter, provenance hashes, beat skeletons,
+voiceover-block plumbing split at `<bookmark/>` markers) so agent judgment is
+confined to concept prose, narration, and animations. The Chapter 5
+reference implementation in `examples/probability/` remains the model to
+imitate.
 
 | Skill            | Input                      | Output                      | Runs in        |
 |------------------|----------------------------|-----------------------------|----------------|
@@ -406,7 +412,7 @@ tools/          # init_project, vendor_sources, stamp_provenance, check_sync,
                 #   check_notation, check_status, normalize_notation, render,
                 #   assemble (all take --project DIR, default `.`)
 scenes/_style.py  # shared house style (palette, notation helpers, fit_to_frame)
-.claude/        # skills + a /animate-chapter command (planned)
+skills/         # the processor skills (make install-skills -> .claude/skills)
 examples/       # complete worked example project(s), e.g. probability
 NOTATION.md     # how the notation-rule system works
 PIPELINE.md     # this file

@@ -298,9 +298,20 @@ LaTeX error.
 
 ## 7. What's not done yet (next steps)
 
-- Build the three processor skills as repo files (`.claude/skills/` +
-  an `/animate-chapter` command) so chapters generate themselves from
-  `project.yaml`.
-- Generate `scenes/{slug}.py` for chapters 1–3, 6–12 (currently `scripted`).
-- Build the concept DAG + "used-before-taught" checker.
+- ~~Build the processor skills~~ **Done (2026-07-03)**: the five skills
+  (concept-from-tex, script-from-concept, scene-from-script, render-verify,
+  and the /animate-chapter orchestrator) live in `skills/` with
+  `tools/scaffold.py` as their deterministic backbone; `make install-skills`
+  copies them into `.claude/skills/` for Claude Code to load.
+- Generate `scenes/{slug}.py` for chapters 1–3, 6–12 (currently `scripted`)
+  — now the acceptance test for `/animate-chapter`.
+- Build the concept DAG + "used-before-taught" checker
+  (`tools/check_dag.py` + per-chapter introduces/requires ledger; the
+  concept front matter's `concepts:` list is the seed).
 - Re-cut Chapter 4 in the voiceover style to match the rest.
+- `tools/lint_animation.py` — behavioral lint (opacity/animation-logic)
+  reusing lint_scene's play-replay machinery.
+- A `/review-video` skill mapping the human's timestamped notes to beats via
+  the measured_sec cumulative offsets, directing fixes to the script layer.
+- `shape: session`; section-level hashing; course-level master cut with
+  crossfades/loudness normalization.

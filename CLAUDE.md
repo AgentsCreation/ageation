@@ -30,6 +30,16 @@ worked example. Its Chapter 5
 (`examples/probability/scenes/discrete_random_variables.py` +
 `examples/probability/content/5-*`) is the pattern to copy for new scenes.
 
+The canonical transform procedure is the **processor skills** in `skills/`
+(concept-from-tex, script-from-concept, scene-from-script, render-verify,
+orchestrated by /animate-chapter) — install into `.claude/skills` with
+`make install-skills`. Each starts from `tools/scaffold.py`, which emits the
+mechanical skeleton of a layer; STYLE_BOOK.md holds the binding visual and
+narration rules. Voice is configuration: scenes call `_style.speech_service()`
+(project.yaml `project.voice`; `AGEATION_TTS=gtts` is the draft switch).
+Declare intended overlaps with `_style.mark_intended_overlap(...)` — never
+write `.lint-allow.yaml` sidecars.
+
 The "Mission/Workflow" below is the original single-chapter sketch; the real
 process is the multi-stage pipeline in PIPELINE.md.
 
