@@ -56,3 +56,53 @@ def test_scene_status_states(tmp_path):
     scene.write_text("# derived_from: content/1-x-script.md\n"
                      f"# derived_from_sha256: {sha}\nfrom manim import *\n")
     assert scene_status(str(tmp_path), fm, str(script)) == OK
+
+
+def test_measured_writeback_is_not_drift(tmp_path):
+    """Editing measured_* lines must not flip script->scene to STALE."""
+    from provenance import sha256_script
+
+    script = tmp_path / "content" / "1-x-script.md"
+    script.parent.mkdir()
+    script.write_text("---\n"
+                      "measured_runtime_sec: null\n"
+                      "beats:\n"
+                      "  - id: a\n"
+                      "    scene_class: A\n"
+                      "    measured_sec: null\n"
+                      "---\nnarration\n")
+    scenes = tmp_path / "scenes"
+    scenes.mkdir()
+    fm = "target_scene_file: scenes/x.py"
+    scene = scenes / "x.py"
+    scene.write_text("# derived_from: content/1-x-script.md\n"
+                     f"# derived_from_sha256: {sha256_script(str(script))}\n")
+    assert scene_status(str(tmp_path), fm, str(script)) == OK
+
+    # runtime write-back fills the measurements -> still in sync
+    script.write_text(script.read_text()
+                      .replace("measured_runtime_sec: null",
+                               "measured_runtime_sec: 361.4")
+                      .replace("measured_sec: null", "measured_sec: 23.1"))
+    assert scene_status(str(tmp_path), fm, str(script)) == OK
+
+    # but a narration edit is real drift
+    script.write_text(script.read_text().replace("narration", "rewritten"))
+    assert scene_status(str(tmp_path), fm, str(script)) == STALE
+
+
+def test_legacy_whole_file_stamp_still_accepted(tmp_path):
+    """Stamps that predate sha256_script (whole-file hashes) stay in-sync."""
+    import hashlib
+
+    script = tmp_path / "content" / "1-x-script.md"
+    script.parent.mkdir()
+    script.write_text("---\nmeasured_sec: null\n---\nnarration\n")
+    scenes = tmp_path / "scenes"
+    scenes.mkdir()
+    legacy_sha = hashlib.sha256(script.read_bytes()).hexdigest()
+    scene = scenes / "x.py"
+    scene.write_text("# derived_from: content/1-x-script.md\n"
+                     f"# derived_from_sha256: {legacy_sha}\n")
+    fm = "target_scene_file: scenes/x.py"
+    assert scene_status(str(tmp_path), fm, str(script)) == OK

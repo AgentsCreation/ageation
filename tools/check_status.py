@@ -12,7 +12,11 @@ have actually been reviewed for:
               (the script was generated from it)
   built+    : script is at least `reviewed` (the scene was generated from it);
               the target scene file exists
-  rendered+ : script is `approved` (only approved narration gets rendered)
+  rendered+ : script is `approved` (only approved narration gets rendered);
+              when measured_runtime_sec has been written back (make measure /
+              assemble), |measured - target_runtime_sec| must be within
+              tolerance_sec. A rendered+ chapter with no measurement yet gets
+              a warning, not a failure (pre-write-back history stays green).
 
 Exit code is nonzero on any violation, so it can gate a render or run in CI.
 
@@ -52,6 +56,37 @@ def at_least(status, floor):
     return LAYER_ORDER.index(status) >= LAYER_ORDER.index(floor)
 
 
+def parse_sec(fm, key):
+    """A numeric front-matter scalar, or None when absent/null/non-numeric."""
+    raw = clean(fm_get(fm, key))
+    if raw in (None, "", "null", "~"):
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def runtime_problem(slug, st, sfm):
+    """Tolerance check for a rendered+ chapter. (problem, warning) strings."""
+    target = parse_sec(sfm, "target_runtime_sec")
+    if target is None:
+        return None, None  # no timing contract declared -- nothing to enforce
+    measured = parse_sec(sfm, "measured_runtime_sec")
+    if measured is None:
+        return None, (f"{slug}: status `{st}` but measured_runtime_sec is "
+                      f"unset -- run `make measure` (or assemble) to check "
+                      f"the runtime against target")
+    tolerance = parse_sec(sfm, "tolerance_sec")
+    if tolerance is None:
+        return None, None  # a target with no tolerance is informational
+    if abs(measured - target) > tolerance:
+        return (f"{slug}: measured runtime {measured:.0f}s misses target "
+                f"{target:.0f}s by more than tolerance {tolerance:.0f}s "
+                f"(see the script's cut list)"), None
+    return None, None
+
+
 def main():
     args = project_parser(__doc__).parse_args()
     root = resolve_project(args.project)
@@ -61,7 +96,7 @@ def main():
         print("No chapters in project.yaml — nothing to status-check.")
         sys.exit(0)
 
-    problems = []
+    problems, warnings = [], []
     for ch in chapters:
         slug = ch.get("slug", "?")
         st = ch.get("status", "planned")
@@ -96,10 +131,19 @@ def main():
                 problems.append(f"{slug}: status `{st}` but script has no target_scene_file")
             elif not os.path.exists(os.path.join(root, target)):
                 problems.append(f"{slug}: status `{st}` but scene file missing: {target}")
-        if rank >= CHAPTER_ORDER.index("rendered") and s_st != "approved":
-            problems.append(
-                f"{slug}: status `{st}` but script is `{s_st}` (rendering requires approved)")
+        if rank >= CHAPTER_ORDER.index("rendered"):
+            if s_st != "approved":
+                problems.append(
+                    f"{slug}: status `{st}` but script is `{s_st}` (rendering requires approved)")
+            sfm, _ = split_fm(open(spath, encoding="utf-8").read())
+            problem, warning = runtime_problem(slug, st, sfm)
+            if problem:
+                problems.append(problem)
+            if warning:
+                warnings.append(warning)
 
+    for w in warnings:
+        print(f"WARN {w}")
     if problems:
         for p in problems:
             print(p)

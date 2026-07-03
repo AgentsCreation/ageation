@@ -22,6 +22,26 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
+# Runtime measurements are written back into the script's front matter by the
+# render/assemble stage (measured_sec per beat, measured_runtime_sec total).
+# They are *outputs* of the pipeline, not authored content -- so the
+# script->scene provenance hash must ignore them, or every measurement pass
+# would mark every built scene STALE.
+_VOLATILE_SCRIPT_LINE = re.compile(
+    r"(?m)^[ \t]*(measured_sec|measured_runtime_sec):[^\n]*\n?")
+
+
+def sha256_script(path: str) -> str:
+    """SHA-256 of a script .md with volatile measurement lines removed.
+
+    Identical to sha256_file for any file that carries no measured_* lines.
+    """
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    normalized = _VOLATILE_SCRIPT_LINE.sub("", text)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
 def split_fm(text: str):
     """Return (front_matter_text, body) or (None, text) if no front matter."""
     m = re.match(r"^---\n(.*?)\n---\n?", text, re.S)

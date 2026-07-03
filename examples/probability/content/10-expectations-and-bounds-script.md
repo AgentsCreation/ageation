@@ -4,8 +4,8 @@ title: Expectations and Bounds
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 10-expectations-and-bounds.md
-derived_from_sha256: 66f4d840c67d1601a47df063260ce9322c8e3b3b1b6f53191eaa1fd9027d1b86
-provenance_stamped: 2026-06-11
+derived_from_sha256: a35c36b06030632ea8ff8348b73673e8bd7c84dd70f92b2a1507cd318d880f4f
+provenance_stamped: 2026-07-03
 target_scene_file: scenes/expectations_and_bounds.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

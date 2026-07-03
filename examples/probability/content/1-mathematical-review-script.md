@@ -4,8 +4,8 @@ title: Mathematical Review
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 1-mathematical-review.md
-derived_from_sha256: 424b8482b424f70495ec40a7d021a06079e7c55280901b351ee1f2f53ee53146
-provenance_stamped: 2026-06-11
+derived_from_sha256: 8e7b6ce955b1e25915ab6283f1e7e77e3a609389bf32d1643a5f5e04a6082ea0
+provenance_stamped: 2026-07-03
 target_scene_file: scenes/mathematical_review.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

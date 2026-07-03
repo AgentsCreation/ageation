@@ -30,7 +30,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from provenance import sha256_file, split_fm, fm_get
+from provenance import sha256_file, sha256_script, split_fm, fm_get
 from _project import project_parser, resolve_project, warn_if_not_project
 
 OK, STALE, NOPROV, MISSING, NA = "in-sync", "STALE", "no-prov", "missing", "n/a"
@@ -89,7 +89,13 @@ def scene_status(root, sfm, spath):
     m = re.search(r"(?m)^# derived_from_sha256:\s*(\S+)", text)
     if not m:
         return "unstamped"  # a built scene without provenance is a violation
-    return OK if sha256_file(spath) == m.group(1) else STALE
+    # Scripts are hashed with measured_* lines removed so runtime write-back
+    # never reads as drift. Stamps older than that convention are whole-file
+    # hashes; accept them too so a re-stamp is a migration, not an emergency.
+    stored = m.group(1)
+    if sha256_script(spath) == stored or sha256_file(spath) == stored:
+        return OK
+    return STALE
 
 
 def main():

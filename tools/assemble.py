@@ -262,6 +262,14 @@ def main():
         if rc != 0:
             print(f"!!! {slug}: ffmpeg failed (exit {rc})")
             failures += 1
+            continue
+
+        # Close the timing loop: write measured beat durations back into the
+        # script front matter so check_status can enforce target_runtime_sec
+        # against reality (provenance ignores measured_* lines by design).
+        # Lazy import -- measure_runtime imports helpers from this module.
+        from measure_runtime import measure_chapter
+        measure_chapter(root, ch, args.quality)
 
     sys.exit(1 if failures else 0)
 

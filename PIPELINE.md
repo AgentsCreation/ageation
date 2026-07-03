@@ -207,11 +207,15 @@ Use **manim-voiceover**. Narration drives animation length, not the reverse.
   match the voice.
 - Sync points: `<bookmark mark="id"/>` in the narration + `tracker.time_until_bookmark("id")`
   in the scene fire a specific animation on a specific word.
-- Reconciliation *(planned — not yet implemented)*: the render stage will write
-  `measured_sec` back into the script's YAML. If
-  `|measured_runtime_sec - target_runtime_sec| > tolerance_sec`, the build is
-  flagged and you consult the script's **cut list**. Today this comparison is
-  done by eye against the script's `words_per_minute` estimate.
+- Reconciliation: after every assemble (or `make measure`),
+  `tools/measure_runtime.py` ffprobes each beat's rendered .mp4 and writes
+  `measured_sec` (per beat) + `measured_runtime_sec` (total) back into the
+  script's YAML. `check_status` then fails a rendered+ chapter when
+  `|measured_runtime_sec - target_runtime_sec| > tolerance_sec` — consult the
+  script's **cut list**. Provenance ignores the measured lines
+  (`provenance.sha256_script` hashes scripts with them removed), so the
+  write-back never reads as drift; stamps older than that convention go stale
+  on first measurement — run `make stamp` once to migrate.
 - Cost control: manim-voiceover caches audio by a hash of the narration text, so
   unchanged beats are never re-synthesized. Draft with `gtts` (free), switch the
   `voice.provider` to `openai`/`elevenlabs` only for finals.

@@ -6,8 +6,8 @@ status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/7-discrete-vectors.tex
 upstream: input/Probability/7Discrete_Vectors.tex
 source_sha256: 9a24660296006b721b343e5cbca4814c419e0395b3679cd32da6c97ad3add19d
-provenance_stamped: 2026-06-11
-framework_commit: af5d6d4-dirty
+provenance_stamped: 2026-07-03
+framework_commit: a536de0-dirty
 prereqs:
   - 6-discrete-expectations
 audience: undergraduate engineering, first probability course

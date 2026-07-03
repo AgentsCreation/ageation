@@ -4,8 +4,8 @@ title: Discrete Vectors
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 7-discrete-vectors.md
-derived_from_sha256: 19618e6b50697ee0d1d309c49820c7cd94b1c2febe2c039ec9e9c4e980a870cb
-provenance_stamped: 2026-06-11
+derived_from_sha256: 0a6560d689290d56f4579e18394c2cc67b497e170a0381a003b623d2a26ce29a
+provenance_stamped: 2026-07-03
 target_scene_file: scenes/discrete_vectors.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

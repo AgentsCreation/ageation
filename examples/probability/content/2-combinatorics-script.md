@@ -4,8 +4,8 @@ title: Combinatorics
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 2-combinatorics.md
-derived_from_sha256: a9ee54a507f76f55dc8a17097033e25a158ac4841547711381ebabc07a3f9f03
-provenance_stamped: 2026-06-11
+derived_from_sha256: ecfb835308fecb9e55fbf7d32b533b49d8b325a33eded85bde41ee466fae5c58
+provenance_stamped: 2026-07-03
 target_scene_file: scenes/combinatorics.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

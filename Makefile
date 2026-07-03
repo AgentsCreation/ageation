@@ -6,7 +6,7 @@
 PROJECT ?= .
 SPEED   ?= 1.0    # playback speed multiplier for assemble (1.0 = native)
 
-.PHONY: help setup init sync notation status check stamp doctor lint-scene test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
+.PHONY: help setup init sync notation status check stamp measure doctor lint-scene test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -32,6 +32,9 @@ check: sync notation status ## Run all gates (provenance + notation + review sta
 
 stamp: ## Re-record provenance hashes after regenerating a layer
 	uv run python tools/stamp_provenance.py --project $(PROJECT)
+
+measure: ## ffprobe rendered beats, write measured_sec back into script front matter
+	uv run python tools/measure_runtime.py --project $(PROJECT)
 
 test: ## Run the tool test suite (no rendering involved)
 	uv run python -m pytest tests/ -q

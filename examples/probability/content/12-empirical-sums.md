@@ -6,8 +6,8 @@ status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/12-empirical-sums.tex
 upstream: input/Probability/12Empirical_Sums.tex
 source_sha256: 18eb96874b4677789222bc1040bf3f961a906eecfc9888d360d88ebc79b29260
-provenance_stamped: 2026-06-11
-framework_commit: af5d6d4-dirty
+provenance_stamped: 2026-07-03
+framework_commit: a536de0-dirty
 prereqs:
   - 11-random-vectors
 audience: undergraduate engineering, first probability course

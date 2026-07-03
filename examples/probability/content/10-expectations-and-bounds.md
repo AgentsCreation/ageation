@@ -6,8 +6,8 @@ status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/10-expectations-and-bounds.tex
 upstream: input/Probability/10Expectations_and_Bounds.tex
 source_sha256: 527754d62539c3518f08f6a360f9f7e65951a202ce2690fef2c0930a17c0a2a0
-provenance_stamped: 2026-06-11
-framework_commit: af5d6d4-dirty
+provenance_stamped: 2026-07-03
+framework_commit: a536de0-dirty
 prereqs:
   - 9-derived-distributions
 audience: undergraduate engineering, first probability course

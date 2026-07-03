@@ -29,7 +29,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from provenance import sha256_file, split_fm, rebuild, fm_get, fm_upsert
+from provenance import sha256_file, sha256_script, split_fm, rebuild, fm_get, fm_upsert
 from _project import project_parser, resolve_project
 
 DATE = datetime.date.today().isoformat()
@@ -77,8 +77,10 @@ def stamp_scene(root, script_fm, script_path):
             print(f"  WARN scene has no provenance marker: {target} "
                   f"(add `# derived_from:` lines; see PIPELINE.md)")
         return
+    # sha256_script, not sha256_file: measured_* write-back lines are volatile
+    # pipeline outputs and must not count as script drift.
     new = SCENE_SHA_RE.sub(
-        f"# derived_from_sha256: {sha256_file(script_path)}", text, count=1)
+        f"# derived_from_sha256: {sha256_script(script_path)}", text, count=1)
     if new != text:
         open(scene_abs, "w", encoding="utf-8").write(new)
 

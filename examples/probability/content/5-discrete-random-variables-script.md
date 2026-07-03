@@ -4,8 +4,8 @@ title: Discrete Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 5-discrete-random-variables.md
-derived_from_sha256: e4ef416a2955e92dcc4fae5b366e3d7d1c658ea76ad11bb51a808d865e2e61bc
-provenance_stamped: 2026-06-11
+derived_from_sha256: 55dfd55bac2e69870031e522765e55e4a6ab458c24b655a944433c72884e55d0
+provenance_stamped: 2026-07-03
 target_scene_file: scenes/discrete_random_variables.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------
@@ -35,32 +35,32 @@ tolerance_sec: 30         # build fails review if |actual - target| > tolerance
 # est_sec are computed from narration_words / wpm (cheap, pre-render).
 # measured_sec is written back by the render stage from tracker.duration.
 estimated_runtime_sec: 332
-measured_runtime_sec: null
+measured_runtime_sec: 126.0
 
 beats:
   - id: overview
     scene_class: ChapterOverview
     narration_words: 58
     est_sec: 23
-    measured_sec: null
+    measured_sec: 24.9
     sync_points: []
   - id: rv-mapping
     scene_class: RandomVariableMapping
     narration_words: 92
     est_sec: 37
-    measured_sec: null
+    measured_sec: 23.6
     sync_points: [show-omega, fire-arrows, show-definition]
   - id: pmf-gallery
     scene_class: PMFGallery
     narration_words: 140
     est_sec: 56
-    measured_sec: null
+    measured_sec: 30.5
     sync_points: [bernoulli, binomial, poisson, geometric]
   - id: binomial-to-poisson
     scene_class: BinomialToPoisson
     narration_words: 118
     est_sec: 47
-    measured_sec: null
+    measured_sec: 47.1
     sync_points: [n5, n15, n25, n35, settle]
 ---
 

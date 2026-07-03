@@ -4,8 +4,8 @@ title: Empirical Sums
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 12-empirical-sums.md
-derived_from_sha256: 1daa62b81dcf5850b3f4021ff5805ae09469985153272d1b2f97aa58dca3fa35
-provenance_stamped: 2026-06-11
+derived_from_sha256: 4c531fab8a67c4592561b0121e9d3e63b5763c3ec28a57a7823148302dfe195c
+provenance_stamped: 2026-07-03
 target_scene_file: scenes/empirical_sums.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

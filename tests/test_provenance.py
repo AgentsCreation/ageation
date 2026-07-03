@@ -1,4 +1,4 @@
-from provenance import split_fm, rebuild, fm_get, fm_upsert
+from provenance import split_fm, rebuild, fm_get, fm_upsert, sha256_file, sha256_script
 
 
 FM = """slug: 5-discrete
@@ -45,3 +45,42 @@ def test_fm_upsert_inserts_after_anchor():
 def test_fm_upsert_appends_without_anchor():
     out = fm_upsert(FM, "extra", "1")
     assert out.rstrip().endswith("extra: 1")
+
+
+SCRIPT = """---
+target_runtime_sec: 360
+measured_runtime_sec: null
+beats:
+  - id: a
+    scene_class: A
+    est_sec: 23
+    measured_sec: null
+---
+narration
+"""
+
+
+def test_sha256_script_ignores_measured_lines(tmp_path):
+    p = tmp_path / "s.md"
+    p.write_text(SCRIPT)
+    before = sha256_script(str(p))
+    p.write_text(SCRIPT.replace("measured_runtime_sec: null",
+                                "measured_runtime_sec: 361.4  # 2026-07-03")
+                       .replace("measured_sec: null", "measured_sec: 23.1"))
+    assert sha256_script(str(p)) == before
+    # and they differ as whole files, proving the normalization did the work
+    assert sha256_file(str(p)) != before
+
+
+def test_sha256_script_sees_real_edits(tmp_path):
+    p = tmp_path / "s.md"
+    p.write_text(SCRIPT)
+    before = sha256_script(str(p))
+    p.write_text(SCRIPT.replace("narration", "rewritten narration"))
+    assert sha256_script(str(p)) != before
+
+
+def test_sha256_script_matches_file_hash_without_measured_lines(tmp_path):
+    p = tmp_path / "s.md"
+    p.write_text("---\nslug: x\n---\nbody\n")
+    assert sha256_script(str(p)) == sha256_file(str(p))
