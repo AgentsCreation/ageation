@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How to · ageation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-howto">
+  <header class="nav">
+    <a class="brand" href="index.html">ageation</a>
+    <div class="links">
+      <a href="index.html">About</a>
+      <a href="howto.html" aria-current="page">How to</a>
+      <a href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Showcase</a>
+      <a href="https://github.com/AgenticCreation/ageation">GitHub</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>From notes to videos</h1>
+      <p class="lead">
+        ageation is an <strong>operator</strong>: it acts on a project that sits
+        beside it. Your LaTeX stays yours, untouched; everything the engine
+        creates lives in one reserved folder inside your project. Four steps to
+        a first video.
+      </p>
+    </section>
+
+    <h2 class="section-title">1 · Get the engine</h2>
+    <p class="desc">Clone the repository. This is the engine — the tools, the
+      Python environment, the house style, and the docs. You never copy it
+      into your projects; one clone drives them all.</p>
+    <pre class="code"><code>git clone https://github.com/AgenticCreation/ageation.git
+cd ageation</code></pre>
+
+    <h2 class="section-title">2 · Install the dependencies</h2>
+    <p class="desc">One command installs both halves: the system packages via
+      Homebrew (<a href="https://docs.astral.sh/uv/">uv</a>,
+      <a href="https://ffmpeg.org/">FFmpeg</a>, a LaTeX distribution) and the
+      Python side (<a href="https://www.manim.community/">Manim</a>,
+      <a href="https://voiceover.manim.community/">manim-voiceover</a>) into a
+      project-local environment. macOS is the tested path; rendering wants a
+      real machine, not a cloud sandbox.</p>
+    <pre class="code"><code>make setup        # brew bundle  +  uv sync</code></pre>
+    <p class="aside">MacTeX is ~5&nbsp;GB. The Brewfile documents a ~100&nbsp;MB
+      BasicTeX alternative if you prefer to install LaTeX packages on demand.</p>
+
+    <h2 class="section-title">3 · Place your project as a sibling</h2>
+    <p class="desc">Your project — a book, an article, a set of course notes —
+      sits <em>next to</em> the engine, and the engine operates on it. All
+      generated files land in one reserved subfolder, <code>ageation/</code>,
+      inside your project. Nothing else in your repo is written to; your
+      sources are read-only to the pipeline and vendored (with content-hash
+      provenance) before any edit.</p>
+    <pre class="tree"><code>your-workspace/
+├── ageation/                 ← the engine (this repo)
+└── your-project/             ← a sibling: book, article, notes
+    ├── chapters/…            ← your LaTeX — never touched
+    └── ageation/             ← everything the engine creates
+        ├── project.yaml      ← the spine: chapters, notation, voice
+        ├── sources/          ← vendored, editable copies of your LaTeX
+        ├── content/          ← concept maps + narrated scripts
+        ├── scenes/           ← generated Manim code
+        └── media/            ← rendered beats + one .mp4 per topic</code></pre>
+    <p class="desc">Bootstrap the manifest from your chapters, then review it —
+      the chapter order, prerequisites, and notation rules are yours to shape:</p>
+    <pre class="code"><code>mkdir -p ../your-project/ageation
+uv run python tools/init_project.py ../chapters \
+    --project ../your-project/ageation --scaffold-concepts</code></pre>
+
+    <h2 class="section-title">4 · Make videos</h2>
+    <p class="desc">Every tool takes <code>PROJECT=</code>, so the engine
+      operates on any sibling from one place. Gates run before renders:
+      provenance, notation, review status, and a geometric lint that replays
+      every animation looking for layout collisions.</p>
+    <pre class="code"><code>make check       PROJECT=../your-project/ageation   # all gates
+make video-draft PROJECT=../your-project/ageation   # free 480p draft
+make video       PROJECT=../your-project/ageation   # 1080p60 final</code></pre>
+    <p class="desc">The deliverable is <strong>one reviewable .mp4 per
+      topic</strong> — per-beat clips stay on disk for cheap iteration, and
+      draft narration uses free TTS so trying costs nothing.</p>
+
+    <h2 class="section-title">Working agentically</h2>
+    <p class="desc">The layer transforms — LaTeX to concept map, concept to
+      narrated script, script to Manim scenes — ship as agent skills with a
+      deterministic scaffolder underneath. In an agent session,
+      <code>/animate-chapter</code> walks a topic through the whole pipeline
+      and pauses at two review points: the concept and the script. Review them
+      (optional), leave timestamped notes against the draft video, and the
+      engine fixes at the right layer — narration in the script, visuals in
+      the scene — with provenance keeping every layer honest.</p>
+
+    <div class="cta">
+      <a class="primary" href="https://github.com/AgenticCreation/ageation">Clone the engine →</a>
+      <a class="secondary" href="index.html">Why this works</a>
+    </div>
+  </main>
+</body>
+</html>

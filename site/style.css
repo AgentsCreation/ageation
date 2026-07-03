@@ -82,6 +82,25 @@ a { color: var(--accent); }
   color: var(--ink); font-weight: 600;
 }
 
+/* ---- how-to page ---- */
+pre.code, pre.tree {
+  background: var(--card); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px; padding: .85rem 1.1rem;
+  overflow-x: auto; margin: 0 0 1.1rem;
+}
+pre.code code, pre.tree code {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .88rem; color: var(--ink); line-height: 1.6;
+}
+pre.tree { border-left-color: var(--line); }
+p.desc code, li code {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .88em; background: var(--card);
+  border: 1px solid var(--line); border-radius: 4px; padding: .05em .35em;
+}
+.aside { font-size: .88rem; color: var(--muted); margin: -0.4rem 0 1.1rem; }
+
 /* ---- under the hood ---- */
 .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
 .chip { font-size: .82rem; padding: .2rem .6rem; border-radius: 999px; }
