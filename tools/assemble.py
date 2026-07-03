@@ -50,6 +50,11 @@ QUALITY_DIR = {
     "k": "2160p60",
 }
 
+# Mirror of tools/render.py: only these statuses have rendered scenes worth
+# assembling. Chapters below this (e.g. `planned`) are skipped when no slug is
+# named, so a not-yet-built chapter never fails the whole assemble pass.
+RENDERABLE = {"built", "rendered", "approved"}
+
 
 def default_scene_file(slug: str) -> str:
     """Mirror of tools/render.py: strip leading digits, hyphens -> underscores."""
@@ -191,10 +196,16 @@ def main():
     qdir = QUALITY_DIR[args.quality]
 
     chapters = manifest.get("chapters") or []
-    targets = [ch for ch in chapters
-               if not args.slugs or ch.get("slug") in args.slugs]
+    if args.slugs:
+        # Explicit slugs are assembled regardless of status (the per-beat
+        # "missing render" message still guides you if they aren't built yet).
+        targets = [ch for ch in chapters if ch.get("slug") in args.slugs]
+    else:
+        # No slugs: only chapters whose scenes have actually been rendered.
+        targets = [ch for ch in chapters if ch.get("status") in RENDERABLE]
     if not targets:
-        raise SystemExit("no chapters selected for assembly")
+        raise SystemExit("no chapters selected for assembly "
+                         "(none are built/rendered/approved; pass slugs to force)")
 
     failures = 0
     for ch in targets:
