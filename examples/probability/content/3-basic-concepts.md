@@ -7,7 +7,7 @@ source: sources/3-basic-concepts.tex
 upstream: input/Probability/3Basic_Concepts.tex
 source_sha256: 3266eca9580b407bf9003daedd60f5cae4e2b072c7bcfb483e511659d877a79c
 provenance_stamped: 2026-07-03
-framework_commit: a536de0-dirty
+framework_commit: 063f807
 prereqs:
   - 2-combinatorics
 audience: undergraduate engineering, first probability course

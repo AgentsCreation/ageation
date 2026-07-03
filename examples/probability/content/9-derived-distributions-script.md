@@ -4,7 +4,7 @@ title: Derived Distributions
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 9-derived-distributions.md
-derived_from_sha256: c9ede48255da179a0455ddc761c2f005305f0e985202864c9646fa12a390ef0d
+derived_from_sha256: 6554e6be1ec7a0d8508d677da858f1d6e4f94af2cad9b8aeabbbf72486582246
 provenance_stamped: 2026-07-03
 target_scene_file: scenes/derived_distributions.py
 

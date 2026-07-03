@@ -4,7 +4,7 @@ title: Basic Concepts
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 3-basic-concepts.md
-derived_from_sha256: a75e0e2e5b7565b1e38140758ae517ddbb872d39b4149e8767315335c627f49f
+derived_from_sha256: fa4e7bfa6ca7e2d6fbe9fa842914e7bdcfcdd64bd4baba04c04f3b1e25248a3e
 provenance_stamped: 2026-07-03
 target_scene_file: scenes/basic_concepts.py
 
