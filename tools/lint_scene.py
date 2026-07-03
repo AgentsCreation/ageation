@@ -3,9 +3,17 @@
 
 Replays each scene's construct() with TTS stubbed and Scene.play monkey-patched
 to snapshot mobject bounding boxes when each animation comes to rest. Pairwise
-overlaps between leaf mobjects are flagged unless declared in a per-scene
-allowlist sidecar (<scene>.lint-allow.yaml). Parent-child pairs are ignored —
-a label inside its container is intentional by construction.
+overlaps between leaf mobjects are flagged unless they are declared intent.
+Parent-child pairs are ignored — a label inside its container is intentional
+by construction.
+
+Declaring an intended overlap: call `_style.mark_intended_overlap(a, b,
+reason=...)` in the scene on the mobjects (or groups) that are meant to
+overlap — the mark survives regrouping and Transform because it rides on the
+mobjects themselves. The legacy per-scene allowlist sidecar
+(<scene>.lint-allow.yaml, index-addressed paths) is still honored but
+deprecated: its selectors break on any regroup. Use --verbose to audit which
+overlaps the marks suppressed.
 
 What it catches (≈44% of GEPA-style review rounds, per the design memo):
   - Text bbox intersecting a later-drawn shape (label-in-ring)
@@ -79,6 +87,11 @@ class Entry:
     cls: str            # class name
     bmin: tuple         # (x, y, z) bottom-left corner of bbox
     bmax: tuple         # (x, y, z) top-right corner of bbox
+    marks: tuple = ()   # ((token, reason), ...) from _style.mark_intended_overlap,
+                        # including marks inherited from enclosing groups
+    ends: tuple = None  # ((x, y), (x, y)) real start/end for line-like types;
+                        # a CurvedArrow's endpoints are nowhere near its bbox
+                        # corners, so connection rules need the real thing
 
 
 # --- Target discovery -------------------------------------------------------
@@ -116,6 +129,12 @@ def pick_targets(root: str, manifest: dict, args) -> list[tuple[str, str, str]]:
             continue
         target = target.split("#")[0].strip()
         scene_file_abs = os.path.join(root, target)
+        if not os.path.exists(scene_file_abs):
+            # Scripted-but-not-built chapters have a target with no scene
+            # yet; a missing scene must not fail the whole lint pass.
+            if args.chapter:
+                raise SystemExit(f"scene file not found: {scene_file_abs}")
+            continue
 
         classes = set()
         for beat in front.get("beats") or []:
@@ -230,8 +249,14 @@ def _snapshot_scene(scene, index: int) -> dict:
     return {"index": index, "entries": entries}
 
 
-def _walk(m, path: str, entries: list[Entry]):
+def _walk(m, path: str, entries: list[Entry], inherited: tuple = ()):
     cls = type(m).__name__
+    own = getattr(m, "_lint_overlap_marks", None)
+    marks = inherited
+    if own:
+        merged = dict(inherited)
+        merged.update(own)
+        marks = tuple(merged.items())
     if cls in ATOMIC_TYPES or not getattr(m, "submobjects", None):
         if not _is_visible(m) or not _has_extent(m):
             return
@@ -239,11 +264,19 @@ def _walk(m, path: str, entries: list[Entry]):
             bmin, bmax = _bbox(m)
         except Exception:
             return
-        entries.append(Entry(path=path, cls=cls, bmin=bmin, bmax=bmax))
+        ends = None
+        if cls in GRAPH_LINE_TYPES:
+            try:
+                s, e = m.get_start(), m.get_end()
+                ends = ((float(s[0]), float(s[1])), (float(e[0]), float(e[1])))
+            except Exception:
+                pass
+        entries.append(Entry(path=path, cls=cls, bmin=bmin, bmax=bmax,
+                             marks=marks, ends=ends))
     else:
         for j, child in enumerate(m.submobjects):
             child_path = f"{path}.{type(child).__name__}[{j}]"
-            _walk(child, child_path, entries)
+            _walk(child, child_path, entries, marks)
 
 
 def _is_visible(m) -> bool:
@@ -360,15 +393,48 @@ def _is_graph_connection(a: Entry, b: Entry, threshold: float = 0.08) -> bool:
         return False
     nx = (node.bmin[0] + node.bmax[0]) / 2
     ny = (node.bmin[1] + node.bmax[1]) / 2
-    corners = (
-        (line.bmin[0], line.bmin[1]), (line.bmax[0], line.bmin[1]),
-        (line.bmin[0], line.bmax[1]), (line.bmax[0], line.bmax[1]),
-    )
-    for cx, cy in corners:
+    for cx, cy in _line_endpoints(line):
         if ((cx - nx) ** 2 + (cy - ny) ** 2) ** 0.5 <= threshold:
             return True
         if (node.bmin[0] <= cx <= node.bmax[0]
                 and node.bmin[1] <= cy <= node.bmax[1]):
+            return True
+    return False
+
+
+def _line_endpoints(line: Entry) -> tuple:
+    """The line's real endpoints when captured, else its bbox corners.
+
+    Straight lines' endpoints coincide with bbox corners, but a CurvedArrow's
+    do not -- the real ends are what actually anchor to a node/container.
+    """
+    if line.ends is not None:
+        return line.ends
+    return (
+        (line.bmin[0], line.bmin[1]), (line.bmax[0], line.bmin[1]),
+        (line.bmin[0], line.bmax[1]), (line.bmax[0], line.bmax[1]),
+    )
+
+
+def _is_line_into_container(a: Entry, b: Entry) -> bool:
+    """True if a line-like mobject's endpoint lands inside a container shape.
+
+    An arrow anchored to something inside an Ellipse/box (the dominant class
+    of hand-allowlisted false positives in practice: arrows out of an
+    omega_box, arrows into a Venn region) necessarily bbox-intersects the
+    container. A line merely passing *through* keeps both bbox corners
+    outside and is still flagged.
+    """
+    if a.cls in GRAPH_LINE_TYPES and b.cls in CONTAINER_TYPES:
+        line, cont = a, b
+    elif b.cls in GRAPH_LINE_TYPES and a.cls in CONTAINER_TYPES:
+        line, cont = b, a
+    else:
+        return False
+    slack = 0.08  # an arrow ending just at a container's edge still connects
+    for cx, cy in _line_endpoints(line):
+        if (cont.bmin[0] - slack <= cx <= cont.bmax[0] + slack
+                and cont.bmin[1] - slack <= cy <= cont.bmax[1] + slack):
             return True
     return False
 
@@ -391,17 +457,38 @@ def _both_inside_same_container(a: Entry, b: Entry,
     return False
 
 
-def violations(snap: dict, tol: float, buffer: float) -> list[tuple]:
-    """Return (snap_idx, a, b, kind, magnitude) tuples for this snapshot."""
-    out = []
+def _shared_mark_reason(a: Entry, b: Entry) -> str | None:
+    """The reason string of a mark both entries carry, or None."""
+    tokens_b = {t for t, _ in b.marks}
+    for token, reason in a.marks:
+        if token in tokens_b:
+            return reason or "(no reason given)"
+    return None
+
+
+def violations(snap: dict, tol: float, buffer: float) -> tuple[list, list]:
+    """(violations, suppressed) for this snapshot.
+
+    violations: (snap_idx, a, b, kind, magnitude) tuples.
+    suppressed: (snap_idx, a, b, reason) tuples -- overlapping pairs skipped
+    because both carry the same mark_intended_overlap mark (declared intent
+    stays auditable via --verbose).
+    """
+    out, suppressed = [], []
     es = snap["entries"]
     for i, a in enumerate(es):
         for b in es[i + 1:]:
             if (is_ancestor_path(a.path, b.path)
                     or is_ancestor_path(b.path, a.path)):
                 continue
+            reason = _shared_mark_reason(a, b)
+            if reason is not None:
+                if overlaps(a, b, tol):
+                    suppressed.append((snap["index"], a, b, reason))
+                continue
             if (_is_container_pattern(a, b)
                     or _is_graph_connection(a, b)
+                    or _is_line_into_container(a, b)
                     or _both_inside_same_container(a, b, es)):
                 continue
             if overlaps(a, b, tol):
@@ -410,7 +497,7 @@ def violations(snap: dict, tol: float, buffer: float) -> list[tuple]:
                 gap = bbox_gap(a, b)
                 if 0 < gap < buffer:
                     out.append((snap["index"], a, b, "near-miss", gap))
-    return out
+    return out, suppressed
 
 
 # --- Allowlist sidecar ------------------------------------------------------
@@ -442,11 +529,13 @@ def is_allowed(v: tuple, allow: list[tuple]) -> bool:
 # --- Report -----------------------------------------------------------------
 
 def report(label: str, scene_class: str, snapshots: list[dict],
-           allow: list[tuple], tol: float, buffer: float) -> int:
+           allow: list[tuple], tol: float, buffer: float,
+           verbose: bool = False) -> int:
     print(f"\n{label} : {scene_class}")
-    total = 0
+    total = suppressed_total = 0
     for snap in snapshots:
-        for v in violations(snap, tol, buffer):
+        found, suppressed = violations(snap, tol, buffer)
+        for v in found:
             if is_allowed(v, allow):
                 continue
             snap_idx, a, b, kind, mag = v
@@ -456,9 +545,16 @@ def report(label: str, scene_class: str, snapshots: list[dict],
                   f"{color}{b.path}{RESET}  "
                   f"{DIM}({kind} {mag:.2f}u){RESET}")
             total += 1
+        suppressed_total += len(suppressed)
+        if verbose:
+            for snap_idx, a, b, reason in suppressed:
+                print(f"  snapshot {snap_idx:3d}  {DIM}{a.path}  <->  "
+                      f"{b.path}  (intended: {reason}){RESET}")
     color = RED if total else GREEN
+    marked = (f", {suppressed_total} declared-intent overlap(s)"
+              if suppressed_total else "")
     print(f"  {len(snapshots)} snapshots, "
-          f"{color}{total}{RESET} unallowed violation(s).")
+          f"{color}{total}{RESET} unallowed violation(s){marked}.")
     return total
 
 
@@ -476,6 +572,8 @@ def parse_args():
     p.add_argument("--buffer", type=float, default=NEAR_MISS_BUFFER,
                    help=f"near-miss buffer in scene units; 0 disables "
                         f"(default {NEAR_MISS_BUFFER})")
+    p.add_argument("--verbose", action="store_true",
+                   help="also list overlaps suppressed by mark_intended_overlap")
     return p.parse_args()
 
 
@@ -501,7 +599,8 @@ def main():
             fails += 1
             continue
         allow = load_allow(scene_path)
-        fails += report(label, scene_class, snaps, allow, args.tol, args.buffer)
+        fails += report(label, scene_class, snaps, allow, args.tol,
+                        args.buffer, verbose=args.verbose)
 
     sys.exit(1 if fails else 0)
 

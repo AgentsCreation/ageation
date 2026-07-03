@@ -238,6 +238,15 @@ editor between asks — **just re-render**, don't ask what changed.
   concept `.md`), then re-stamped with `tools/stamp_provenance.py`.
 - `make check` (`check_sync.py` + `check_notation.py`) must pass before a final
   render. `lint_scene.py` catches geometric overflow the eye misses.
+- **Intended overlaps are declared in the scene**, not in a sidecar: wrap the
+  overlapping mobjects in `mark_intended_overlap(a, b, ..., reason=...)`
+  (from `_style`) *before the first `play()` that shows them*. The mark
+  survives regrouping and `Transform`; the old index-addressed
+  `<scene>.lint-allow.yaml` sidecars are deprecated (they break on any
+  structural edit). Audit what marks suppress with `lint_scene.py --verbose`.
+- Runtime is measured, not eyeballed: `assemble` (or `make measure`) writes
+  `measured_sec` per beat back into the script, and `check_status` enforces
+  `target_runtime_sec ± tolerance_sec` once a chapter is `rendered`.
 
 ---
 

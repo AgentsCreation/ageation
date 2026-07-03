@@ -167,10 +167,22 @@ concept, then the script; only an approved script gets rendered.
 `tools/lint_scene.py` (`make lint-scene PROJECT=…`) replays each scene's
 `construct()` with TTS stubbed and `Scene.play` monkey-patched, snapshots
 mobject bounding boxes when each animation comes to rest, and flags pairwise
-overlaps between leaf mobjects that aren't declared in a per-scene
-`scenes/<scene>.lint-allow.yaml` sidecar. Parent-child pairs are skipped (a
-label inside its container box is intentional). Tolerance is in **scene
-units**, not pixels, so 480p and 1080p lint identically.
+overlaps between leaf mobjects. Parent-child pairs are skipped (a label
+inside its container box is intentional), as are heuristic connections: a
+line/arrow whose *real endpoint* (not bbox corner — matters for CurvedArrow)
+lands on a node or inside a container shape is anchored there by
+construction. Tolerance is in **scene units**, not pixels, so 480p and
+1080p lint identically.
+
+**Declaring intent.** When an overlap is the point of the composition (Venn
+ellipses, a fan of crossing arrows, bars over ghost bars), call
+`_style.mark_intended_overlap(a, b, ..., reason=...)` on the mobjects or
+groups in the scene. The mark rides every family member, so it survives
+regrouping, `Transform`, and `LaggedStartMap` re-parenting — unlike the
+legacy index-addressed `scenes/<scene>.lint-allow.yaml` sidecars, which
+break on any structural edit (still honored, but deprecated; new scenes
+should not create them). `--verbose` lists what the marks suppressed so
+declared intent stays auditable.
 
 **Gating rule.** `make video*` (final-quality stitched output) depends on
 `lint-scene`; `make render*` (per-scene draft frames) does **not**. False
@@ -180,8 +192,8 @@ final renders are where clean layout actually has to ship.
 **Scope.** The lint catches ~44% of typical review rounds (spatial overlaps
 + near-misses with `--buffer`). It does NOT catch animation-logic bugs (e.g.
 opacity conflicts that leave a label invisible — see
-`tools/lint_animation.py`, planned) or aesthetic preferences. Allowlist
-format:
+`tools/lint_animation.py`, planned) or aesthetic preferences. Legacy
+allowlist format (deprecated — use `mark_intended_overlap` instead):
 
 ```yaml
 # scenes/gepa_explainer.lint-allow.yaml

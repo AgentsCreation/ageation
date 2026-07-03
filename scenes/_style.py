@@ -169,8 +169,10 @@ def make_pmf_chart(
     if y_max is None:
         y_max = max(values) * 1.2 if values else 1.0
 
+    # x starts at -1, not 0 (STYLE_BOOK 12, charts): one spare unit keeps the
+    # k=0 bar clear of the y-axis instead of straddling it.
     axes = Axes(
-        x_range=[0, x_max, 1],
+        x_range=[-1, x_max, 1],
         y_range=[0, y_max, max(round(y_max / 4, 2), 0.05)],
         x_length=8,
         y_length=4,
@@ -317,6 +319,42 @@ def outro_bridge(key_idea, next_title: str | None = None) -> VGroup:
 def progress_tag(index: int, total: int) -> Text:
     """Small 'n / total' marker for a corner -- orients the viewer in the arc."""
     return Text(f"{index} / {total}", font_size=CAPTION, color=MUTED)
+
+
+# --- Declared intent for the geometric lint ------------------------------------
+# Some overlaps are the point of the composition: a Venn diagram's ellipses,
+# an arrow deliberately crossing into a region, a label sitting on a wedge.
+# The old mechanism -- index-addressed allowlist sidecars like
+# "VGroup[1].VGroup[4].Arrow[3]" -- broke on any regrouping. Marking the
+# mobjects themselves survives every regroup/Transform by construction
+# (manim copies carry attributes), and keeps the declaration next to the
+# code that creates the overlap.
+
+_intended_overlap_next_token = [1]
+
+
+def mark_intended_overlap(*mobjects, reason: str):
+    """Declare that these mobjects are meant to overlap each other.
+
+    tools/lint_scene.py skips any pair of leaves that share a mark (marks on
+    a group apply to everything inside it). Each call is one intent group --
+    call again for an unrelated overlap. Zero effect on rendering.
+
+    Returns the single mobject (or the tuple) for chaining.
+    """
+    token = _intended_overlap_next_token[0]
+    _intended_overlap_next_token[0] += 1
+    for m in mobjects:
+        # Mark the whole family, not just the group: manim animations
+        # (LaggedStartMap, FadeIn of a group) re-parent submobjects into
+        # fresh Groups, so a mark that only lives on the original group
+        # would not be found above the leaves afterwards.
+        family = m.get_family() if hasattr(m, "get_family") else [m]
+        for member in family:
+            marks = dict(getattr(member, "_lint_overlap_marks", {}))
+            marks[token] = reason
+            member._lint_overlap_marks = marks
+    return mobjects[0] if len(mobjects) == 1 else mobjects
 
 
 # --- Speech service from project config ---------------------------------------

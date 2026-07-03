@@ -49,6 +49,7 @@ from _style import (
     outro_bridge,
     progress_tag,
     fit_to_frame,
+    mark_intended_overlap,
     speech_service,
 )
 
@@ -182,6 +183,12 @@ class RandomVariableMapping(VoiceoverScene):
         defn = MathTex(r"X : \Omega \to \mathbb{R}", font_size=BODY, color=ACCENT)
         defn.to_edge(DOWN, buff=0.6)
 
+        # The mapping figure is a deliberate tangle: five curved arrows fan
+        # out of the outcome cloud, cross each other, and land on the line.
+        mark_intended_overlap(
+            arrows, outcomes, line,
+            reason="mapping arrows deliberately sweep across the figure")
+
         with self.voiceover(
             text="Here is a sample space Omega, with a handful of outcomes."
         ):
@@ -272,8 +279,11 @@ class BinomialToPoisson(VoiceoverScene):
 
     def construct(self):
         self.set_speech_service(make_speech_service())
-        lam = 10.0
-        kmax = 16
+        # lambda must stay below every n in n_values: p = lambda/n is a
+        # probability (STYLE_BOOK 12, "validate parameters"). The old
+        # lam=10.0 made n=5 use p=2 -- the first frame charted garbage.
+        lam = 2.0
+        kmax = 10
 
         title = section_title("Binomial Converges to Poisson")
         self.play(Write(title))
@@ -316,7 +326,7 @@ class BinomialToPoisson(VoiceoverScene):
             return grp
 
         poisson_ref = bars_for(target, ACCENT, 0.18)
-        ref_label = Text("Poisson(10)", font_size=CAPTION, color=ACCENT)
+        ref_label = Text("Poisson(2)", font_size=CAPTION, color=ACCENT)
         ref_label.next_to(axes, UP, buff=0.1).to_edge(RIGHT, buff=1.0)
 
         n_values = [5, 15, 25, 35]
@@ -326,6 +336,17 @@ class BinomialToPoisson(VoiceoverScene):
             for n in n_values
         ]
 
+        n_label = Text("n = 5", font_size=BODY, color=INK)
+        n_label.next_to(axes, UP, buff=0.1).to_edge(LEFT, buff=1.0)
+        current = bars_for(binom[0], BAR, 0.85)
+        # The whole point of this beat: solid binomial bars drawn over the
+        # ghost Poisson bars on one shared axes. Marked before the first
+        # play() so every snapshot sees the intent; Transform() keeps
+        # `current` as the live mobject, so the mark survives every n step.
+        mark_intended_overlap(
+            axes, poisson_ref, current,
+            reason="binomial bars settle onto the Poisson ghost bars")
+
         with self.voiceover(
             text="Here's the payoff. Fix a rate lambda, and let each of n "
                  "trials succeed with probability lambda over n."
@@ -333,9 +354,6 @@ class BinomialToPoisson(VoiceoverScene):
             self.play(Create(axes), Write(x_lab))
             self.play(FadeIn(poisson_ref), FadeIn(ref_label))
 
-        n_label = Text("n = 5", font_size=BODY, color=INK)
-        n_label.next_to(axes, UP, buff=0.1).to_edge(LEFT, buff=1.0)
-        current = bars_for(binom[0], BAR, 0.85)
         with self.voiceover(
             text="With just five trials the binomial is coarse."
         ):
