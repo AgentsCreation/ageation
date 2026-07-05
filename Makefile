@@ -6,7 +6,7 @@
 PROJECT ?= .
 SPEED   ?= 1.0    # playback speed multiplier for assemble (1.0 = native)
 
-.PHONY: help setup install-skills init sync notation status check stamp measure doctor lint-scene lint-style test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
+.PHONY: help setup install-skills init sync notation status check stamp measure doctor lint-scene lint-style lint-language test render render-draft render-4k assemble assemble-draft assemble-4k video video-draft video-4k clean clean-cache
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -32,10 +32,13 @@ notation: ## Enforce the notation convention (project.yaml: notation.rules)
 status: ## Enforce the human-review status gates
 	uv run python tools/check_status.py --project $(PROJECT)
 
-check: sync notation status lint-style ## Run all gates (provenance + notation + review status + style warnings)
+check: sync notation status lint-style lint-language ## Run all gates (provenance + notation + review status + style/language warnings)
 
 lint-style: ## Static STYLE_BOOK lint over scenes/*.py (warning-only; --strict gates)
 	uv run python tools/lint_style.py --project $(PROJECT)
+
+lint-language: ## Register lint over narration + on-screen text (video numbers, terminology, sentence length)
+	uv run python tools/lint_language.py --project $(PROJECT)
 
 stamp: ## Re-record provenance hashes after regenerating a layer
 	uv run python tools/stamp_provenance.py --project $(PROJECT)
