@@ -14,6 +14,48 @@ for the mature two-column diagram idiom).
 
 ---
 
+## 0. What ageation optimizes for — the register
+
+ageation makes videos that are **educational and strongly support the
+notes**, produced in a *structured, robust* way so the human time invested
+is minimal and any video can be improved later. That goal is deliberately
+different from artisanal mathematical animation (the 3Blue1Brown ideal):
+we do not chase bespoke composition per scene. We chase **predictable
+layouts, best-practice type and color, and a consistent formal register** —
+and spend the creativity budget on the individual animations inside that
+frame.
+
+Concretely, the register means:
+
+- **Formal-leaning terminology.** The narration names objects the way the
+  notes do. The recurring substitutions, now enforced by
+  `tools/lint_language.py`:
+
+  | Avoid                  | Say instead                                    |
+  |------------------------|------------------------------------------------|
+  | "bell" (bare)          | "Gaussian density" / "PDF" / "distribution"    |
+  | "bell curve" (refrain) | at most once per video, where the name matters |
+  | "ramp"                 | "smooth progression" / "continuous CDF"       |
+  | "masses" (spoken)      | "probability mass functions" when it names PMFs|
+
+- **Sentences sized for the ear.** A spoken sentence over ~40 words reads
+  breathlessly under TTS; a voiceover block over ~70 words can't sync its
+  visuals. Split at clause turns; each `<bookmark/>` segment becomes its
+  own sequential voiceover block. (`lint_language.py` flags both as
+  advisories.)
+
+- **Callbacks are anchored in topics, never in video numbers.** "Video 22"
+  breaks the moment a video is inserted; "when we split the Poisson
+  stream" never does. Chapter numbers are fine (they belong to the book);
+  "last / this / next video" are fine (structural). Everything else is a
+  `lint_language.py` violation.
+
+- **Predictable layout beats clever layout.** The layout helpers in §6 are
+  not suggestions — a scene that hand-places what a helper places is a
+  review note waiting to happen.
+
+---
+
 ## 1. Palette — color carries one meaning
 
 Four named colors, defined once in `_style.py`. Do not introduce ad-hoc colors
@@ -144,6 +186,29 @@ The mature layout for a "picture + math" beat (see `continuity_measure.py`):
   edge gaps around a boxed group match its top gap. The reviewer's spacing notes
   are almost always about restoring this symmetry.
 
+**Use the layout helpers (`_style.py`) — they encode the repeated notes:**
+
+| Helper                    | The review note it retires                         |
+|---------------------------|----------------------------------------------------|
+| `two_column(left, right)` | "the two sides should sit level, raised toward mid-frame" — both columns centered at the same y (default −0.9), leaving the caption lane free below. |
+| `eq_chain(lhs, *rhs)`     | "align the equals signs / the equations are so far apart it's unclear they're related" — one derivation, one `=` column, tight buff, centered. Continuation lines are `("=", rhs)` parts (MathTex drops empty leading parts — the trap that shipped once). |
+| `even_stack(*mobjects)`   | "reclaim the space vertically to get good spacing" — equal gaps down the content zone. |
+| `caption_under(chart, s)` | "center the sentence on the chart it describes" — CAPTION line on the object's own x. |
+| `chart_tag(tex)`          | "the λ = … label is a bit small" — BODY-size parameter tags on charts. |
+
+**Positioning defaults (the 2026-07-04 review digest):**
+- Left charts in a two-column beat ride HIGH: `to_edge(DOWN, buff=1.2–1.4)`,
+  not 0.8 — the 0.8 minimum is a floor for the *lowest* element, not a
+  resting place for charts with content below them.
+- Dashed reference lines start **at the y-axis** (`axes.c2p(0, v)`), never
+  crossing the tick labels to the left of it.
+- Tick labels must never sit under a bar/rectangle: fade the colliding tick
+  or anchor labels to the shape's outer edge.
+- When the narration says "area", the area is **shaded on screen at that
+  moment** (fill opacity ≈ 0.3, declared with `mark_intended_overlap`).
+- A beat that walks several named objects in sequence (Laplace, then
+  Cauchy) transforms its **section title** at each hand-off.
+
 ---
 
 ## 7. Animation vocabulary — a small, consistent set
@@ -256,6 +321,20 @@ These are the corrections that came back over and over across Chapters 4–5
 (and the 2026-07-03 Chapter 6 sessions, marked "Ch6"). They are already
 implied by the sections above, but they earned their own list because each
 one was a *repeated* fix. Apply them the first time, not on review.
+
+**Series-robustness (2026-07-04 Chapter-7 review harvest):**
+- **Never reference another video by NUMBER** — not in narration, not in
+  on-screen text. Numbering is brittle: inserting one video later breaks
+  every cross-reference. Refer to *concepts* instead ("when we built the
+  joint table", "the conditional-expectation video", "last video" only when
+  the immediate predecessor is meant and the order is structural).
+
+**Terminology (2026-07-04 continuous-chapter review harvest):**
+- **No "ramp"** for continuous CDFs — say "smooth progression" or simply
+  "continuous CDF" (reviewer replaced the word across two videos).
+- **No bare "bell"** for the Gaussian — say "Gaussian density", "PDF", or
+  "distribution". The full phrase "bell curve" is acceptable sparingly,
+  where the classic name itself is the point (once per video at most).
 
 **Ch6 harvest (Meeting Expectations, videos 18–20):**
 - **Charts keep a ≥0.8-unit bottom margin** (`to_edge(DOWN, buff=0.8)`), and

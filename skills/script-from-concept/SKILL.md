@@ -34,6 +34,15 @@ Per the user's standing preference, start by printing the layer-flow summary
    - Numbers and symbols are spoken as words ("lambda over n", not "λ/n").
    - No em-dashes in on-screen captions; drop filler ("So", "again and
      again"); don't promise "coming up" content you may cut.
+   - **The register (STYLE_BOOK §0, enforced by `tools/lint_language.py`):**
+     callbacks name TOPICS, never video numbers ("when we split the
+     Poisson stream", not "video 22" — "last/this/next video" are fine);
+     "Gaussian density"/"PDF"/"distribution", never bare "bell" ("bell
+     curve" at most once, where the classic name is the point); "smooth
+     progression"/"continuous CDF", never "ramp".
+   - **Sentence budget**: spoken sentences ≤ ~40 words; a bookmark segment
+     ≤ ~70 words (each segment becomes one voiceover block — longer can't
+     sync its visuals). Split at clause turns.
 3. Fill the `linking:` block — objective (intro_card), recap (previous
    chapter), key_idea (outro_bridge), bridge (next chapter). Neighbour
    titles come from project.yaml order; the scaffold pre-fills them.
@@ -48,7 +57,9 @@ Per the user's standing preference, start by printing the layer-flow summary
 
 ```
 make stamp PROJECT=DIR
-make check PROJECT=DIR      # sync + notation + status all green
+make check PROJECT=DIR      # sync + notation + status + style/language lints
+python tools/lint_language.py --project DIR --chapter SLUG --strict
+                            # 0 violations (advisories reviewed, not ignored)
 ```
 
 Status stays `draft` → human review; rendering hard-requires `approved`

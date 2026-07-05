@@ -38,6 +38,12 @@ file the human will review at the end (`content/{slug}.md`).
    the source's.
 5. Notation: use the project's expanded forms (`notation.rules` in
    project.yaml; NOTATION.md explains why).
+6. **Anchor callbacks in topics, never in video numbers** (STYLE_BOOK §0).
+   Write "the video that built the joint table", not "video 21" — number
+   references written here leak into scripts and narration downstream,
+   and they break the moment a video is inserted. The register rules
+   apply to concepts too: "Gaussian density" not "bell", "smooth
+   progression" not "ramp".
 
 ## Exit checklist
 

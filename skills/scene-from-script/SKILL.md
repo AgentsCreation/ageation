@@ -40,9 +40,24 @@ eventually review (the assembled draft mp4; the code artifact is
 - **Everything in frame**: pass composed groups through `fit_to_frame`;
   axis labels via `axis_label_x/y` (safe LABEL_BUFF).
 - **Use `_style` helpers, never local copies**: `omega_box`, `ball`,
-  `die_face`, `coin`, `make_pmf_chart`, `intro_card`, `outro_bridge`,
-  `progress_tag`. A chapter drawing its own glyphs reads as a different
-  series.
+  `die_face`, `coin`, `make_pmf_chart`, `mass_table`, `intro_card`,
+  `outro_bridge`, `progress_tag`. A chapter drawing its own glyphs reads
+  as a different series.
+- **Use the layout helpers — hand-placing what they place is a review
+  note waiting to happen** (STYLE_BOOK §6): `two_column(left, right)` for
+  picture+math beats (both columns level, riding high); `eq_chain(lhs,
+  *rhs)` for any multi-line derivation (one aligned `=` column — never
+  build continuation lines with an empty leading MathTex part, it gets
+  silently dropped); `even_stack(*mobjects)` when a beat stacks blocks
+  down the frame; `caption_under(chart, text)` for chart captions;
+  `chart_tag(tex)` for parameter labels (BODY size — SMALL tags were
+  repeatedly flagged).
+- **Positioning digest (2026-07-04 review harvest)**: left charts ride
+  high (`to_edge(DOWN, buff=1.2–1.4)`); dashed reference lines start AT
+  the y-axis; tick labels never sit under a shape (fade or re-anchor);
+  when the narration says "area", shade it at that moment; a beat that
+  hands off between named objects transforms its section title at each
+  hand-off.
 - **Never `\n` inside a `Text(...)`** — it renders garbled; multi-line
   intro objectives / outro key ideas take a list of lines.
 - **One chart on screen at a time**; FadeOut everything at the end of each
@@ -64,7 +79,8 @@ eventually review (the assembled draft mp4; the code artifact is
 
 ```
 make stamp PROJECT=DIR
-python tools/lint_scene.py --project DIR --chapter SLUG   # 0 violations
+python tools/lint_scene.py --project DIR --chapter SLUG      # 0 violations
+python tools/lint_language.py --project DIR --chapter SLUG --strict
 make check PROJECT=DIR
 ```
 

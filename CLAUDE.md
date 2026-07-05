@@ -21,9 +21,13 @@ The decisions in HISTORY.md marked "do not relitigate" are settled: Python
 3.12, bookmark-free sequential voiceover blocks, `_style.fit_to_frame`
 overflow guard, expanded-LaTeX notation helpers in `_style.py`, vendored
 editable `sources/` copies, and content-hash provenance. Gates: `make check`
-(runs `tools/check_sync.py` + `tools/check_notation.py`); re-run
+(sync + notation + status + `lint_style.py` + `lint_language.py`, the last
+two warning-first with `--strict` for gating); re-run
 `tools/stamp_provenance.py` after regenerating any layer. All tools take
-`--project DIR` (default `.`).
+`--project DIR` (default `.`). The register and layout system live in
+STYLE_BOOK §0/§6: topic-anchored callbacks (never video numbers), formal
+terminology (no bare "bell"/"ramp"), and the `_style.py` layout helpers
+(`two_column`, `eq_chain`, `even_stack`, `caption_under`, `chart_tag`).
 
 Reference implementation: **`examples/probability/`** — a complete 12-chapter
 worked example. Its Chapter 5
