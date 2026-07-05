@@ -6,8 +6,8 @@ status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/6-discrete-expectations.tex
 upstream: input/Probability/6Discrete_Expectations.tex
 source_sha256: ce0fa8c8d3731a0b73741f270ec054c5262601f068bb5d1050485218eb3c617f
-provenance_stamped: 2026-07-03
-framework_commit: 0bf66ab
+provenance_stamped: 2026-07-04
+framework_commit: 9e207a6-dirty
 prereqs:
   - 5-discrete-random-variables
 audience: undergraduate engineering, first probability course

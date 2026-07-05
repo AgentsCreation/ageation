@@ -6,8 +6,8 @@ status: approved             # draft | reviewed | approved  (human gate)
 source: sources/5-discrete-random-variables.tex
 upstream: input/Probability/5Discrete_Random_Variables.tex
 source_sha256: 7e9e7474fe3ad6b63e192bdebb7c3aac0776d98f3a7d2b06b7abe215adbe9145
-provenance_stamped: 2026-07-03
-framework_commit: 0bf66ab
+provenance_stamped: 2026-07-04
+framework_commit: 9e207a6-dirty
 prereqs:
   - 3-basic-concepts
   - 4-conditional-probability

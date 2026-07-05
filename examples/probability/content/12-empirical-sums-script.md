@@ -4,8 +4,8 @@ title: Empirical Sums
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 12-empirical-sums.md
-derived_from_sha256: 323171ace80fdaef965cd1009d343ca3afa494e059fe4b5600a214d1592e2b3b
-provenance_stamped: 2026-07-03
+derived_from_sha256: d9b433782c251fc541c16f576ea1bf7f381179f48deff7f5a8734013f41da569
+provenance_stamped: 2026-07-04
 target_scene_file: scenes/empirical_sums.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------
@@ -159,7 +159,7 @@ bridge).
 > no finite second moment for Chebyshev to grab onto. So the fine print matters.
 > But for the vast world of well-behaved variables, these two theorems are the
 > payoff of the entire course: average to pin down the mean, standardize to reveal
-> the bell. <bookmark mark="course-wrap"/> From random outcomes, to variables, to
+> the Gaussian. <bookmark mark="course-wrap"/> From random outcomes, to variables, to
 > expectation and bounds, to vectors and sums — it all leads here.
 
 **Cues**

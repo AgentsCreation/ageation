@@ -4,8 +4,8 @@ title: Discrete Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 5-discrete-random-variables.md
-derived_from_sha256: 98c6b5a12b2f241944b1c3ef3c889d1833b52e368e203f60c83f224c421981f7
-provenance_stamped: 2026-07-03
+derived_from_sha256: b24dbcc6b65c558ee3c6d0b9a7e03165cb7392417e88c9445fdd4a39f7bf12f7
+provenance_stamped: 2026-07-04
 target_scene_file: scenes/discrete_random_variables.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

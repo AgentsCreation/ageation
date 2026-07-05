@@ -6,8 +6,8 @@ status: reviewed             # draft | reviewed | approved  (human gate)
 source: sources/3-basic-concepts.tex
 upstream: input/Probability/3Basic_Concepts.tex
 source_sha256: 3266eca9580b407bf9003daedd60f5cae4e2b072c7bcfb483e511659d877a79c
-provenance_stamped: 2026-07-03
-framework_commit: 0bf66ab
+provenance_stamped: 2026-07-04
+framework_commit: 9e207a6-dirty
 prereqs:
   - 2-combinatorics
 audience: undergraduate engineering, first probability course

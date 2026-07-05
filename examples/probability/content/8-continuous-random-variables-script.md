@@ -4,8 +4,8 @@ title: Continuous Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 8-continuous-random-variables.md
-derived_from_sha256: d16c670165cc99778dc7a0b6610def768d743728e0b1317bdc31015b94e2b3fd
-provenance_stamped: 2026-07-03
+derived_from_sha256: 08690f36a51383467b2678108be4341f84817055475ca71488f66d18258b6d7a
+provenance_stamped: 2026-07-04
 target_scene_file: scenes/continuous_random_variables.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

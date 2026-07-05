@@ -4,8 +4,8 @@ title: Basic Concepts
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 3-basic-concepts.md
-derived_from_sha256: a1d4cc1522a1a7751d27359a4a7c0cd61d4ca9a508e4d15dbed49e01c82f2c92
-provenance_stamped: 2026-07-03
+derived_from_sha256: 39f66d7b487a381514d373ea6b9000b0046f0e1af4723fdc709ae6c90d66e4d2
+provenance_stamped: 2026-07-04
 target_scene_file: scenes/basic_concepts.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

@@ -4,8 +4,8 @@ title: Discrete Expectations
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 6-discrete-expectations.md
-derived_from_sha256: 76fd387f69232eff491974ef90e1e85ec0ff050daec628e64138acd4dcc19b91
-provenance_stamped: 2026-07-03
+derived_from_sha256: 1bbdb2c19b2167249a81827fac71af624a6c408b7d2bd88dff4ed3fa6c8a6891
+provenance_stamped: 2026-07-04
 target_scene_file: scenes/discrete_expectations.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

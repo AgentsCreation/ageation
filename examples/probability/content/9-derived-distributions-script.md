@@ -4,8 +4,8 @@ title: Derived Distributions
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 9-derived-distributions.md
-derived_from_sha256: 30343a35f32c85db5781699e4472d95973497791b65f639f62926ff1eaa4dca0
-provenance_stamped: 2026-07-03
+derived_from_sha256: dec025e57cdc8c1d759d380612e6e0de6e54e10d509db4d02fdaa0b8789bf582
+provenance_stamped: 2026-07-04
 target_scene_file: scenes/derived_distributions.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------
@@ -104,15 +104,15 @@ bridge).
 > mark="jacobian"/> A gentle slope stretches a thin y-interval into a wide
 > x-interval, so probability piles up; a steep slope squeezes it, thinning the
 > density. As a payoff, <bookmark mark="gaussian-affine"/> an affine function of
-> a Gaussian is always Gaussian — stretching and shifting a bell just gives
-> another bell.
+> a Gaussian is always Gaussian — stretching and shifting a Gaussian just gives
+> another Gaussian.
 
 **Cues**
 - `monotone-cdf`: write `F_Y = F_X(g^{-1}(y))` and `1 - F_X(g^{-1}(y))`.
 - `change-of-variables`: write `f_Y(y) = f_X(x) / |dg/dx|`, `x = g^{-1}(y)`.
 - `jacobian`: fix a width-delta band on the y-axis, pull it back through the
   curve to show the matching x-width swelling and shrinking with the slope.
-- `gaussian-affine`: morph a bell under `Y = aX + b` into a rescaled bell.
+- `gaussian-affine`: morph a Gaussian density under `Y = aX + b` into a rescaled Gaussian density.
 
 ---
 
