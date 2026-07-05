@@ -60,10 +60,13 @@ BELL_CURVE = re.compile(r"\bbell\s+curves?\b", re.IGNORECASE)
 RAMP = re.compile(r"\bramps?\b", re.IGNORECASE)
 BOOKMARK = re.compile(r"<bookmark[^>]*/>")
 
-# On-screen text enters scenes through these calls (MathTex is LaTeX — the
-# notation lint owns it; module docstrings and comments are never scanned).
+# On-screen text enters scenes through these calls (module docstrings and
+# comments are never scanned). MathTex is LaTeX and belongs to the notation
+# lint — EXCEPT its \text{...} groups, which are prose and are scanned too
+# (a "video 37" caption shipped inside one).
 TEXT_CALLS = {"Text", "intro_card", "outro_bridge", "section_title",
               "caption_under"}
+TEX_TEXT_GROUP = re.compile(r"\\text\s*\{([^{}]*)\}")
 
 
 def term_findings(text: str, where: str) -> list[tuple[str, str, bool]]:
@@ -177,6 +180,11 @@ def check_scene(path: str) -> list[tuple[str, str, bool]]:
         elif name in TEXT_CALLS:
             for s, lineno in _string_args(node):
                 findings.extend(term_findings(s, f"{name}@{lineno}"))
+        elif name == "MathTex":
+            for s, lineno in _string_args(node):
+                for m in TEX_TEXT_GROUP.finditer(s):
+                    findings.extend(
+                        term_findings(m.group(1), f"MathTex-text@{lineno}"))
     if spoken_bell_curve > 1:
         findings.append(("bell-curve-n",
                          f"spoken 'bell curve' {spoken_bell_curve} times — "

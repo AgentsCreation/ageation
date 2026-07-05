@@ -66,6 +66,15 @@ def test_cues_are_not_narration(tmp_path):
     assert f == []
 
 
+def test_mathtex_text_groups_are_scanned(tmp_path):
+    # Prose inside \text{...} is on-screen text; raw LaTeX is not scanned.
+    f = lint_scene_src(tmp_path, '\n'.join([
+        r'MathTex(r"\text{video 37\'s two Gaussians: } f_X \times f_Y")',
+        r'MathTex(r"p_{X \mid S}(x) = 1")',
+    ]))
+    assert violations(f) == ["video-number"]
+
+
 # --- terminology -------------------------------------------------------------
 
 def test_bare_bell_flagged_bell_curve_once_allowed(tmp_path):
