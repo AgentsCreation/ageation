@@ -187,6 +187,10 @@ def make_pmf_chart(
         x_axis_config={"numbers_to_exclude": [-1]},
         tips=False,
     )
+    # Manim hides the origin label; a PMF whose support starts at k = 0
+    # needs the 0 tick on the x-axis (2026-07-04/05 review notes, twice).
+    # Added to the axis itself so it rides every scale/Transform.
+    axes.x_axis.add(axes.x_axis.get_number_mobject(0, font_size=30))
     x_lab = axes.get_x_axis_label(
         MathTex(x_label, font_size=BODY), edge=RIGHT,
         direction=DOWN + RIGHT, buff=0.25)
