@@ -225,6 +225,18 @@ def make_pmf_chart(
         bar.move_to(bottom, aligned_edge=DOWN)
         bars.add(bar)
 
+    # A k = 0 bar straddles the y-axis, covering low y tick labels ("fade
+    # the first tick" — 2026-07-04 review; recurred on the next chart).
+    # Fade any y label a bar overlaps rather than letting it peek through.
+    for num in axes.y_axis.numbers:
+        for bar in bars:
+            if (num.get_right()[0] > bar.get_left()[0]
+                    and num.get_left()[0] < bar.get_right()[0]
+                    and num.get_top()[1] > bar.get_bottom()[1]
+                    and num.get_bottom()[1] < bar.get_top()[1]):
+                num.set_opacity(0)
+                break
+
     chart = VGroup(axes, x_lab, y_lab, bars)
     # Guarantee the whole graph (axes + labels + bars) fits the visible frame
     # before any caller scales or positions it further.
