@@ -245,6 +245,11 @@ distraction.
   block are timed to land with the words.
 - Numbers and symbols are **spoken as words** in the narration ("two to the
   minus k", "Pr of A", "A-k-minus-one") while typeset on screen.
+- **Respell for the TTS ear when the dictionary fails it**: the narration is
+  input to a speech engine, so a word it mispronounces gets a phonetic
+  spelling in the *spoken* text only — "kai square" for the Greek χ (the
+  engines say "chai" otherwise). On-screen text and formulas keep the real
+  spelling (`\chi^2`, "chi-square"). (2026-07-05 review note.)
 - Keep each beat under ~60 s of content; target minutes per video come from
   `project.yaml` (`pedagogy.target_minutes_per_video`).
 
