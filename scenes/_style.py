@@ -137,6 +137,18 @@ def fit_to_frame(mobj, margin: float = SAFE_MARGIN):
     return mobj
 
 
+def show_zero_tick(axes, *, font_size=30):
+    """Make the x-axis origin label visible (Manim hides it by default).
+
+    A distribution supported from 0 loses its first tick without this —
+    the reviewer asked for the 0 on three separate charts before it became
+    a helper. The label is added to the x-axis itself so it rides every
+    scale and Transform. Returns the axes for chaining.
+    """
+    axes.x_axis.add(axes.x_axis.get_number_mobject(0, font_size=font_size))
+    return axes
+
+
 def make_pmf_chart(
     values,
     *,
@@ -184,10 +196,8 @@ def make_pmf_chart(
         x_axis_config={"numbers_to_exclude": [-1]},
         tips=False,
     )
-    # Manim hides the origin label; a PMF whose support starts at k = 0
-    # needs the 0 tick on the x-axis (2026-07-04/05 review notes, twice).
-    # Added to the axis itself so it rides every scale/Transform.
-    axes.x_axis.add(axes.x_axis.get_number_mobject(0, font_size=30))
+    # A PMF whose support starts at k = 0 needs its 0 tick.
+    show_zero_tick(axes)
     x_lab = axes.get_x_axis_label(
         MathTex(x_label, font_size=BODY), edge=RIGHT,
         direction=DOWN + RIGHT, buff=0.25)
