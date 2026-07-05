@@ -56,6 +56,9 @@ SECTION = 44
 BODY = 34
 SMALL = 28
 CAPTION = 24
+# Axis tick numbers (chart internals, not prose). Was 30; the reviewer
+# asked for "one size smaller everywhere moving forward" (2026-07-05).
+TICK = 26
 
 
 def pr(expr: str) -> str:
@@ -140,7 +143,7 @@ def fit_to_frame(mobj, margin: float = SAFE_MARGIN):
     return mobj
 
 
-def show_zero_tick(axes, *, font_size=30):
+def show_zero_tick(axes, *, font_size=None):
     """Make the x-axis origin label visible (Manim hides it by default).
 
     A distribution supported from 0 loses its first tick without this —
@@ -148,7 +151,8 @@ def show_zero_tick(axes, *, font_size=30):
     a helper. The label is added to the x-axis itself so it rides every
     scale and Transform. Returns the axes for chaining.
     """
-    axes.x_axis.add(axes.x_axis.get_number_mobject(0, font_size=font_size))
+    axes.x_axis.add(axes.x_axis.get_number_mobject(
+        0, font_size=font_size if font_size is not None else TICK))
     return axes
 
 
@@ -187,7 +191,7 @@ def make_pmf_chart(
 
     # STYLE_BOOK 12, charts (review-hardened in the probability series):
     # x starts at -1 so the k=0 bar clears the y-axis (the -1 tick label is
-    # suppressed); tick numbers at 30 pt and axis names at BODY so labels
+    # suppressed); tick numbers at TICK and axis names at BODY so labels
     # read at 480p; the x-axis name sits below-right of the tip so it never
     # lands on a bar.
     axes = Axes(
@@ -195,7 +199,7 @@ def make_pmf_chart(
         y_range=[0, y_max, max(round(y_max / 4, 2), 0.05)],
         x_length=8.5,
         y_length=4,
-        axis_config={"include_numbers": True, "font_size": 30},
+        axis_config={"include_numbers": True, "font_size": TICK},
         x_axis_config={"numbers_to_exclude": [-1]},
         tips=False,
     )

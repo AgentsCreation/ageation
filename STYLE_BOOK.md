@@ -360,8 +360,10 @@ one was a *repeated* fix. Apply them the first time, not on review.
   as if nova were slower.
 
 **Charts (the most-revised object — all of this lives in `make_pmf_chart`):**
-- **Make it big and legible.** Axis numbers at ~30 pt, axis *names* at `BODY`.
-  A chart shrunk until its labels vanish is worse than one that crowds slightly.
+- **Make it big and legible.** Axis tick numbers at `TICK` (26 — "one size
+  smaller everywhere", 2026-07-05 review), axis *names* at `BODY`. A chart
+  shrunk until its labels vanish is worse than one that crowds slightly;
+  a chart whose ticks shout over the content is the newer failure mode.
 - **Extend the x-axis one unit left** (`x_range` starts at `-1`, exclude `-1`
   from the drawn numbers) so the first bar isn't jammed against the y-axis.
 - **The axis name (`k`, `x`) goes below-right of the tip**, never up where the
