@@ -218,6 +218,102 @@ def make_pmf_chart(
     return chart, bars
 
 
+# --- Predictable layout ----------------------------------------------------
+# ageation optimizes for structured, repeatable layouts over bespoke
+# composition (HISTORY.md: the 2026-07-04 review harvest). These helpers
+# encode the positioning notes the reviewer gave repeatedly, so scenes get
+# them right the first time:
+#   two_column      "the two sides should sit level, raised toward mid-frame"
+#   eq_chain        "align the equals signs; keep chained equations together"
+#   even_stack      "reclaim the space vertically to get good spacing"
+#   caption_under   "center the caption on the chart it describes"
+#   chart_tag       "the lambda = ... label is a bit small - make it larger"
+
+def two_column(left, right, *, y=-0.9, left_x=-3.4, right_x=3.3):
+    """Place a picture + math pair level with each other, riding high.
+
+    Both mobjects are centered at the same ``y`` (default -0.9: high enough
+    that a late-arriving caption still has its own lane below). Returns
+    VGroup(left, right) for further handling; call fit_to_frame on each
+    column *before* this if either might be oversized.
+    """
+    left.move_to([left_x, y, 0])
+    right.move_to([right_x, y, 0])
+    return VGroup(left, right)
+
+
+def eq_chain(lhs, *rhs_lines, font_size=SMALL, color=INK, buff=0.3):
+    r"""A multi-line equation chain with the equals signs in one column.
+
+    ``eq_chain(r"I^2", r"\iint \dots", r"\int_0^{2\pi} \dots", "1")`` renders
+
+        I^2 = \iint ...
+            = \int_0^{2\pi} ...
+            = 1
+
+    Continuation lines are built as ("=", rhs) two-part MathTex — never with
+    an empty leading part, which MathTex silently drops (that bug shipped
+    once; see STYLE_BOOK 12). Lines are aligned on the "=" column and kept
+    at a tight ``buff`` so the chain reads as ONE derivation, then the group
+    is centered on x = 0. Returns a VGroup; index [0] is the first line.
+    """
+    if not rhs_lines:
+        raise ValueError("eq_chain needs at least one right-hand side")
+    first = MathTex(lhs, "=", rhs_lines[0], font_size=font_size, color=color)
+    lines = VGroup(first)
+    for rhs in rhs_lines[1:]:
+        lines.add(MathTex("=", rhs, font_size=font_size, color=color))
+    lines.arrange(DOWN, buff=buff)
+    for ln in lines[1:]:
+        ln.shift(RIGHT * (first[1].get_x() - ln[0].get_x()))
+    lines.move_to([0.0, lines.get_center()[1], 0.0])
+    return lines
+
+
+def even_stack(*mobjects, top=2.2, bottom=-2.9, x=0.0):
+    """Distribute mobjects down the content zone with equal gaps.
+
+    Positions each mobject (in order) between ``top`` and ``bottom`` so the
+    vertical gaps between neighbours are all equal — the reviewer's
+    "reclaim the space vertically" note as a one-liner. All items land on
+    the column ``x`` (default 0); pass ``x=None`` to keep each mobject's
+    own x. Returns VGroup(*mobjects).
+    """
+    items = list(mobjects)
+    total_h = sum(m.height for m in items)
+    span = top - bottom
+    n_gaps = max(len(items) - 1, 1)
+    gap = max((span - total_h) / n_gaps, 0.15)
+    y = top
+    for m in items:
+        m.move_to([x if x is not None else m.get_x(), y - m.height / 2, 0])
+        y -= m.height + gap
+    return VGroup(*items)
+
+
+def caption_under(mobj, text, *, buff=0.35, color=MUTED):
+    """A CAPTION-size line centered under the object it describes.
+
+    Centering uses the object's own x (the "align commentary under what it
+    describes" rule), not the frame center. Accepts a string or a pre-built
+    mobject.
+    """
+    if isinstance(text, str):
+        text = Text(text, font_size=CAPTION, color=color)
+    text.next_to(mobj, DOWN, buff=buff)
+    text.set_x(mobj.get_x())
+    return text
+
+
+def chart_tag(tex, *, font_size=BODY, color=INK) -> MathTex:
+    """A parameter tag for a chart (e.g. ``\\lambda = 2``) at a legible size.
+
+    BODY by default — SMALL/CAPTION tags on charts were repeatedly flagged
+    as too small at 480p.
+    """
+    return MathTex(tex, font_size=font_size, color=color)
+
+
 # --- Recurring figures ---------------------------------------------------------
 # The series' established glyphs. A chapter that draws its own version of one
 # of these reads as a different series (STYLE_BOOK "reuse established
@@ -313,6 +409,9 @@ def mass_table(entries, cell_w=1.15, cell_h=0.75, font_size=SMALL):
 
     table = VGroup(grid, tex_group)
     table.cells = cells
+    # A lattice's lines cross each other by construction -- declare the
+    # intent here so every consumer of the idiom is lint-clean for free.
+    mark_intended_overlap(grid, reason="table lattice lines cross by design")
     return table
 
 
