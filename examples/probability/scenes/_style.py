@@ -259,6 +259,19 @@ def make_pmf_chart(
 #   caption_under   "center the caption on the chart it describes"
 #   chart_tag       "the lambda = ... label is a bit small - make it larger"
 
+def zone_center_y(title=None) -> float:
+    """The y of the content zone's center: halfway between the docked
+    title's bottom and the frame bottom.
+
+    The reviewer's recurring vertical rule (2026-07-05, stated three times
+    in one round): a beat's main content sits centered in the space below
+    the title, not resting low. Pass the docked title for an exact answer;
+    without it, a SECTION-size title at the top edge is assumed (~3.0).
+    """
+    title_bottom = title.get_bottom()[1] if title is not None else 3.0
+    return (title_bottom + (-config.frame_height / 2)) / 2
+
+
 def two_column(left, right, *, y=-0.9, left_x=-3.4, right_x=3.3):
     """Place a picture + math pair level with each other, riding high.
 

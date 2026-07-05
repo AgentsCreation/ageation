@@ -196,7 +196,12 @@ The mature layout for a "picture + math" beat (see `continuity_measure.py`):
 | `caption_under(chart, s)` | "center the sentence on the chart it describes" — CAPTION line on the object's own x. |
 | `chart_tag(tex)`          | "the λ = … label is a bit small" — BODY-size parameter tags on charts. |
 
-**Positioning defaults (the 2026-07-04 review digest):**
+**Positioning defaults (the 2026-07-04/05 review digest):**
+- **A beat's main content centers on `zone_center_y(title)`** — halfway
+  between the docked title's bottom and the frame bottom (≈ −0.5). The
+  reviewer stated this rule three times in one round; it beats resting
+  content low. The 0.8 bottom margin remains the floor for the *lowest*
+  element.
 - Left charts in a two-column beat ride HIGH: `to_edge(DOWN, buff=1.2–1.4)`,
   not 0.8 — the 0.8 minimum is a floor for the *lowest* element, not a
   resting place for charts with content below them.
