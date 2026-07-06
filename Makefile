@@ -55,13 +55,19 @@ doctor: ## Preflight: project.yaml, env, ffmpeg, latex, OPENAI_API_KEY when need
 lint-scene: ## Geometric scene lint — bbox overlaps after every play(); gates `video`, not `render`
 	uv run python tools/lint_scene.py --project $(PROJECT)
 
-render: doctor ## Render built chapters at 1080p60
+# Each render target preflights at the SAME quality it renders, so the doctor
+# key check matches reality: a draft (-q l) forces the free gtts voice and
+# needs no OPENAI_API_KEY, while finals do (see tools/doctor.py, render.py).
+render: ## Render built chapters at 1080p60
+	uv run python tools/doctor.py -q h --project $(PROJECT)
 	uv run python tools/render.py -q h --project $(PROJECT)
 
-render-draft: doctor ## Render built chapters at 480p (fast)
+render-draft: ## Render built chapters at 480p (fast)
+	uv run python tools/doctor.py -q l --project $(PROJECT)
 	uv run python tools/render.py -q l --project $(PROJECT)
 
-render-4k: doctor ## Render built chapters at 4K
+render-4k: ## Render built chapters at 4K
+	uv run python tools/doctor.py -q k --project $(PROJECT)
 	uv run python tools/render.py -q k --project $(PROJECT)
 
 assemble: ## Stitch per-scene .mp4 files of each chapter into one video (1080p60). SPEED= overrides 1.0x.

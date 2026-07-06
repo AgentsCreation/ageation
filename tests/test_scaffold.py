@@ -1,5 +1,6 @@
 """scaffold.py: deterministic layer stubs that keep provenance green."""
 
+import os
 import py_compile
 
 import pytest
@@ -9,6 +10,7 @@ from provenance import split_fm, sha256_script
 from check_sync import scene_status, OK
 from scaffold import (scaffold_concept, scaffold_script, scaffold_scene,
                       beat_narrations, class_name_for)
+from vendor_sources import resolve_upstream
 
 MANIFEST = {
     "project": {
@@ -73,6 +75,61 @@ def test_concept_vendors_on_demand(project):
     fm_text, _ = split_fm(open(out).read())
     assert "upstream: input/maps.tex" in fm_text
     assert "companion: sources/3-maps.md" in fm_text
+
+
+def test_resolve_upstream_joins_bare_name_under_dir():
+    assert resolve_upstream("1Intro.tex", "notes") == os.path.join("notes", "1Intro.tex")
+    assert resolve_upstream("input/x.tex", "notes") == "input/x.tex"   # already qualified
+    assert resolve_upstream("x.tex", None) == "x.tex"                  # no upstream_dir
+    assert resolve_upstream("/abs/x.tex", "notes") == "/abs/x.tex"     # absolute wins
+
+
+def test_concept_vendors_on_demand_with_upstream_dir(project):
+    # Embedded posture (the supported bootstrap path): project.yaml records a
+    # BARE upstream filename and keeps the directory in project.upstream_dir.
+    # The on-demand vendor must join them (REVIEW.md finding 2), and the colon
+    # title must survive into the front matter (finding 1).
+    (project / "notes").mkdir()
+    (project / "notes" / "1Intro.tex").write_text("\\section{Intro}\nbody\n")
+    (project / "notes" / "1Intro.md").write_text("sidecar\n")
+    manifest = {
+        "project": {**MANIFEST["project"], "upstream_dir": "notes"},
+        "chapters": [{"slug": "1-intro",
+                      "title": "Graphical Models: A Quick Tour",
+                      "upstream": "1Intro.tex"}],
+    }
+    out = scaffold_concept(str(project), manifest, "1-intro", force=False)
+    assert (project / "sources" / "1-intro.tex").exists()
+    assert (project / "sources" / "1-intro.md").exists()   # companion via upstream_dir sibling
+    fm = yaml.safe_load(split_fm(open(out).read())[0])     # colon title must parse
+    assert fm["title"] == "Graphical Models: A Quick Tour"
+    assert fm["upstream"] == "1Intro.tex"
+
+
+def test_concept_scaffold_bootstrap_creates_dirs(tmp_path):
+    # The supported bootstrap (init without --scaffold-concepts) leaves no
+    # sources/ or content/ dir. A first standalone concept scaffold must
+    # create them rather than crash writing into a missing directory.
+    (tmp_path / "notes").mkdir()
+    (tmp_path / "notes" / "1Intro.tex").write_text("\\section{Intro}\nbody\n")
+    manifest = {
+        "project": {**MANIFEST["project"], "upstream_dir": "notes"},
+        "chapters": [{"slug": "1-intro", "title": "Intro", "upstream": "1Intro.tex"}],
+    }
+    out = scaffold_concept(str(tmp_path), manifest, "1-intro", force=False)
+    assert os.path.exists(out)
+    assert (tmp_path / "sources" / "1-intro.tex").exists()
+
+
+def test_concept_on_demand_missing_upstream_errors(project):
+    # A bare upstream that resolves to nothing should fail loudly, not blow up
+    # later hashing a source file that was never written.
+    manifest = {
+        "project": {**MANIFEST["project"], "upstream_dir": "notes"},
+        "chapters": [{"slug": "1-intro", "title": "Intro", "upstream": "nope.tex"}],
+    }
+    with pytest.raises(SystemExit, match="upstream not found"):
+        scaffold_concept(str(project), manifest, "1-intro", force=False)
 
 
 def write_concept(project, concepts_yaml=""):

@@ -42,7 +42,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _project import (
-    project_parser, resolve_project,
+    project_parser, resolve_project, yaml_scalar,
     PROJECT_SHAPES, DEFAULT_SHAPE, shape_defaults,
 )
 from render import default_scene_file
@@ -234,10 +234,10 @@ def scaffold_concept(root, in_rel, ch):
     lines = [
         "---",
         f"slug: {ch['slug']}",
-        f"title: {ch['title']}",
+        f"title: {yaml_scalar(ch['title'])}",
         "stage: concept            # tex -> [concept] -> script -> scene -> render",
         "status: draft             # draft | reviewed | approved  (human gate)",
-        f"source: {in_rel}/{ch['upstream']}",
+        f"source: {yaml_scalar(in_rel + '/' + ch['upstream'])}",
     ]
     if ch["companion"]:
         lines.append(f"# companion upstream: {in_rel}/{ch['companion']} "
@@ -297,11 +297,11 @@ def write_manifest(out, in_rel, shape, title, target_minutes, defaults, chapters
         "# tools/_project.py; override them by editing the YAML below.",
         "",
         "project:",
-        f"  title: {title}",
+        f"  title: {yaml_scalar(title)}",
         f"  shape: {shape}            # {defaults['summary']}",
         "  # Read-only parent source(s). Editable working copies are vendored",
         "  # to sources/ (tools/vendor_sources.py); the pipeline builds from those.",
-        f"  upstream_dir: {in_rel}",
+        f"  upstream_dir: {yaml_scalar(in_rel)}",
         "  render:",
         "    quality: ql            # ql = 480p draft; qh = 1080p final",
         "  voice:",
@@ -329,10 +329,10 @@ def write_manifest(out, in_rel, shape, title, target_minutes, defaults, chapters
     ]
     for ch in chapters:
         lines.append(f"  - slug: {ch['slug']}")
-        lines.append(f"    title: {ch['title']}")
-        lines.append(f"    upstream: {ch['upstream']}")
+        lines.append(f"    title: {yaml_scalar(ch['title'])}")
+        lines.append(f"    upstream: {yaml_scalar(ch['upstream'])}")
         if ch["companion"]:
-            lines.append(f"    companion: {ch['companion']}   # pandoc high-level notes")
+            lines.append(f"    companion: {yaml_scalar(ch['companion'])}   # pandoc high-level notes")
         lines.append("    status: planned")
         if ch["prereq"]:
             lines.append(f"    prereqs: [{ch['prereq']}]")

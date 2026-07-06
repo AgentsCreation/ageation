@@ -35,7 +35,8 @@ import sys
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _project import project_parser, resolve_project, load_project, project_shape, shape_defaults
+from _project import (project_parser, resolve_project, load_project,
+                      project_shape, shape_defaults, yaml_scalar)
 from provenance import sha256_file, sha256_script, split_fm
 from render import default_scene_file
 
@@ -83,6 +84,11 @@ def scaffold_concept(root: str, manifest: dict, slug: str, force: bool) -> str:
     ch, _, _ = find_chapter(manifest, slug)
     out = os.path.join(root, "content", f"{slug}.md")
     refuse_existing(out, force)
+    # The supported bootstrap (init_project.py without --scaffold-concepts)
+    # leaves neither content/ nor sources/; create them so the first
+    # standalone `scaffold --layer concept` can vendor + write here.
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    os.makedirs(os.path.join(root, "sources"), exist_ok=True)
 
     # Vendor on demand: tools/vendor_sources.py works off existing concept
     # files, so a chapter added to an established project has no vendored
@@ -97,12 +103,20 @@ def scaffold_concept(root: str, manifest: dict, slug: str, force: bool) -> str:
             raise SystemExit(
                 f"{source} not found and chapter {slug} declares no "
                 f"`upstream:` in project.yaml -- nothing to vendor from")
-        from vendor_sources import vendor_file, find_companion
-        vendor_file(root, upstream, source)
+        from vendor_sources import vendor_file, find_companion, resolve_upstream
+        # `upstream:` is a bare filename in the embedded posture; the directory
+        # lives in project.upstream_dir. Resolve it the same way the companion
+        # lookup does, else vendor_file looks under the project root and misses.
+        upstream_dir = (manifest.get("project") or {}).get("upstream_dir")
+        upstream_full = resolve_upstream(upstream, upstream_dir)
+        if not vendor_file(root, upstream_full, source):
+            raise SystemExit(
+                f"cannot scaffold concept for {slug}: upstream not found at "
+                f"{upstream_full!r} (chapter upstream={upstream!r}, "
+                f"project.upstream_dir={upstream_dir!r})")
         print(f"  vendored {slug}  ->  {source}")
         by_slug = {c.get("slug"): c for c in manifest.get("chapters") or []}
-        upstream_dir = (manifest.get("project") or {}).get("upstream_dir")
-        comp_up = find_companion(root, slug, upstream, by_slug, upstream_dir)
+        comp_up = find_companion(root, slug, upstream_full, by_slug, upstream_dir)
         if comp_up:
             companion_rel = f"sources/{slug}.md"
             vendor_file(root, comp_up, companion_rel)
@@ -118,14 +132,14 @@ def scaffold_concept(root: str, manifest: dict, slug: str, force: bool) -> str:
     lines = [
         "---",
         f"slug: {slug}",
-        f"title: {ch.get('title', slug)}",
+        f"title: {yaml_scalar(ch.get('title', slug))}",
         "stage: concept            # tex -> [concept] -> script -> scene -> render",
         "status: draft             # draft | reviewed | approved  (human gate)",
         f"source: {source}",
         f"source_sha256: {sha256_file(source_abs)}",
     ]
     if upstream:
-        lines.append(f"upstream: {upstream}")
+        lines.append(f"upstream: {yaml_scalar(upstream)}")
     if companion_rel:
         lines.append(f"companion: {companion_rel}")
     if ch.get("prereqs"):
@@ -181,10 +195,14 @@ def scaffold_script(root: str, manifest: dict, slug: str, force: bool) -> str:
     voice = (manifest.get("project") or {}).get("voice") or {}
     target_sec = cfm.get("estimated_runtime_sec") or 360
 
+    recap_val = ("TODO -- reactivate the previous chapter"
+                 + (": " + prev["title"] if prev and prev.get("title") else ""))
+    bridge_val = ("TODO -- tease the next chapter"
+                  + (": " + nxt["title"] if nxt and nxt.get("title") else ""))
     lines = [
         "---",
         f"slug: {slug}",
-        f"title: {ch.get('title', slug)}",
+        f"title: {yaml_scalar(ch.get('title', slug))}",
         "stage: script             # tex -> concept -> [script] -> scene -> render",
         "status: draft             # draft | reviewed | approved  (human gate)",
         f"derived_from: {slug}.md",
@@ -193,12 +211,10 @@ def scaffold_script(root: str, manifest: dict, slug: str, force: bool) -> str:
         "",
         "# --- Narrative glue (links this video to its neighbours) ----------",
         "linking:",
-        '  objective: "TODO -- the learning goal, spoken in the intro_card"',
-        f'  recap: "TODO -- reactivate the previous chapter'
-        f'{(": " + prev["title"]) if prev and prev.get("title") else ""}"',
-        '  key_idea: "TODO -- one-line takeaway spoken in outro_bridge"',
-        f'  bridge: "TODO -- tease the next chapter'
-        f'{(": " + nxt["title"]) if nxt and nxt.get("title") else ""}"',
+        f"  objective: {yaml_scalar('TODO -- the learning goal, spoken in the intro_card')}",
+        f"  recap: {yaml_scalar(recap_val)}",
+        f"  key_idea: {yaml_scalar('TODO -- one-line takeaway spoken in outro_bridge')}",
+        f"  bridge: {yaml_scalar(bridge_val)}",
         "",
         "# --- Voice + timing config ----------------------------------------",
         "voice:",

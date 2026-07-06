@@ -18,15 +18,21 @@ Per project, doctor checks:
     - latex on PATH (MathTex)             [WARN if absent: scenes without math compile fine]
     - dvisvgm on PATH (MathTex)           [WARN if absent: same reason]
 
-  SECRETS (only when project's voice.provider needs one)
+  SECRETS (only when the *effective* TTS provider for this render needs one)
     - openai: OPENAI_API_KEY set in the shell, OR in `<project>/.env`
       (`.env` is gitignored per framework convention; see PIPELINE.md
       "Environment + secrets")
 
+The effective TTS provider mirrors render.py + _style.speech_service: the
+AGEATION_TTS env var wins, else a 480p draft (-q l) uses the free gtts voice,
+else project.voice.provider. So a draft never demands an OpenAI key even when
+the project is configured to `openai` for finals -- pass `-q l` (the draft
+Make targets do) to preflight the draft path.
+
 Each row prints PASS / FAIL / WARN with a one-line hint. Exits non-zero if
 any required check fails; warnings do not gate the build.
 
-Usage:  python tools/doctor.py [--project DIR]
+Usage:  python tools/doctor.py [--project DIR] [-q l|m|h|k]
 """
 
 import os
@@ -64,8 +70,28 @@ def row(status: str, label: str, detail: str = "") -> str:
     return f"  {color}{status}{reset}  {label}{tail}"
 
 
+def effective_tts_provider(quality: str, configured: str) -> tuple[str, str]:
+    """The TTS provider a render at `quality` will actually use, and why.
+
+    Mirrors _style.speech_service's resolution order: AGEATION_TTS overrides
+    everything; else a 480p draft (-q l) forces the free gtts voice (as
+    render.py does); else the project's configured provider.
+    """
+    env_tts = os.environ.get("AGEATION_TTS")
+    if env_tts:
+        return env_tts.strip().lower(), "AGEATION_TTS override"
+    if quality == "l":
+        return "gtts", "480p draft forces the free voice"
+    return configured, f"voice.provider is {configured!r}"
+
+
 def main():
-    args = project_parser(__doc__).parse_args()
+    parser = project_parser(__doc__)
+    parser.add_argument("-q", "--quality", default=None, choices=list("lmhk"),
+                        help="render quality this preflight is for "
+                             "(default: project.yaml render.quality, else l); "
+                             "a draft (l) needs no OpenAI key")
+    args = parser.parse_args()
     root = resolve_project(args.project)
 
     results: list[tuple[str, str, str]] = []
@@ -125,8 +151,16 @@ def main():
         results.append((WARN, "dvisvgm on PATH",
                         "MathTex scenes will fail; ok for text-only renders"))
 
-    # SECRETS
-    if provider == "openai":
+    # SECRETS -- gate on the provider this render will *actually* use, not the
+    # configured one: a draft forces the free gtts voice, so it needs no key
+    # even when the project is set to openai for finals (matches render.py).
+    if args.quality is not None:
+        quality = args.quality
+    else:
+        cfg = ((manifest.get("project") or {}).get("render") or {}).get("quality", "ql")
+        quality = cfg.lstrip("q") if cfg.lstrip("q") in list("lmhk") else "l"
+    effective, why = effective_tts_provider(quality, provider)
+    if effective == "openai":
         ok, source = env_or_dotenv("OPENAI_API_KEY", root)
         if ok:
             results.append((PASS, "OPENAI_API_KEY available", source))
@@ -137,7 +171,7 @@ def main():
             required_failures += 1
     else:
         results.append((PASS, "OPENAI_API_KEY not required",
-                        f"voice.provider is {provider!r}"))
+                        f"effective TTS is {effective!r} ({why})"))
 
     _print(results, required_failures)
     sys.exit(1 if required_failures else 0)

@@ -1,4 +1,8 @@
-from init_project import slugify, title_from_tex, sort_key, detect_collisions
+import yaml
+
+from init_project import (slugify, title_from_tex, sort_key, detect_collisions,
+                          write_manifest)
+from _project import yaml_scalar, shape_defaults
 
 
 def test_slugify_numeric_prefix_and_camel_case():
@@ -52,3 +56,30 @@ def test_detect_collisions_clean():
          "companion": None, "prereq": None},
     ]
     assert detect_collisions(chapters) == []
+
+
+def test_yaml_scalar_quotes_only_when_needed():
+    # Safe strings pass through unquoted (readable generated files)...
+    assert yaml_scalar("Introduction") == "Introduction"
+    assert yaml_scalar("05-discrete-random-variables") == "05-discrete-random-variables"
+    # ...the risky ones get quoted so they still round-trip through safe_load.
+    for value in ["Graphical Models: A Quick Tour", "true", "123", "yes",
+                  "- leading dash", "it's a wrap: really", "", "#hash"]:
+        loaded = yaml.safe_load(f"key: {yaml_scalar(value)}")
+        assert loaded == {"key": value}, value
+
+
+def test_write_manifest_survives_colon_titles(tmp_path):
+    # A perfectly ordinary article/chapter title with a colon used to emit
+    # invalid YAML that yaml.safe_load choked on (REVIEW.md finding 1).
+    chapters = [
+        {"slug": "01-intro", "title": "Graphical Models: A Quick Tour",
+         "upstream": "1Intro.tex", "companion": "1Intro.md", "prereq": None},
+    ]
+    out = tmp_path / "project.yaml"
+    write_manifest(str(out), "input/Demo", "course",
+                   "My Course: Volume 1", 6, shape_defaults("course"), chapters)
+    data = yaml.safe_load(out.read_text())   # must not raise
+    assert data["project"]["title"] == "My Course: Volume 1"
+    assert data["chapters"][0]["title"] == "Graphical Models: A Quick Tour"
+    assert data["chapters"][0]["companion"] == "1Intro.md"

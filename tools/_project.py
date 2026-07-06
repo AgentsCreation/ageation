@@ -54,6 +54,28 @@ def load_project(project_root: str) -> dict:
         return yaml.safe_load(f) or {}
 
 
+def yaml_scalar(value) -> str:
+    r"""Render `value` as a YAML scalar safe to drop into a mapping-value slot.
+
+    The manifests and layer front matter are hand-interpolated (kept readable,
+    with inline comments) rather than emitted through yaml.safe_dump, so a
+    content-derived string like ``Graphical Models: A Quick Tour`` would slip an
+    unescaped ``:`` into the YAML and break every later yaml.safe_load. This
+    quotes exactly the values a plain scalar would misparse -- colons, leading
+    indicators, and bool/number/null look-alikes -- single-quoting and doubling
+    any embedded quote; safe strings (the common case) pass through unquoted so
+    generated files stay readable.
+    """
+    s = "" if value is None else str(value)
+    try:
+        plain_ok = (yaml.safe_load(s) == s) and s == s.strip() and "\n" not in s
+    except yaml.YAMLError:
+        plain_ok = False
+    if plain_ok:
+        return s
+    return "'" + s.replace("'", "''") + "'"
+
+
 def parse_dotenv(path: str) -> dict:
     """Minimal .env parser: KEY=VALUE per line, # comments and blanks skipped.
 

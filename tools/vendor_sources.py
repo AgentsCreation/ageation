@@ -112,13 +112,25 @@ def companion_sibling(upstream_rel):
     return base + ".md" if ext == ".tex" else None
 
 
+def resolve_upstream(upstream_rel, upstream_dir):
+    """Resolve a chapter's `upstream:`/`companion:` against project.upstream_dir.
+
+    In the embedded posture init_project.py records a bare source filename in
+    project.yaml and keeps the directory in project.upstream_dir. A bare name
+    (no path separator, not absolute) therefore lives under upstream_dir; an
+    already-qualified path passes through unchanged. Centralizes the rule so
+    the primary source and its companion resolve identically.
+    """
+    if upstream_dir and not os.path.isabs(upstream_rel) and os.sep not in upstream_rel:
+        return os.path.join(upstream_dir, upstream_rel)
+    return upstream_rel
+
+
 def find_companion(root, slug, upstream_rel, by_slug, upstream_dir):
     """Upstream companion path: project.yaml `companion:` first, else sibling."""
     ch = by_slug.get(slug)
     if ch and ch.get("companion"):
-        cand = ch["companion"]
-        if upstream_dir and not os.path.isabs(cand) and os.sep not in cand:
-            cand = os.path.join(upstream_dir, cand)
+        cand = resolve_upstream(ch["companion"], upstream_dir)
         if os.path.exists(os.path.join(root, cand)):
             return cand
         print(f"  WARN project.yaml companion missing for {slug}: {cand}")
