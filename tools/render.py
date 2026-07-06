@@ -27,6 +27,14 @@ from provenance import split_fm, fm_get
 
 RENDERABLE = {"built", "rendered", "approved"}
 
+# A scene that constructs OpenAIService directly ignores the AGEATION_TTS=gtts
+# draft switch and tries to reach OpenAI; with no key, manim-voiceover drops
+# into an interactive input() that a background render can't answer, hanging
+# the whole run. Voice is configuration -- scenes must call
+# _style.speech_service(). This preflight turns that latent hang into a clear
+# up-front error on the free draft path.
+OPENAI_SERVICE = re.compile(r"\bOpenAIService\s*\(")
+
 # The engine repo (containing pyproject.toml and the manim-bearing venv)
 # is the parent directory of tools/. When a consumer project lives outside
 # this repo, `uv run` invoked with cwd=<project> can't find a venv to use;
@@ -110,8 +118,19 @@ def main():
             failures += 1
             continue
         scene_file = ch.get("scene_file") or default_scene_file(slug)
-        if not os.path.exists(os.path.join(root, scene_file)):
+        scene_path = os.path.join(root, scene_file)
+        if not os.path.exists(scene_path):
             print(f"!!! {slug}: scene file missing: {scene_file}")
+            failures += 1
+            continue
+        # Draft preflight: a hard-coded OpenAIService would hang the free
+        # gtts render on an interactive key prompt. Fail fast with the fix.
+        if env.get("AGEATION_TTS") == "gtts" and OPENAI_SERVICE.search(
+                open(scene_path, encoding="utf-8").read()):
+            print(f"!!! {slug}: {scene_file} constructs OpenAIService directly "
+                  f"-- the gtts draft render would hang on a key prompt. "
+                  f"Return _style.speech_service() from make_speech_service() "
+                  f"(the AGEATION_TTS env var then picks the draft/final voice).")
             failures += 1
             continue
         classes = [v["scene_class"] for v in ch.get("videos") or [] if v.get("scene_class")]

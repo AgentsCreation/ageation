@@ -44,6 +44,12 @@ def test_full_bootstrap_flow(project):
     assert (project / "content" / "02-calculus.md").exists()
     assert "1 with companion" in r.stdout
 
+    # A .gitignore is scaffolded so media/ and .env never reach git.
+    gi = project / ".gitignore"
+    assert gi.exists()
+    body = gi.read_text()
+    assert "media/" in body and ".env" in body
+
     r = run("vendor_sources.py", "--project", root)
     assert r.returncode == 0, r.stderr
     assert (project / "sources" / "01-linear-algebra.tex").exists()

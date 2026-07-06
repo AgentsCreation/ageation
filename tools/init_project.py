@@ -190,6 +190,40 @@ def prompt_target_minutes(suggestion: int) -> int:
         return n
 
 
+# --- Housekeeping scaffold ---------------------------------------------------
+
+GITIGNORE = """\
+# Renders, per-beat clips, and the TTS voiceover cache are all regenerable
+# from the tracked layers (project.yaml + content/ + scenes/ + sources/) via
+# tools/render.py + tools/assemble.py. Re-renders are approximate: TTS audio
+# is re-synthesized, so beat durations drift within the runtime tolerance.
+media/
+
+# Secrets (OPENAI_API_KEY); document the shape in .env.example, not here.
+.env
+
+__pycache__/
+.DS_Store
+"""
+
+
+def scaffold_gitignore(root: str) -> bool:
+    """Emit a .gitignore that keeps media/ and .env out of git.
+
+    The single biggest footgun in an embedded project is committing the 8 GB
+    media/ tree or the .env secret; the tracked text layers regenerate the
+    videos, so neither belongs in history. Skips an existing .gitignore.
+    """
+    path = os.path.join(root, ".gitignore")
+    if os.path.exists(path):
+        print("  .gitignore exists, skipping")
+        return False
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(GITIGNORE)
+    print("  wrote .gitignore (media/, .env, __pycache__/, .DS_Store)")
+    return True
+
+
 # --- Concept scaffold (unchanged) -------------------------------------------
 
 def scaffold_concept(root, in_rel, ch):
@@ -377,6 +411,8 @@ def main():
     print(f"Wrote {os.path.relpath(out, root)}: shape={shape}, "
           f"{len(chapters)} chapter(s) ({n_comp} with companion .md) "
           f"from {in_rel}.")
+
+    scaffold_gitignore(root)
 
     if args.scaffold_concepts:
         os.makedirs(os.path.join(root, "content"), exist_ok=True)

@@ -66,6 +66,61 @@ When `project.shape` is absent, the framework defaults to `article` —
 single-video standalone is the common case. Declare `shape: book` or
 `shape: course` explicitly when the project fans out into a series.
 
+### The three document classes (a reflection)
+
+In practice the framework is aimed at three classes of LaTeX source. They are
+worth naming, because the pipeline layers are identical for all three — only a
+few *knobs* differ, and getting those knobs right up front removes most of the
+per-project touch points.
+
+1. **arXiv paper in a prescribed format.** A single logical document
+   (`main.tex`, often with `sections/*.tex` inputs) whose structure is fixed
+   by convention: abstract, introduction, method/model, results, discussion.
+   The goal is to *report* — distil an existing contribution for a reader who
+   wants the result, not to teach the prerequisites. One source → one short
+   explainer or a handful of section clips. No external spine.
+2. **Notes with chapters and sections.** A directory of chapter `.tex` files
+   (the `examples/probability/` case, and the live 43-video probability
+   series). The goal is to *teach* a subject end to end. It fans out the
+   widest: chapter × section granularity, dozens of videos, and — critically —
+   a **spine**: every video recaps the prior topic and bridges to the next, so
+   the playlist reads as a course, not a pile of clips.
+3. **Standalone educational document.** A single self-contained teaching
+   document — one topic, explained from first principles for a learner. One
+   source → one video or a short focused series. Like the paper it has no
+   external spine; unlike the paper its *register is educational*, not
+   research-reporting.
+
+The axes that actually differ (everything else — the four layers, provenance,
+notation, overflow safety, the register/layout system — is shared):
+
+| Axis | arXiv paper | Chaptered notes | Standalone educational |
+|------|-------------|-----------------|------------------------|
+| Source structure | one doc (`main.tex` + `sections/`) | directory of chapter `.tex` | one self-contained `.tex` |
+| Fan-out | 1 video / a few section clips | chapter × section, dozens | 1 video / short series |
+| Inter-video spine | none | full (recap + bridge) | none / within-doc only |
+| Register | research-reporting | educational | educational |
+| `recap_prior` | false | true | false (within-doc if a series) |
+| Maps to `shape` | `article` | `book` / `course` | `article` |
+
+**The one unresolved conflation.** Classes 1 and 3 both map to `shape:
+article` today, because the current shape taxonomy keys on *structure*
+(single source vs. directory) — and by structure they are the same. But they
+differ on the axis that most shapes narration: **register**. An arXiv paper
+distilled in the educational register over-explains and condescends to a
+research audience; a standalone lesson delivered in the reporting register is
+terse and loses a learner. The framework's register rules (STYLE_BOOK §0) are
+written for the educational voice — correct for classes 2 and 3, not for
+class 1.
+
+Recommendation (deferred, not blocking): introduce a `register:` field
+(`educational` | `research`) rather than splitting `article` into two shapes —
+register is orthogonal to structure, so a `book` could in principle be a
+research monograph too. Until that lands, treat `shape: article` as
+"single-source distillation" and set the register expectation by hand in the
+concept/script review. This reflection is the spec for that field; see
+HISTORY.md §7.
+
 ## Bootstrapping a new project
 
 `tools/init_project.py input/<Subject>` scans the input folder and emits a

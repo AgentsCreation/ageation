@@ -289,6 +289,22 @@ LaTeX error.
   gTTS/OpenAI.
 - **gTTS needs internet; OpenAI needs `OPENAI_API_KEY`.** Both cache audio by a
   hash of the narration text, so unchanged beats are never re-synthesized.
+- **A scene must never construct its speech service directly.** A hard-coded
+  `OpenAIService(...)` ignores the `AGEATION_TTS=gtts` draft switch, tries to
+  reach OpenAI, and — with no key — drops into an interactive `input()` that a
+  background render can't answer, hanging the whole run (hit on four legacy
+  scenes, 2026-07-06). Always `return _style.speech_service()` from
+  `make_speech_service()`. `lint_style.py` flags the smell (`hardcoded-voice`);
+  `render.py` now pre-flights it on the draft path and fails fast with the fix.
+- **TTS artifacts the text can't predict.** A final (nova/openai) take can
+  carry a leading breath puff, or run a near-homophone together as a stutter
+  ("three densi-ties" — 2026-07-06, video 30). The fix is not a text change:
+  drop that one cached take and re-render the beat. Use
+  `tools/evict_cache.py --project DIR --text "<phrase>"` (it removes the entry
+  and any orphaned mp3 safely) rather than hand-editing `cache.json` — the
+  cache is a flat JSON list that **corrupts under concurrent writes**, so a
+  stray manual edit during a render can wedge it. (If it does wedge, truncate
+  to the longest valid-JSON prefix, or delete it to force full re-synthesis.)
 - **OpenAI `/audio/speech` requests can hang for the SDK's full 600 s default
   timeout**, then succeed instantly on retry — observed twice in one render
   (≈10 dead minutes per scene boundary). manim-voiceover's `OpenAIService`
@@ -317,3 +333,12 @@ LaTeX error.
   the measured_sec cumulative offsets, directing fixes to the script layer.
 - `shape: session`; section-level hashing; course-level master cut with
   crossfades/loudness normalization.
+- **A `register:` field (`educational` | `research`)** on the project /
+  chapter. The three document classes the framework targets (arXiv paper,
+  chaptered notes, standalone educational — see PIPELINE.md "The three
+  document classes") differ on register, not just structure: classes 1 (paper)
+  and 3 (standalone lesson) both map to `shape: article` yet want opposite
+  voices. Register is orthogonal to shape (a `book` could be a research
+  monograph), so add a field rather than splitting `article`. The STYLE_BOOK §0
+  register rules are today written for `educational`; `research` would relax
+  the over-explain/hand-holding conventions. PIPELINE.md holds the spec.
