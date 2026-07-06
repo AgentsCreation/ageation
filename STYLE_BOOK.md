@@ -50,6 +50,9 @@ Concretely, the register means:
   stream" never does. Chapter numbers are fine (they belong to the book);
   "last / this / next video" are fine (structural). Everything else is a
   `lint_language.py` violation.
+- **No production-finality claims** ("the final video of the course") —
+  the series may grow. Closing a *chapter's* or an *arc's* story is fine;
+  promising that nothing follows is not. (2026-07-05 review note.)
 
 - **Predictable layout beats clever layout.** The layout helpers in §6 are
   not suggestions — a scene that hand-places what a helper places is a
