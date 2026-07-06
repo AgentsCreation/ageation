@@ -7,7 +7,7 @@ source: sources/12-empirical-sums.tex
 upstream: input/Probability/12Empirical_Sums.tex
 source_sha256: 18eb96874b4677789222bc1040bf3f961a906eecfc9888d360d88ebc79b29260
 provenance_stamped: 2026-07-06
-framework_commit: a64a018-dirty
+framework_commit: e248757-dirty
 prereqs:
   - 11-random-vectors
 audience: undergraduate engineering, first probability course

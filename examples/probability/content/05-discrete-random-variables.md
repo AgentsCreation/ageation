@@ -7,7 +7,7 @@ source: sources/05-discrete-random-variables.tex
 upstream: input/Probability/5Discrete_Random_Variables.tex
 source_sha256: 7e9e7474fe3ad6b63e192bdebb7c3aac0776d98f3a7d2b06b7abe215adbe9145
 provenance_stamped: 2026-07-06
-framework_commit: 36004fc-dirty
+framework_commit: e248757-dirty
 prereqs:
   - 03-basic-concepts
   - 04-conditional-probability

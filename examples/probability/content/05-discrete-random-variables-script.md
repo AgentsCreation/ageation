@@ -4,7 +4,7 @@ title: Discrete Random Variables
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
 derived_from: 05-discrete-random-variables.md
-derived_from_sha256: 705e0d695ab79d8fc9bdf185a181d7ae079e0ff49c76ec6b1d2f533a6f4aa6a9
+derived_from_sha256: 2249b15af8240940739f33ae8adce39b0b5fb4c03e0c9544a4096d8f18199ec7
 provenance_stamped: 2026-07-06
 target_scene_file: scenes/discrete_random_variables.py
 

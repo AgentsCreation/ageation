@@ -7,7 +7,7 @@ source: sources/08-continuous-random-variables.tex
 upstream: input/Probability/8Continuous_Random_Variables.tex
 source_sha256: fd170dc926eebca1e4f534a38a3b560ce63885fdc8092ecfa2ec21cd4d9ad061
 provenance_stamped: 2026-07-06
-framework_commit: 36004fc-dirty
+framework_commit: e248757-dirty
 prereqs:
   - 07-discrete-vectors
 audience: undergraduate engineering, first probability course
