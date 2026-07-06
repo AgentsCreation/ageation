@@ -1,9 +1,9 @@
-# derived_from: content/5-discrete-random-variables-script.md
-# derived_from_sha256: 8d8cba51c858ffc0bf652d96ae2ac2958a52c87b6b5b21e350f2dd04419ff54d
+# derived_from: content/05-discrete-random-variables-script.md
+# derived_from_sha256: 607deaf5e34d052f3cea68de1113806589a77ea931ade39be64db5ad227c95dc
 """Chapter 5 -- Discrete Random Variables (narrated with manim-voiceover).
 
 Source notes : input/Probability/5Discrete_Random_Variables.tex
-Script        : content/5-discrete-random-variables-script.md
+Script        : content/05-discrete-random-variables-script.md
 
 Timing model (bookmark-free, portable)
 ---------------------------------------

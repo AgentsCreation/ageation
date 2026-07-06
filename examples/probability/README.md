@@ -2,7 +2,7 @@
 
 The original worked example this framework was extracted from: 12 chapters of
 CC0 LaTeX probability notes taken through the full pipeline. Chapter 5
-(`scenes/discrete_random_variables.py` + `content/5-discrete-random-variables*`)
+(`scenes/discrete_random_variables.py` + `content/05-discrete-random-variables*`)
 is the fully-built reference implementation — voiceover scenes, bookmark-free
 timing, overflow guards, provenance stamps.
 

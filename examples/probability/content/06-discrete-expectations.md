@@ -1,15 +1,15 @@
 ---
-slug: 6-discrete-expectations
+slug: 06-discrete-expectations
 title: Discrete Expectations
 stage: concept            # tex -> [concept] -> script -> scene -> render
 status: reviewed             # draft | reviewed | approved  (human gate)
-source: sources/6-discrete-expectations.tex
+source: sources/06-discrete-expectations.tex
 upstream: input/Probability/6Discrete_Expectations.tex
 source_sha256: ce0fa8c8d3731a0b73741f270ec054c5262601f068bb5d1050485218eb3c617f
-provenance_stamped: 2026-07-04
-framework_commit: 9e207a6-dirty
+provenance_stamped: 2026-07-06
+framework_commit: 36004fc-dirty
 prereqs:
-  - 5-discrete-random-variables
+  - 05-discrete-random-variables
 audience: undergraduate engineering, first probability course
 concepts:
   - id: expected-value

@@ -1,11 +1,11 @@
 ---
-slug: 4-conditional-probability
+slug: 04-conditional-probability
 title: Conditional Probability
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: approved             # draft | reviewed | approved  (human gate)
-derived_from: 4-conditional-probability.md
-derived_from_sha256: 4771eb37b7a161be99210336861bb028acd276ea5ffb5f1f0cd17f39400c9a01
-provenance_stamped: 2026-07-04
+derived_from: 04-conditional-probability.md
+derived_from_sha256: 0b6fdcb2e12b64677f62686f49e5da02606bd83059897a7a76f3cd001003cb38
+provenance_stamped: 2026-07-06
 target_scene_file: scenes/conditional_probability.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

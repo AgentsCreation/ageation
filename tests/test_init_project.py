@@ -2,11 +2,11 @@ from init_project import slugify, title_from_tex, sort_key, detect_collisions
 
 
 def test_slugify_numeric_prefix_and_camel_case():
-    assert slugify("5Discrete_Random_Variables") == "5-discrete-random-variables"
+    assert slugify("5Discrete_Random_Variables") == "05-discrete-random-variables"
     assert slugify("10Expectations_and_Bounds") == "10-expectations-and-bounds"
     assert slugify("LinearAlgebra") == "linear-algebra"
     assert slugify("Intro") == "intro"
-    assert slugify("1 Mathematical Review") == "1-mathematical-review"
+    assert slugify("1 Mathematical Review") == "01-mathematical-review"
 
 
 def test_sort_key_orders_numeric_prefixes_numerically():

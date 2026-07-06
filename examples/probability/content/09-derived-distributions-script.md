@@ -1,11 +1,11 @@
 ---
-slug: 9-derived-distributions
+slug: 09-derived-distributions
 title: Derived Distributions
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
-derived_from: 9-derived-distributions.md
-derived_from_sha256: dec025e57cdc8c1d759d380612e6e0de6e54e10d509db4d02fdaa0b8789bf582
-provenance_stamped: 2026-07-04
+derived_from: 09-derived-distributions.md
+derived_from_sha256: de45ea112114c027fb65c3b3eb9241cb6bb4885e7896edc4fade73fb6a6c682f
+provenance_stamped: 2026-07-06
 target_scene_file: scenes/derived_distributions.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

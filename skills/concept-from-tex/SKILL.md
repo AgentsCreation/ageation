@@ -29,7 +29,7 @@ file the human will review at the end (`content/{slug}.md`).
    — emits the front matter (provenance-ready) + the seven sections + the
    source's `\section` outline as a comment.
 2. Read the full source (and companion). Fill the seven sections. The
-   reference to imitate: `examples/probability/content/5-discrete-random-variables.md`.
+   reference to imitate: `examples/probability/content/05-discrete-random-variables.md`.
 3. Fill the `concepts:` ledger — one entry per idea worth a beat, each with
    `importance: core | highlight | optional`. `highlight` marks the visual
    climax; `optional` marks the first runtime cut.

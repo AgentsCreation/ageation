@@ -4,8 +4,8 @@ title: Random Vectors
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 11-random-vectors.md
-derived_from_sha256: b9146b4fbab982352fc630443437ddab65a68c9b27836871a5ea282b0ef26893
-provenance_stamped: 2026-07-04
+derived_from_sha256: fa0f6ccde43a068375a3594c2e4a40f8b936c24711173e295177b7c43fbcf8af
+provenance_stamped: 2026-07-06
 target_scene_file: scenes/random_vectors.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

@@ -40,21 +40,21 @@ def test_full_bootstrap_flow(project):
             "--title", "Demo", "--scaffold-concepts")
     assert r.returncode == 0, r.stderr
     assert (project / "project.yaml").exists()
-    assert (project / "content" / "1-linear-algebra.md").exists()
-    assert (project / "content" / "2-calculus.md").exists()
+    assert (project / "content" / "01-linear-algebra.md").exists()
+    assert (project / "content" / "02-calculus.md").exists()
     assert "1 with companion" in r.stdout
 
     r = run("vendor_sources.py", "--project", root)
     assert r.returncode == 0, r.stderr
-    assert (project / "sources" / "1-linear-algebra.tex").exists()
-    assert (project / "sources" / "1-linear-algebra.md").exists()  # companion
-    assert not (project / "sources" / "2-calculus.md").exists()
-    concept = (project / "content" / "1-linear-algebra.md").read_text()
-    assert "companion: sources/1-linear-algebra.md" in concept
+    assert (project / "sources" / "01-linear-algebra.tex").exists()
+    assert (project / "sources" / "01-linear-algebra.md").exists()  # companion
+    assert not (project / "sources" / "02-calculus.md").exists()
+    concept = (project / "content" / "01-linear-algebra.md").read_text()
+    assert "companion: sources/01-linear-algebra.md" in concept
 
     r = run("stamp_provenance.py", "--project", root)
     assert r.returncode == 0, r.stderr
-    concept = (project / "content" / "1-linear-algebra.md").read_text()
+    concept = (project / "content" / "01-linear-algebra.md").read_text()
     assert "source_sha256:" in concept
     assert "companion_sha256:" in concept
     # engine/content split: the stamp records which framework built this
@@ -67,7 +67,7 @@ def test_full_bootstrap_flow(project):
     assert r.returncode == 0, r.stdout
 
     # Companion drift must trip the sync gate.
-    with open(project / "sources" / "1-linear-algebra.md", "a") as f:
+    with open(project / "sources" / "01-linear-algebra.md", "a") as f:
         f.write("drifted\n")
     r = run("check_sync.py", "--project", root)
     assert r.returncode == 1
@@ -86,14 +86,14 @@ def test_rerun_vendor_adds_companion_to_already_vendored(project):
 
     run("init_project.py", "input/Demo", "--project", root, "--scaffold-concepts")
     run("vendor_sources.py", "--project", root)
-    assert not (project / "sources" / "1-linear-algebra.md").exists()
+    assert not (project / "sources" / "01-linear-algebra.md").exists()
 
     companion.write_text(saved)  # companion appears later; re-run picks it up
     r = run("vendor_sources.py", "--project", root)
     assert r.returncode == 0, r.stderr
-    assert (project / "sources" / "1-linear-algebra.md").exists()
-    concept = (project / "content" / "1-linear-algebra.md").read_text()
-    assert "companion: sources/1-linear-algebra.md" in concept
+    assert (project / "sources" / "01-linear-algebra.md").exists()
+    concept = (project / "content" / "01-linear-algebra.md").read_text()
+    assert "companion: sources/01-linear-algebra.md" in concept
 
 
 def test_notation_check_and_normalize(project):

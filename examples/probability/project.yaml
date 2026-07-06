@@ -49,98 +49,98 @@ notation:
 # status flows independently from the markdown layers' own status gate.
 
 chapters:
-  - slug: 1-mathematical-review
+  - slug: 01-mathematical-review
     title: Mathematical Review
     upstream: 1Mathematical_Review.tex
     status: scripted        # concept + script scaffolded, scene not yet built
 
-  - slug: 2-combinatorics
+  - slug: 02-combinatorics
     title: Combinatorics
     upstream: 2Combinatorics.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [1-mathematical-review]
+    prereqs: [01-mathematical-review]
 
-  - slug: 3-basic-concepts
+  - slug: 03-basic-concepts
     title: Basic Concepts
     upstream: 3Basic_Concepts.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [2-combinatorics]
+    prereqs: [02-combinatorics]
 
-  - slug: 4-conditional-probability
+  - slug: 04-conditional-probability
     title: Conditional Probability
     upstream: 4Conditional_Probability.tex
     status: rendered          # earlier hand-built scene
     skip_render: true         # pre-voiceover style; re-cut pending (HISTORY.md §7)
-    prereqs: [3-basic-concepts]
+    prereqs: [03-basic-concepts]
     videos:
-      - slug: 4-1-conditioning
+      - slug: 04-1-conditioning
         title: Conditioning on Events
         scene_class: ConditioningOnEvents
-      - slug: 4-2-total-probability
+      - slug: 04-2-total-probability
         title: Total Probability Theorem
         scene_class: TotalProbability
-      - slug: 4-3-bayes
+      - slug: 04-3-bayes
         title: Bayes' Rule
         scene_class: BayesRule
 
-  - slug: 5-discrete-random-variables
+  - slug: 05-discrete-random-variables
     title: Discrete Random Variables
     upstream: 5Discrete_Random_Variables.tex
     status: built             # scenes done; voiceover render verified
-    prereqs: [4-conditional-probability]
+    prereqs: [04-conditional-probability]
     videos:
-      - slug: 5-0-overview
+      - slug: 05-0-overview
         title: Chapter Overview
         scene_class: ChapterOverview
         est_minutes: 1
-      - slug: 5-1-random-variables
+      - slug: 05-1-random-variables
         title: Random Variables as Functions
         scene_class: RandomVariableMapping
         est_minutes: 3
-      - slug: 5-2-pmf-gallery
+      - slug: 05-2-pmf-gallery
         title: The Named Distributions
         scene_class: PMFGallery
         est_minutes: 4
-      - slug: 5-3-binomial-to-poisson
+      - slug: 05-3-binomial-to-poisson
         title: Binomial Converges to Poisson
         scene_class: BinomialToPoisson
         est_minutes: 3
 
-  - slug: 6-discrete-expectations
+  - slug: 06-discrete-expectations
     title: Discrete Expectations
     upstream: 6Discrete_Expectations.tex
     status: scripted        # concept + script scaffolded, scene not yet built           # next up
-    prereqs: [5-discrete-random-variables]
+    prereqs: [05-discrete-random-variables]
 
-  - slug: 7-discrete-vectors
+  - slug: 07-discrete-vectors
     title: Discrete Vectors
     upstream: 7Discrete_Vectors.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [6-discrete-expectations]
+    prereqs: [06-discrete-expectations]
 
-  - slug: 8-continuous-random-variables
+  - slug: 08-continuous-random-variables
     title: Continuous Random Variables
     upstream: 8Continuous_Random_Variables.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [5-discrete-random-variables]
+    prereqs: [05-discrete-random-variables]
 
-  - slug: 9-derived-distributions
+  - slug: 09-derived-distributions
     title: Derived Distributions
     upstream: 9Derived_Distributions.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [8-continuous-random-variables]
+    prereqs: [08-continuous-random-variables]
 
   - slug: 10-expectations-and-bounds
     title: Expectations and Bounds
     upstream: 10Expectations_and_Bounds.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [6-discrete-expectations, 8-continuous-random-variables]
+    prereqs: [06-discrete-expectations, 08-continuous-random-variables]
 
   - slug: 11-random-vectors
     title: Random Vectors
     upstream: 11Random_Vectors.tex
     status: scripted        # concept + script scaffolded, scene not yet built
-    prereqs: [7-discrete-vectors, 10-expectations-and-bounds]
+    prereqs: [07-discrete-vectors, 10-expectations-and-bounds]
 
   - slug: 12-empirical-sums
     title: Empirical Sums

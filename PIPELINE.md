@@ -138,14 +138,34 @@ Provider-specific:
 
 ## File conventions
 
-- `slug`: lowercase, hyphenated, chapter-numbered — e.g. `5-discrete-random-variables`.
+- `slug`: lowercase, hyphenated, chapter-numbered — e.g. `05-discrete-random-variables`.
 - Concept layer: `content/{slug}.md`.
 - Script layer: `content/{slug}-script.md`.
-- Scene code: `scenes/{slug}.py`.
+- Scene code: `scenes/{module}.py`, where `{module}` is the slug minus its
+  numeric prefix, hyphens to underscores (Python module names cannot start
+  with a digit or contain hyphens) — e.g. `scenes/discrete_random_variables.py`.
 - Build output: `media/` (git-ignored; regenerable — Manim's native layout).
 - Every markdown layer carries a self-describing **YAML front matter** with at
   least: `slug`, `stage`, `status`, and provenance (`source` / `derived_from`,
   plus `companion` when a pandoc sibling exists).
+
+### Chapter numbering
+
+Chapter numbers are **permanent accession IDs, not positions**. Playback
+order is defined solely by the chapter order in the `project.yaml` spine;
+the numeric prefix exists so listings sort in course order and so humans
+have a short, unambiguous handle ("video 25") during review and upload.
+Three rules keep the numbers insertion-proof:
+
+- **Zero-pad to two digits** (`01-sets`, not `1-sets`) so lexicographic
+  sort matches course order. `tools/init_project.py` does this for you.
+- **Never renumber.** A chapter inserted later takes the next free number
+  and is slotted into the spine wherever it belongs — a `44-` chapter may
+  legitimately sit between `20-` and `21-` in the playback order. Filenames,
+  provenance chains, and published deliverable names never cascade.
+- **Numbers never leak into content.** Narration and on-screen text refer to
+  neighbouring topics, never to video numbers (STYLE_BOOK §0) — the viewer's
+  artifact stays number-free, so the series is robust to later insertions.
 
 ## Status gates (human in the loop)
 

@@ -1,11 +1,11 @@
 ---
-slug: 2-combinatorics
+slug: 02-combinatorics
 title: Combinatorics
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
-derived_from: 2-combinatorics.md
-derived_from_sha256: f9d29d354de2ea9aff71c4e77a36cbe3f3f635c690f8ed56db213b410e92cf87
-provenance_stamped: 2026-07-04
+derived_from: 02-combinatorics.md
+derived_from_sha256: 760257d2f74ffce97b4803b9e5e57359ee60ca64b693d64a6366b9cbed65d22b
+provenance_stamped: 2026-07-06
 target_scene_file: scenes/combinatorics.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

@@ -65,11 +65,18 @@ CONCEPT_SECTIONS = [
 # --- Slug + title helpers (unchanged from the course-era bootstrap) ----------
 
 def slugify(stem: str) -> str:
-    """'5Discrete_Random_Variables' -> '5-discrete-random-variables'."""
+    """'5Discrete_Random_Variables' -> '05-discrete-random-variables'.
+
+    A leading chapter number is zero-padded to two digits so listings sort in
+    course order. The number is a permanent accession ID, not a position:
+    playback order lives in the project.yaml spine, and a chapter inserted
+    later takes the next free number (see PIPELINE.md, "Chapter numbering").
+    """
     s = re.sub(r"^(\d+)", r"\1-", stem)
     s = re.sub(r"[_\s]+", "-", s)
     s = re.sub(r"(?<=[a-z])(?=[A-Z])", "-", s)
     s = re.sub(r"-+", "-", s).strip("-").lower()
+    s = re.sub(r"^(\d)(?=-)", r"0\1", s)
     return s
 
 

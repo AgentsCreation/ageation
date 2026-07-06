@@ -21,7 +21,7 @@ not.
 3. `CLAUDE.md`, `NOTATION.md`, `project.yaml` — repo rules, fixed notation, the
    chapter spine.
 4. Reference implementation (the pattern to copy): `content/5-discrete-random-
-   variables.md`, `content/5-discrete-random-variables-script.md`, and
+   variables.md`, `content/05-discrete-random-variables-script.md`, and
    `scenes/discrete_random_variables.py` (Chapter 5 — the only fully-built one).
 
 ## 2. Set up the environment (once)

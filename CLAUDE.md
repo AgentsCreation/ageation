@@ -32,7 +32,7 @@ terminology (no bare "bell"/"ramp"), and the `_style.py` layout helpers
 Reference implementation: **`examples/probability/`** — a complete 12-chapter
 worked example. Its Chapter 5
 (`examples/probability/scenes/discrete_random_variables.py` +
-`examples/probability/content/5-*`) is the pattern to copy for new scenes.
+`examples/probability/content/05-*`) is the pattern to copy for new scenes.
 
 The canonical transform procedure is the **processor skills** in `skills/`
 (concept-from-tex, script-from-concept, scene-from-script, render-verify,

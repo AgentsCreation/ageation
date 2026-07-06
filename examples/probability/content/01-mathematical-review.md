@@ -1,13 +1,13 @@
 ---
-slug: 1-mathematical-review
+slug: 01-mathematical-review
 title: Mathematical Review
 stage: concept            # tex -> [concept] -> script -> scene -> render
 status: reviewed             # draft | reviewed | approved  (human gate)
-source: sources/1-mathematical-review.tex
+source: sources/01-mathematical-review.tex
 upstream: input/Probability/1Mathematical_Review.tex
 source_sha256: debff4497945c67249db18ff907a754446db41d37f3db7cbea5cd1aaddce13a0
-provenance_stamped: 2026-07-04
-framework_commit: 9e207a6-dirty
+provenance_stamped: 2026-07-06
+framework_commit: 36004fc-dirty
 # Course start — no prerequisites.
 audience: undergraduate engineering, first probability course
 concepts:

@@ -1,15 +1,15 @@
 ---
-slug: 2-combinatorics
+slug: 02-combinatorics
 title: Combinatorics
 stage: concept            # tex -> [concept] -> script -> scene -> render
 status: reviewed             # draft | reviewed | approved  (human gate)
-source: sources/2-combinatorics.tex
+source: sources/02-combinatorics.tex
 upstream: input/Probability/2Combinatorics.tex
 source_sha256: 1fe87534736aa916c8599b7b7466c3f5c10aaee210924ae7037518eaf23720eb
-provenance_stamped: 2026-07-04
-framework_commit: 9e207a6-dirty
+provenance_stamped: 2026-07-06
+framework_commit: 36004fc-dirty
 prereqs:
-  - 1-mathematical-review
+  - 01-mathematical-review
 audience: undergraduate engineering, first probability course
 concepts:
   - id: equally-likely-model

@@ -1,15 +1,15 @@
 ---
-slug: 7-discrete-vectors
+slug: 07-discrete-vectors
 title: Discrete Vectors
 stage: concept            # tex -> [concept] -> script -> scene -> render
 status: reviewed             # draft | reviewed | approved  (human gate)
-source: sources/7-discrete-vectors.tex
+source: sources/07-discrete-vectors.tex
 upstream: input/Probability/7Discrete_Vectors.tex
 source_sha256: 9a24660296006b721b343e5cbca4814c419e0395b3679cd32da6c97ad3add19d
-provenance_stamped: 2026-07-04
-framework_commit: 9e207a6-dirty
+provenance_stamped: 2026-07-06
+framework_commit: 36004fc-dirty
 prereqs:
-  - 6-discrete-expectations
+  - 06-discrete-expectations
 audience: undergraduate engineering, first probability course
 concepts:
   - id: joint-pmf

@@ -1,11 +1,11 @@
 ---
-slug: 3-basic-concepts
+slug: 03-basic-concepts
 title: Basic Concepts
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
-derived_from: 3-basic-concepts.md
-derived_from_sha256: 39f66d7b487a381514d373ea6b9000b0046f0e1af4723fdc709ae6c90d66e4d2
-provenance_stamped: 2026-07-04
+derived_from: 03-basic-concepts.md
+derived_from_sha256: bd12704eb9b49fdead561c1be3fe8b65fb94b377afc9d544fe8b32c1da6ed674
+provenance_stamped: 2026-07-06
 target_scene_file: scenes/basic_concepts.py
 
 # --- Narrative glue (links this video to its neighbours) -------------------

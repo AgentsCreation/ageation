@@ -24,7 +24,7 @@ Per the user's standing preference, start by printing the layer-flow summary
    — emits front matter (derived_from + sha, voice/timing contract, one
    beat per concept-ledger entry) and a narration section per beat.
 2. Write the narration. Reference to imitate:
-   `examples/probability/content/5-discrete-random-variables-script.md`.
+   `examples/probability/content/05-discrete-random-variables-script.md`.
    Binding rules (STYLE_BOOK §8):
    - Narration drives animation length, never the reverse.
    - `<bookmark mark="id"/>` markers are *authoring* sync points; the scene

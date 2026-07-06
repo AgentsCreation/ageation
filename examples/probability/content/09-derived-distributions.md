@@ -1,15 +1,15 @@
 ---
-slug: 9-derived-distributions
+slug: 09-derived-distributions
 title: Derived Distributions
 stage: concept            # tex -> [concept] -> script -> scene -> render
 status: reviewed             # draft | reviewed | approved  (human gate)
-source: sources/9-derived-distributions.tex
+source: sources/09-derived-distributions.tex
 upstream: input/Probability/9Derived_Distributions.tex
 source_sha256: d03c9a825989897353ce08652f4168302c607427696d5fc89ae1ef8ffc57cc3e
-provenance_stamped: 2026-07-04
-framework_commit: 9e207a6-dirty
+provenance_stamped: 2026-07-06
+framework_commit: 36004fc-dirty
 prereqs:
-  - 8-continuous-random-variables
+  - 08-continuous-random-variables
 audience: undergraduate engineering, first probability course
 concepts:
   - id: function-of-rv
