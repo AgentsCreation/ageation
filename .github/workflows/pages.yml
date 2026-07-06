@@ -25,18 +25,8 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v5
-        with:
-          # Full history so `git describe --always` in the generator reports
-          # a real version, not a shallow stub.
-          fetch-depth: 0
 
-      # Generate the site data (site/data/site.json) from the repo itself.
-      # The generator is stdlib-only; no dependencies to install.
-      - name: Generate the site data
-        run: python3 scripts/site_data.py
-
-      # Assemble the static site: the committed site/ folder plus the
-      # freshly generated data.
+      # Assemble the static site from the committed site/ folder.
       - name: Assemble the site
         run: |
           mkdir -p _site

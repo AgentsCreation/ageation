@@ -13,7 +13,7 @@
       <a href="index.html" aria-current="page">About</a>
       <a href="howto.html">How to</a>
       <a href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Showcase</a>
-      <a href="https://github.com/AgenticCreation/ageation">GitHub</a>
+      <a href="https://github.com/AgentsCreation/ageation">GitHub</a>
     </div>
   </header>
 
@@ -21,15 +21,14 @@
     <section class="hero">
       <h1>ageation</h1>
       <p class="lead">
-        An engine for <strong>agentic video creation</strong>: it reads a folder
-        of LaTeX notes and produces short, narrated, linked
-        <a href="https://www.manim.community/">Manim</a> videos —
-        one reviewable video per topic.
+        An engine for <strong>agentic video creation</strong>: it reads a structured
+        LaTeX source and produces short, narrated 
+        <a href="https://www.manim.community/">Manim</a> videos.
       </p>
       <p class="desc">
-        ageation is a layered, file-based pipeline. Every stage reads files and
+        ageation is a layered, file-based pipeline. Every stage reads ditections and
         writes files — concept maps, narrated scripts, generated scenes — so
-        every step is inspectable, diffable, and re-runnable. Content hashes
+        every step is inspectable, diffable, archivable, and re-runnable. Content hashes
         chain each layer to its source, automated gates catch drift and layout
         errors before render time, and a human reviews exactly two artifacts
         per video: the concept and the script. The machines do the rest.
@@ -39,8 +38,8 @@
     <h2 class="section-title">Why now</h2>
     <section class="why">
       <div class="syllogism">
-        <div class="claim"><span class="term">math</span> is written in <span class="term">LaTeX</span> — and LaTeX is code.</div>
-        <div class="claim"><span class="term">animation</span> is written in <a class="term" href="https://www.manim.community/">Manim</a> — and Manim is code.</div>
+        <div class="claim"><span class="term">math</span> through <span class="term">LaTeX</span> is code.</div>
+        <div class="claim"><span class="term">animation</span> through <a class="term" href="https://www.manim.community/">Manim</a> is code.</div>
         <div class="claim conclusion">code is agentic &nbsp;⇒&nbsp; <span class="term">math + LaTeX + Manim</span> is agentic.</div>
       </div>
       <p class="desc">
@@ -63,6 +62,17 @@
       <li><strong>Generate the scenes.</strong> The script becomes Manim code in the series' house style. A geometric lint replays every animation and flags overlapping layouts before anything is rendered.</li>
       <li><strong>Build and measure.</strong> Free draft renders for iteration; one command renders, stitches, and measures the final video — and checks the measured runtime against the script's contract.</li>
     </ol>
+
+    <p class="desc">
+      Those five stages end at a draft, not a deliverable — a 480p cut, cheap
+      to render and cheap to discard. A human watches it and leaves notes in a
+      Claude or Codex session: this beat runs long, that label overlaps, soften
+      the wording here. The agent folds each note back into the script or the
+      scenes and re-renders, and the loop turns until the video is genuinely
+      worth keeping. Only then is it rendered at full resolution and published
+      to a video platform — by then the final render only confirms a verdict
+      the draft already reached.
+    </p>
 
     <h2 class="section-title">What else</h2>
     <p class="desc">
@@ -88,43 +98,10 @@
       text-to-speech API</a> for finals.
     </p>
 
-    <h2 class="section-title">Under the hood</h2>
-    <div id="engine" class="engine">
-      <p class="desc">The engine's toolbox, generated from the repository itself:</p>
-      <div class="chips" id="toolchips"><span class="chip none">loading…</span></div>
-      <p class="version" id="version"></p>
-    </div>
-
     <div class="cta">
       <a class="primary" href="howto.html">Get started →</a>
-      <a class="secondary" href="https://github.com/AgenticCreation/ageation">Explore the engine</a>
+      <a class="secondary" href="https://github.com/AgentsCreation/ageation">Explore the engine</a>
     </div>
   </main>
-
-  <script>
-    // The "under the hood" strip loads generated data (site/data/site.json,
-    // written by scripts/site_data.py). It degrades to a plain sentence when
-    // the data is unavailable (e.g. opening index.html from the filesystem).
-    function esc(s) {
-      return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    }
-    async function init() {
-      const chipsEl = document.getElementById("toolchips");
-      try {
-        const res = await fetch("data/site.json");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        chipsEl.innerHTML = (data.tools || []).map(t =>
-          `<span class="chip tool" title="${esc(t.summary)}">${esc(t.name)}</span>`
-        ).join("");
-        document.getElementById("version").textContent =
-          `engine ${data.version} · ${data.tools.length} tools across ${data.layers.length} layers`;
-      } catch (err) {
-        chipsEl.innerHTML =
-          `<span class="chip none">a dozen small tools: vendoring, provenance, gates, lints, render, assemble</span>`;
-      }
-    }
-    init();
-  </script>
 </body>
 </html>
