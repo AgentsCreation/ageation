@@ -37,6 +37,7 @@ Concretely, the register means:
   | "bell curve" (refrain) | at most once per video, where the name matters |
   | "ramp"                 | "smooth progression" / "continuous CDF"       |
   | "masses" (spoken)      | "probability mass functions" when it names PMFs|
+  | "dies" (a term → 0)    | "vanishes" ("the variance vanishes like 1/n") |
 
 - **Sentences sized for the ear.** A spoken sentence over ~40 words reads
   breathlessly under TTS; a voiceover block over ~70 words can't sync its
