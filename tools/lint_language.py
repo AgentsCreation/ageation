@@ -23,11 +23,19 @@ the 2026-07-04 harvest (STYLE_BOOK 12/14):
                   per-phrase sub-blocks so visuals land on their sentences.
   long-sentence   a spoken sentence over LONG_SENTENCE_WORDS words — split
                   it; TTS reads long sentences breathlessly.
+  repeated-opener two consecutive chapters (spine order) open with the same
+                  recap formula — a playlist reads "Last video… Last video…
+                  Last video…" (2026-07-06 note: 24 of 43 videos opened
+                  with the last-video family, unnoticed until the playlist
+                  played end to end). Vary the opener: "Previously,…",
+                  "Recall that…", a bare topic recap, a state-of-play line.
+                  Individual openers are fine; only back-to-back repeats
+                  are flagged.
 
 Term rules (video-number / bare-bell / bell-curve-n / ramp) are violations;
-length rules are advisories. Warning-only by default (exit 0) so it can sit
-in `make check` without breaking history; `--strict` exits nonzero on any
-VIOLATION (advisories never gate).
+length rules and repeated-opener are advisories. Warning-only by default
+(exit 0) so it can sit in `make check` without breaking history; `--strict`
+exits nonzero on any VIOLATION (advisories never gate).
 
 Usage:
   python tools/lint_language.py [--project DIR] [--chapter SLUG] [--strict]
@@ -67,6 +75,11 @@ BOOKMARK = re.compile(r"<bookmark[^>]*/>")
 TEXT_CALLS = {"Text", "intro_card", "outro_bridge", "section_title",
               "caption_under"}
 TEX_TEXT_GROUP = re.compile(r"\\text\s*\{([^{}]*)\}")
+
+# The recap-opener family: "Last video…", "In the last chapter…", "Last
+# time…". Any member repeated on CONSECUTIVE chapters reads as a refrain.
+RECAP_OPENER = re.compile(
+    r"^(?:in\s+the\s+)?last\s+(?:video|chapter|time)\b", re.IGNORECASE)
 
 
 def term_findings(text: str, where: str) -> list[tuple[str, str, bool]]:
@@ -192,6 +205,62 @@ def check_scene(path: str) -> list[tuple[str, str, bool]]:
     return findings
 
 
+def script_opener(path: str) -> str:
+    """The first narration line of a script's first beat ('' when absent)."""
+    lines = open(path, encoding="utf-8").read().splitlines()
+    in_beat = False
+    for line in lines:
+        if line.startswith("## Beat:"):
+            in_beat = True
+        elif in_beat and line.startswith(">"):
+            return line.lstrip("> ").strip()
+    return ""
+
+
+def opener_signature(opener: str) -> str:
+    """A comparable signature for an opening phrase.
+
+    Every member of the last-video family collapses to one signature (that is
+    the refrain the reviewer heard); otherwise the first four words identify
+    the formula.
+    """
+    text = BOOKMARK.sub(" ", opener)
+    if RECAP_OPENER.match(text):
+        return "recap-last"
+    words = re.findall(r"[a-z']+", text.lower())
+    return " ".join(words[:4])
+
+
+def opener_findings(root: str) -> list[tuple[str, str, str, bool]]:
+    """[(slug, rule, message, is_violation)] for consecutive repeated openers.
+
+    Chapter order comes from the project.yaml spine (numbers are IDs, the
+    spine is the playback order). The advisory lands on the LATTER chapter.
+    """
+    manifest = os.path.join(root, "project.yaml")
+    if not os.path.exists(manifest):
+        return []
+    slugs = re.findall(r"^  - slug: (\S+)$",
+                       open(manifest, encoding="utf-8").read(), re.MULTILINE)
+    out = []
+    prev_slug = prev_sig = None
+    for slug in slugs:
+        path = os.path.join(root, "content", f"{slug}-script.md")
+        if not os.path.exists(path):
+            prev_slug = prev_sig = None
+            continue
+        opener = script_opener(path)
+        sig = opener_signature(opener) if opener else None
+        if sig and sig == prev_sig:
+            head = " ".join(opener.split()[:5])
+            out.append((slug, "repeated-opener",
+                        f"opens with the same formula as {prev_slug} "
+                        f"({head!r}...) — vary the recap opener "
+                        f"(STYLE_BOOK 0)", False))
+        prev_slug, prev_sig = slug, sig
+    return out
+
+
 def main():
     parser = project_parser(__doc__)
     parser.add_argument("--chapter", help="lint a single chapter slug")
@@ -227,6 +296,20 @@ def main():
                 violations += 1
             else:
                 advisories += 1
+
+    # Cross-chapter: consecutive repeated openers (spine order). With
+    # --chapter, only findings landing on that chapter are shown.
+    openers = opener_findings(root)
+    if args.chapter:
+        openers = [f for f in openers if f[0] == args.chapter]
+    for slug, rule, msg, is_violation in openers:
+        print(f"\ncontent/{slug}-script.md")
+        tag = "VIOLATION" if is_violation else "advisory"
+        print(f"  [{rule}] ({tag}) {msg}")
+        if is_violation:
+            violations += 1
+        else:
+            advisories += 1
 
     n_files = len(scripts) + len(scenes)
     if violations or advisories:

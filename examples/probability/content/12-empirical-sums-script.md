@@ -4,7 +4,7 @@ title: Empirical Sums
 stage: script             # tex -> concept -> [script] -> scene -> render
 status: draft             # draft | reviewed | approved  (human gate)
 derived_from: 12-empirical-sums.md
-derived_from_sha256: e15fefb9fe4dd2a529b702e91a4eeebb62769f939f8e239bc1cc4a080b931841
+derived_from_sha256: 3ebf4af93bfe5568df4e8f3062e83f2306f8c6abdc206ad27c0060a7b091d66a
 provenance_stamped: 2026-07-06
 target_scene_file: scenes/empirical_sums.py
 
@@ -81,8 +81,8 @@ bridge).
 
 ## Beat: types-of-convergence  (scene: TypesOfConvergence)
 
-> Last chapter we added two independent variables by convolving their densities.
-> Now we let the adding never stop, and ask what an infinite sequence of random
+> We can now add two independent variables by convolving their densities.
+> Next we let the adding never stop, and ask what an infinite sequence of random
 > variables actually converges to. <bookmark mark="sequence"/> Picture a whole
 > sequence, X-one, X-two, X-three, and so on, all defined on the same experiment.
 > There are three useful ways it can settle down. <bookmark mark="in-probability"/>

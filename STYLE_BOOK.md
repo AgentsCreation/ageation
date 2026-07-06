@@ -50,6 +50,17 @@ Concretely, the register means:
   stream" never does. Chapter numbers are fine (they belong to the book);
   "last / this / next video" are fine (structural). Everything else is a
   `lint_language.py` violation.
+- **Vary the recap opener across consecutive videos.** Each video is
+  written alone, so "Last video, …" reads fine in isolation — but on the
+  playlist it becomes a refrain (2026-07-06 note: 24 of 43 openers were in
+  the last-video family, with one eight-video streak; nobody noticed until
+  the series played end to end). "Last video" is a fine opener — just never
+  on two videos in a row. Rotate devices: "Previously, …", "Recall that …",
+  a bare topic recap ("Chernoff and Jensen closed the chapter on bounds…"),
+  a state-of-play line ("The probabilistic model is now complete…"),
+  "We have just built …", "We now know …". The recap *content* stays; only
+  the formula rotates. (`lint_language.py` flags consecutive repeats as a
+  `repeated-opener` advisory, in spine order.)
 - **No production-finality claims** ("the final video of the course") —
   the series may grow. Closing a *chapter's* or an *arc's* story is fine;
   promising that nothing follows is not. (2026-07-05 review note.)

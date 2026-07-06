@@ -43,6 +43,12 @@ Per the user's standing preference, start by printing the layer-flow summary
    - **Sentence budget**: spoken sentences ≤ ~40 words; a bookmark segment
      ≤ ~70 words (each segment becomes one voiceover block — longer can't
      sync its visuals). Split at clause turns.
+   - **Vary the recap opener**: check how the PREVIOUS chapter's script
+     opens before writing yours — "Last video, …" twice in a row reads as
+     a refrain on the playlist. Rotate devices ("Previously, …", "Recall
+     that …", a bare topic recap, a state-of-play line); the
+     `repeated-opener` advisory in `lint_language.py` catches back-to-back
+     repeats in spine order.
 3. Fill the `linking:` block — objective (intro_card), recap (previous
    chapter), key_idea (outro_bridge), bridge (next chapter). Neighbour
    titles come from project.yaml order; the scaffold pre-fills them.

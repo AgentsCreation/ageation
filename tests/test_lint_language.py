@@ -132,3 +132,50 @@ def test_clean_files_are_clean(tmp_path):
         "",
         "> The density is a smooth progression from zero to one.",
     ])) == []
+
+
+# --- repeated-opener ---------------------------------------------------------
+
+def _opener_project(tmp_path, openers):
+    """A minimal project: a spine of chapters whose scripts open as given."""
+    from lint_language import opener_findings
+    (tmp_path / "content").mkdir()
+    yaml_lines = ["chapters:"]
+    for i, opener in enumerate(openers, start=1):
+        slug = f"{i:02d}-ch{i}"
+        yaml_lines.append(f"  - slug: {slug}")
+        (tmp_path / "content" / f"{slug}-script.md").write_text("\n".join([
+            "## Beat: overview  (scene: ChapterOverview)",
+            "",
+            f"> {opener}",
+        ]))
+    (tmp_path / "project.yaml").write_text("\n".join(yaml_lines))
+    return opener_findings(str(tmp_path))
+
+
+def test_consecutive_last_video_family_flagged(tmp_path):
+    # "Last video" and "In the last chapter" are the SAME formula to the ear.
+    f = _opener_project(tmp_path, [
+        "Last video, we counted permutations.",
+        "In the last chapter we built the model.",
+    ])
+    assert [(slug, rule) for slug, rule, _, _ in f] == \
+        [("02-ch2", "repeated-opener")]
+    assert all(not v for _, _, _, v in f)   # advisory, never gates
+
+
+def test_alternating_openers_are_clean(tmp_path):
+    f = _opener_project(tmp_path, [
+        "Last video, we counted permutations.",
+        "Previously, we split a set into groups.",
+        "Last time we saw the axioms.",
+    ])
+    assert f == []
+
+
+def test_identical_nonrecap_openers_flagged(tmp_path):
+    f = _opener_project(tmp_path, [
+        "In this video we build the model from scratch.",
+        "In this video we build the law from scratch.",
+    ])
+    assert [slug for slug, _, _, _ in f] == ["02-ch2"]
