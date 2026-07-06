@@ -12,19 +12,19 @@
     <div class="links">
       <a href="index.html">About</a>
       <a href="howto.html" aria-current="page">How to</a>
-      <a href="https://www.youtube.com/playlist?list=PLZzFXOuI8eaY">Showcase</a>
+      <a href="showcase.html">Showcase</a>
       <a href="https://github.com/AgentsCreation/ageation">GitHub</a>
     </div>
   </header>
 
   <main class="wrap">
     <section class="hero">
-      <h1>From notes to videos</h1>
+      <h1>From sources to videos</h1>
       <p class="lead">
         ageation is an <strong>operator</strong>: it acts on a project that sits
-        beside it. Your LaTeX stays yours, untouched; everything the engine
-        creates lives in one reserved folder inside your project. Four steps to
-        a first video.
+        beside it — a paper, a book, or a single self-contained document. Your
+        LaTeX stays yours, untouched; everything the engine creates lives in one
+        reserved folder inside your project. Four steps to a first video.
       </p>
     </section>
 
@@ -48,7 +48,7 @@ cd ageation</code></pre>
       BasicTeX alternative if you prefer to install LaTeX packages on demand.</p>
 
     <h2 class="section-title">3 · Place your project as a sibling</h2>
-    <p class="desc">Your project — a book, an article, a set of course notes —
+    <p class="desc">Your project — a book, a paper, or a standalone lesson —
       sits <em>next to</em> the engine, and the engine operates on it. All
       generated files land in one reserved subfolder, <code>ageation/</code>,
       inside your project. Nothing else in your repo is written to; your
@@ -56,10 +56,11 @@ cd ageation</code></pre>
       provenance) before any edit.</p>
     <pre class="tree"><code>your-workspace/
 ├── ageation/                 ← the engine (this repo)
-└── your-project/             ← a sibling: book, article, notes
+└── your-project/             ← a sibling: book, paper, or lesson
     ├── chapters/…            ← your LaTeX — never touched
     └── ageation/             ← everything the engine creates
         ├── project.yaml      ← the spine: chapters, notation, voice
+        ├── .gitignore        ← keeps media/ and .env out of git
         ├── sources/          ← vendored, editable copies of your LaTeX
         ├── content/          ← concept maps + narrated scripts
         ├── scenes/           ← generated Manim code
@@ -83,14 +84,22 @@ make video       PROJECT=../your-project/ageation   # 1080p60 final</code></pre>
       draft narration uses free TTS so trying costs nothing.</p>
 
     <h2 class="section-title">Working agentically</h2>
-    <p class="desc">The layer transforms — LaTeX to concept map, concept to
-      narrated script, script to Manim scenes — ship as agent skills with a
-      deterministic scaffolder underneath. In an agent session,
-      <code>/animate-chapter</code> walks a topic through the whole pipeline
-      and pauses at two review points: the concept and the script. Review them
-      (optional), leave timestamped notes against the draft video, and the
-      engine fixes at the right layer — narration in the script, visuals in
-      the scene — with provenance keeping every layer honest.</p>
+    <p class="desc">The commands above are the explicit path. The everyday one
+      is to just talk to the engine: open <strong>Claude Code</strong> or
+      <strong>Codex</strong> in the engine folder and point it at a sibling.</p>
+    <pre class="code"><code>Apply the agentic video creation workflow to sibling project ../your-project</code></pre>
+    <p class="desc">From that one line the agent reads the docs, bootstraps the
+      manifest, vendors your sources, and walks the pipeline — you steer in
+      plain language and review at the gates. No command to memorize; the engine
+      already knows its own workflow.</p>
+    <p class="desc">Underneath, the layer transforms — LaTeX to concept map,
+      concept to narrated script, script to Manim scenes — ship as agent skills
+      over a deterministic scaffolder. <code>/animate-chapter</code> walks a
+      single topic through the whole pipeline and pauses at two review points:
+      the concept and the script. Review them (optional), leave timestamped
+      notes against the draft video, and the engine fixes at the right layer —
+      narration in the script, visuals in the scene — with provenance keeping
+      every layer honest.</p>
 
     <div class="cta">
       <a class="primary" href="https://github.com/AgentsCreation/ageation">Clone the engine →</a>

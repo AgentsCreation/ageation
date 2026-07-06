@@ -101,9 +101,16 @@ p.desc code, li code {
 }
 .aside { font-size: .88rem; color: var(--muted); margin: -0.4rem 0 1.1rem; }
 
-/* ---- under the hood ---- */
-.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
-.chip { font-size: .82rem; padding: .2rem .6rem; border-radius: 999px; }
-.chip.tool { background: var(--accent-soft); color: var(--accent); cursor: help; }
-.chip.none { background: var(--card); color: var(--muted); }
-.version { margin-top: .9rem; font-size: .85rem; color: var(--muted); }
+/* ---- showcase page ---- */
+.example { margin: 0 0 2.25rem; }
+.clip {
+  display: block; max-width: 360px;
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.clip:hover {
+  border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 26, 46, .09);
+}
+.clip img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
