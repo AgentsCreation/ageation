@@ -156,7 +156,15 @@ def _stub_voiceover():
     stubbing, this synthesizes TTS audio for every block (slow + needs
     network / API key). The stubbed tracker returns 0-duration so any
     `run_time=tracker.duration` animations complete instantly.
+
+    A scene builds its speech service (via _style.speech_service()) before
+    set_speech_service is even called, so an openai-voiced project would fail
+    construction here on the missing voice.name / API key -- even though this
+    static geometric lint never synthesizes a single word. Force the free
+    gtts path (unless the caller already pinned AGEATION_TTS) so lint_scene
+    runs on any project regardless of its final voice config.
     """
+    os.environ.setdefault("AGEATION_TTS", "gtts")
     from contextlib import contextmanager
     try:
         from manim_voiceover import VoiceoverScene
