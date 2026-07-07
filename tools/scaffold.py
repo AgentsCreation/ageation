@@ -188,7 +188,9 @@ def scaffold_script(root: str, manifest: dict, slug: str, force: bool) -> str:
               "normally starts after human review of the concept.")
 
     concepts = [c for c in (cfm.get("concepts") or []) if isinstance(c, dict)]
-    beat_ids = [c.get("id") for c in concepts if c.get("id")] or ["overview"]
+    # Coerce ids to str: YAML may parse `id: 123`/`id: true` as int/bool, which
+    # would crash class_name_for's re.split downstream.
+    beat_ids = [str(c["id"]) for c in concepts if c.get("id")] or ["overview"]
     if "overview" not in beat_ids:
         beat_ids.insert(0, "overview")
 
@@ -382,7 +384,7 @@ def scaffold_scene(root: str, manifest: dict, slug: str, force: bool) -> str:
         "",
     ]
     for i, beat in enumerate(beats):
-        beat_id = beat.get("id", f"beat{i}")
+        beat_id = str(beat.get("id", f"beat{i}"))
         cls = beat.get("scene_class") or class_name_for(beat_id)
         chunks = narrations.get(beat_id) or ["TODO narration."]
         lines += [
