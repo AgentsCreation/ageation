@@ -1,4 +1,4 @@
-# Auto-Manim Video Pipeline
+# Ageation Video Pipeline
 
 Turns a folder of LaTeX notes into short, narrated, linked Manim videos
 through a file-based, stage-gated pipeline. The goal is the *workflow*: a
