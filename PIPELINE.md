@@ -335,6 +335,16 @@ detectable by content hash (not git/mtime — those don't survive a clone):
   (`unstamped`); a hand-built scene that predates the script layer is marked
   `# derived_from: legacy …` (tolerated, visible).
 
+Alongside the per-concept `framework_commit` stamps, `stamp_provenance.py`
+writes one top-level **`BUILD.yaml`** at the project root — the canonical,
+human-readable record of which engine last built the project: `engine.version`
+(git `describe --tags --always`, so a release tag when one is reachable, else a
+bare commit hash, with a `-dirty` suffix), `engine.commit`,
+`engine.package_version` (from the engine's pyproject), `engine.dirty`, and the
+`built` date. It is generated, not hand-authored; refresh it by re-running the
+stamp. The per-file stamps still drive drift detection; `BUILD.yaml` is the
+at-a-glance summary.
+
 `tools/check_sync.py` re-hashes and reports four links per chapter:
 `upstream→local` (did the parent move? decide when to re-vendor),
 `local→concept`, `concept→script` (companion hashes fold into the first two —
