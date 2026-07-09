@@ -19,7 +19,9 @@ Rendering (on a machine with Manim installed; NOT the Cowork sandbox)
 --------------------------------------------------------------------
 Draft (free Google TTS, needs internet):
     uv run manim -pql scenes/discrete_random_variables.py ChapterOverview
-Final: switch make_speech_service() to OpenAIService (needs OPENAI_API_KEY).
+Final (1080p, the configured project voice from project.yaml -- no code change;
+the openai provider needs OPENAI_API_KEY):
+    uv run manim -pqh scenes/discrete_random_variables.py ChapterOverview
 """
 
 import os

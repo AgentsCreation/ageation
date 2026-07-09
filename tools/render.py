@@ -16,10 +16,12 @@ Usage:
   -q: l = 480p draft (default), m = 720p, h = 1080p60, k = 4K
 """
 
+import io
 import os
 import re
 import subprocess
 import sys
+import tokenize
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _project import project_parser, resolve_project, load_project, parse_dotenv
@@ -33,7 +35,26 @@ RENDERABLE = {"built", "rendered", "approved"}
 # the whole run. Voice is configuration -- scenes must call
 # _style.speech_service(). This preflight turns that latent hang into a clear
 # up-front error on the free draft path.
-OPENAI_SERVICE = re.compile(r"\bOpenAIService\s*\(")
+
+
+def constructs_openai_service(source: str) -> bool:
+    """True iff `source` actually calls OpenAIService(...) in code.
+
+    Tokenized rather than regex-matched so a mention inside a comment or
+    docstring (e.g. a "switch to OpenAIService" render note) never
+    false-positives -- only a real NAME `OpenAIService` immediately followed
+    by `(` counts. A bare `import OpenAIService` (no call) is also ignored.
+    Falls back to a conservative textual scan if the file won't tokenize.
+    """
+    try:
+        toks = list(tokenize.generate_tokens(io.StringIO(source).readline))
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        return bool(re.search(r"\bOpenAIService\s*\(", source))
+    for cur, nxt in zip(toks, toks[1:]):
+        if (cur.type == tokenize.NAME and cur.string == "OpenAIService"
+                and nxt.type == tokenize.OP and nxt.string == "("):
+            return True
+    return False
 
 # The engine repo (containing pyproject.toml and the manim-bearing venv)
 # is the parent directory of tools/. When a consumer project lives outside
@@ -125,7 +146,7 @@ def main():
             continue
         # Draft preflight: a hard-coded OpenAIService would hang the free
         # gtts render on an interactive key prompt. Fail fast with the fix.
-        if env.get("AGEATION_TTS") == "gtts" and OPENAI_SERVICE.search(
+        if env.get("AGEATION_TTS") == "gtts" and constructs_openai_service(
                 open(scene_path, encoding="utf-8").read()):
             print(f"!!! {slug}: {scene_file} constructs OpenAIService directly "
                   f"-- the gtts draft render would hang on a key prompt. "
