@@ -154,3 +154,7 @@ def test_write_build_yaml_is_parseable_and_stringifies_the_date(tmp_path):
     assert set(data["engine"]) == {"version", "commit", "package_version", "dirty"}
     assert data["engine"]["version"] == prov["version"]
     assert isinstance(data["engine"]["dirty"], bool)
+    # BUILD.yaml must report the version resolved ONCE at import, not a fresh
+    # recompute — otherwise stamping an in-repo project self-dirties the tree
+    # and BUILD.yaml spuriously disagrees with the per-concept stamps.
+    assert data["engine"]["version"] == stamp_provenance.FRAMEWORK
